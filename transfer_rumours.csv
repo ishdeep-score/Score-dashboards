@@ -1,81 +1,214 @@
-player_name,position,age,current_club,interested_club,contract_expiry_date,market_value,probability,updated_at
-Fran Topic,Right Winger,21,Zrinjski Mostar,Dinamo Zagreb,"Jun 30, 2025",€600k,98,2025-05-29 10:50:24
-Veljko Milosavljevic,Centre-Back,17,Red Star,Celtic,"Jun 30, 2027",€600k,98,2025-05-29 10:50:24
-Juan Giménez,Centre-Back,19,Rosario Central,Bor. Dortmund,"Dec 31, 2025",€3.00m,98,2025-05-29 10:50:24
-Ansu Fati,Left Winger,22,Barcelona,Monaco,"Jun 30, 2027",€5.00m,95,2025-05-29 10:50:24
-Jobe Bellingham,Central Midfield,19,Sunderland,Bor. Dortmund,"Jun 30, 2028",€22.00m,95,2025-05-29 10:50:24
-Milos Kerkez,Left-Back,21,Bournemouth,Liverpool,"Jun 30, 2028",€35.00m,94,2025-05-29 10:50:24
-Álvaro Carreras,Left-Back,22,Benfica,Real Madrid,"Jun 30, 2029",€28.00m,91,2025-05-29 10:50:24
-Lucas Chevalier,Goalkeeper,23,LOSC Lille,Aston Villa,"Jun 30, 2027",€30.00m,90,2025-05-29 10:50:24
-Jonathan Tah,Centre-Back,29,B. Leverkusen,Bayern Munich,"Jun 30, 2025",€30.00m,88,2025-05-29 10:50:24
-Theo Hernández,Left-Back,27,AC Milan,Al-Hilal,"Jun 30, 2026",€40.00m,87,2025-05-29 10:50:24
-Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Napoli,"Dec 31, 2028",€32.00m,87,2025-05-29 10:50:24
-Florian Wirtz,Attacking Midfield,22,B. Leverkusen,Liverpool,"Jun 30, 2027",€140.00m,83,2025-05-29 10:50:24
-David Strelec,Centre-Forward,24,Slo. Bratislava,Celtic,"Jun 30, 2028",€6.50m,83,2025-05-29 10:50:24
-Yuri Alberto,Centre-Forward,24,Corinthians,Sporting CP,"Dec 31, 2027",€16.00m,83,2025-05-29 10:50:24
-Matija Frigan,Centre-Forward,22,KVC Westerlo,Hamburger SV,"Jun 30, 2028",€5.00m,83,2025-05-29 10:50:24
-Matheus Cunha,Second Striker,26,Wolves,Man Utd,"Jun 30, 2029",€55.00m,82,2025-05-29 10:50:24
-Feisal Salum,Central Midfield,27,Azam FC,Kaizer Chiefs,-,€150k,80,2025-05-29 10:50:24
-Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Without Club,"Jun 30, 2025",€12.00m,78,2025-05-29 10:50:24
-Bence Ötvös,Defensive Midfield,27,Paksi FC,Ferencváros,"Jun 30, 2027",€700k,78,2025-05-29 10:50:24
-Zepiqueno Redmond,Centre-Forward,18,Feyenoord U21,Aston Villa,"Jun 30, 2025",€800k,75,2025-05-29 10:50:24
-Nico Paz,Attacking Midfield,20,Como,Real Madrid,"Jun 30, 2028",€35.00m,75,2025-05-29 10:50:24
-Alejandro Garnacho,Attacking Midfield,20,Man Utd,Napoli,"Jun 30, 2028",€45.00m,74,2025-05-29 10:50:24
-Moise Kean,Centre-Forward,25,Fiorentina,Man Utd,"Jun 30, 2029",€40.00m,69,2025-05-29 10:50:24
-Martín Zubimendi,Defensive Midfield,26,Real Sociedad,Arsenal,"Jun 30, 2027",€60.00m,69,2025-05-29 10:50:24
-Kevin De Bruyne,Attacking Midfield,33,Man City,Napoli,"Jun 30, 2025",€27.00m,68,2025-05-29 10:50:24
-Hugo Ekitiké,Centre-Forward,22,E. Frankfurt,Liverpool,"Jun 30, 2029",€55.00m,68,2025-05-29 10:50:24
-Bernardo Silva,Attacking Midfield,30,Man City,Galatasaray,"Jun 30, 2026",€45.00m,67,2025-05-29 10:50:24
-Viktor Gyökeres,Centre-Forward,26,Sporting CP,Arsenal,"Jun 30, 2028",€75.00m,66,2025-05-29 10:50:24
-David de Gea,Goalkeeper,34,Fiorentina,Monaco,"Jun 30, 2025",€5.00m,65,2025-05-29 10:50:24
-Fernando Beltrán,Central Midfield,27,Chivas,León,"Dec 31, 2026",€4.00m,65,2025-05-29 10:50:24
-Joan García,Goalkeeper,24,Espanyol,Arsenal,"Jun 30, 2028",€20.00m,63,2025-05-29 10:50:24
-Victor Osimhen,Centre-Forward,26,Napoli,Al-Hilal,"Jun 30, 2025",€70.00m,63,2025-05-29 10:50:24
-Luis Henrique,Right Winger,23,Marseille,Inter,"Jun 30, 2028",€18.00m,61,2025-05-29 10:50:24
-Veljko Ilic,Goalkeeper,21,FK TSC,Olympiacos,"Jun 30, 2026",€3.50m,61,2025-05-29 10:50:24
-Petar Stanic,Attacking Midfield,23,FK TSC,Vancouver,"Jun 25, 2026",€1.80m,60,2025-05-29 10:50:24
-Rayan Cherki,Right Winger,21,Olympique Lyon,Man Utd,"Jun 30, 2026",€35.00m,59,2025-05-29 10:50:24
-Darwin Núñez,Centre-Forward,25,Liverpool,Atlético Madrid,"Jun 30, 2028",€50.00m,59,2025-05-29 10:50:24
-Aliou Badji,Centre-Forward,27,Red Star FC,AS FAR Rabat,"Jun 30, 2025",€900k,58,2025-05-29 10:50:24
-Rayan Aït-Nouri,Left-Back,23,Wolves,Man City,"Jun 30, 2026",€35.00m,58,2025-05-29 10:50:24
-Bryan Mbeumo,Right Winger,25,Brentford,Man Utd,"Jun 30, 2026",€50.00m,57,2025-05-29 10:50:24
-Dávid Hancko,Centre-Back,27,Feyenoord,Al-Nassr,"Jun 30, 2028",€30.00m,57,2025-05-29 10:50:24
-Kevin De Bruyne,Attacking Midfield,33,Man City,Chicago,"Jun 30, 2025",€27.00m,55,2025-05-29 10:50:24
-Nikola Stevanovic,Centre-Back,26,Otelul Galati,CS U Craiova,"Jun 30, 2026",€650k,55,2025-05-29 10:50:24
-Brian Gutiérrez,Attacking Midfield,21,Chicago,AS Roma,"Dec 31, 2028",€4.00m,55,2025-05-29 10:50:24
-Tijjani Reijnders,Central Midfield,26,AC Milan,Man City,"Jun 30, 2030",€50.00m,54,2025-05-29 10:50:24
-Rayan Cherki,Right Winger,21,Olympique Lyon,Man City,"Jun 30, 2026",€35.00m,53,2025-05-29 10:50:24
-Joan García,Goalkeeper,24,Espanyol,Barcelona,"Jun 30, 2028",€20.00m,53,2025-05-29 10:50:24
-Nélson Semedo,Right-Back,31,Wolves,Man Utd,"Jun 30, 2025",€10.00m,53,2025-05-29 10:50:24
-Yassine Benzia,Attacking Midfield,30,Qarabag FK,Esperance,"Jun 30, 2025",€1.20m,50,2025-05-29 10:50:24
-Cristian Romero,Centre-Back,27,Tottenham,Atlético Madrid,"Jun 30, 2027",€55.00m,50,2025-05-29 10:50:24
-Mamoudou Karamoko,Centre-Forward,25,FC Copenhagen,Diósgyőr,"Jun 30, 2025",€400k,50,2025-05-29 10:50:24
-Eberechi Eze,Attacking Midfield,26,Crystal Palace,Tottenham,"Jun 30, 2027",€55.00m,47,2025-05-29 10:50:24
-Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Juventus,"Dec 31, 2028",€32.00m,47,2025-05-29 10:50:24
-Marcus Rashford,Left Winger,27,Man Utd,Barcelona,"Jun 30, 2025",€50.00m,47,2025-05-29 10:50:24
-Mateo Les,Centre-Back,25,HNK Gorica,Tractor,"Jun 30, 2026",€500k,45,2025-05-29 10:50:24
-Sindre Walle Egeli,Right Winger,18,Nordsjaelland,LOSC Lille,"Jun 30, 2028",€7.00m,45,2025-05-29 10:50:24
-Ahmed Adel Al-Bagoori,Goalkeeper,22,Al-Kharaitiyat,Ahly SC,"Jun 30, 2026",-,45,2025-05-29 10:50:24
-Eberechi Eze,Attacking Midfield,26,Crystal Palace,Liverpool,"Jun 30, 2027",€55.00m,42,2025-05-29 10:50:24
-Greg Taylor,Left-Back,27,Celtic,PAOK Salonika,"Jun 30, 2025",€6.50m,40,2025-05-29 10:50:24
-Eberechi Eze,Attacking Midfield,26,Crystal Palace,Arsenal,"Jun 30, 2027",€55.00m,40,2025-05-29 10:50:24
-Abubacarr Sedi Kinteh,Centre-Back,18,Tromsø,Slavia Prague,"Dec 31, 2029",-,40,2025-05-29 10:50:24
-Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Esperance,"Jun 30, 2025",€12.00m,39,2025-05-29 10:50:24
-Viktor Gyökeres,Centre-Forward,26,Sporting CP,Chelsea,"Jun 30, 2028",€75.00m,38,2025-05-29 10:50:24
-Luka Modrić,Central Midfield,39,Real Madrid,Miami,"Jun 30, 2025",€5.00m,37,2025-05-29 10:50:24
-Emam Ashour,Central Midfield,27,Ahly SC,NEOM SC,"Jun 30, 2028",€3.50m,37,2025-05-29 10:50:24
-Rayan Cherki,Right Winger,21,Olympique Lyon,Bor. Dortmund,"Jun 30, 2026",€35.00m,35,2025-05-29 10:50:24
-Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Monterrey,"Jun 30, 2025",€12.00m,34,2025-05-29 10:50:24
-Edon Zhegrova,Right Winger,26,LOSC Lille,Napoli,"Jun 30, 2026",€25.00m,33,2025-05-29 10:50:24
-Benjamin Sesko,Centre-Forward,21,RB Leipzig,Arsenal,"Jun 30, 2029",€65.00m,33,2025-05-29 10:50:24
-Adrian Przyborek,Right Winger,18,Pogon Szczecin,Real Betis,"Jun 30, 2027",€2.50m,33,2025-05-29 10:50:24
-Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Botafogo,"Jun 30, 2025",€12.00m,30,2025-05-29 10:50:24
-Thomas Müller,Second Striker,35,Bayern Munich,Dallas,"Jul 31, 2025",€6.00m,30,2025-05-29 10:50:24
-Márk Kovácsréti,Left Winger,24,Nyíregyháza,Puskás AFC,"Jun 30, 2027",€450k,30,2025-05-29 10:50:24
-Osman Bukari,Right Winger,26,Austin,Red Star,"Dec 31, 2027",€6.00m,25,2025-05-29 10:50:24
-Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Wydad AC,"Jun 30, 2025",€12.00m,24,2025-05-29 10:50:24
-Mathias Kvistgaarden,Centre-Forward,23,Bröndby IF,Celtic,"Jun 30, 2027",€8.00m,24,2025-05-29 10:50:24
-Joan García,Goalkeeper,24,Espanyol,Real Madrid,"Jun 30, 2028",€20.00m,22,2025-05-29 10:50:24
-Bart Verbruggen,Goalkeeper,22,Brighton,Barcelona,"Jun 30, 2028",€25.00m,21,2025-05-29 10:50:24
-Joan García,Goalkeeper,24,Espanyol,Man Utd,"Jun 30, 2028",€20.00m,13,2025-05-29 10:50:24
-Hugo Ekitiké,Centre-Forward,22,E. Frankfurt,Chelsea,"Jun 30, 2029",€55.00m,10,2025-05-29 10:50:24
+player_name,position,age,current_club,interested_club,contract_expiry_date,market_value,last_updated,probability,loaded_at
+Vojtech Novak,Attacking Midfield,23,Bohemians 1905,Ruzomberok,"Jun 30, 2025",€200k,30.05.2025 - 12:51,0,2025-05-30 11:21:20
+Lukas Kalvach,Defensive Midfield,29,Viktoria Plzen,Pafos FC,"Jun 30, 2025",€2.00m,30.05.2025 - 12:50,0,2025-05-30 11:21:20
+Lukas Kalvach,Defensive Midfield,29,Viktoria Plzen,Slo. Bratislava,"Jun 30, 2025",€2.00m,30.05.2025 - 12:49,30,2025-05-30 11:21:20
+David Strelec,Centre-Forward,24,Slo. Bratislava,Celtic,"Jun 30, 2028",€6.50m,30.05.2025 - 12:46,80,2025-05-30 11:21:20
+Jan Kuchta,Centre-Forward,28,FC Midtjylland,Sparta Prague,"Jun 30, 2025",€4.00m,30.05.2025 - 12:25,0,2025-05-30 11:21:20
+Mathias Kvistgaarden,Centre-Forward,23,Bröndby IF,West Ham,"Jun 30, 2027",€8.00m,30.05.2025 - 12:12,83,2025-05-30 11:21:20
+Diego Valdés,Attacking Midfield,31,América,Fortaleza,"Dec 31, 2026",€3.50m,30.05.2025 - 11:54,0,2025-05-30 11:21:20
+Gustavo Ferrareis,Right-Back,29,Puebla FC,Atlas,"Jun 30, 2025",€1.20m,30.05.2025 - 11:52,0,2025-05-30 11:21:20
+Federico Álvarez,Left-Back,30,Asteras Aktor,Tigre,"Jun 30, 2025",€400k,30.05.2025 - 11:50,0,2025-05-30 11:21:20
+Bálint Oláh,Defensive Midfield,30,Budafoki MTE,Kisvárda,-,€200k,30.05.2025 - 11:34,0,2025-05-30 11:21:20
+Márk Kovácsréti,Left Winger,24,Nyíregyháza,Újpest FC,"Jun 30, 2027",€450k,30.05.2025 - 11:32,0,2025-05-30 11:21:20
+Petar Stanic,Attacking Midfield,23,FK TSC,Újpest FC,"Jun 25, 2026",€1.80m,30.05.2025 - 11:29,0,2025-05-30 11:21:20
+Carlos Alcaraz,Central Midfield,22,Flamengo,Everton,"Jun 30, 2025",€14.00m,30.05.2025 - 11:28,98,2025-05-30 11:21:20
+Milos Pantovic,Centre-Forward,22,FK TSC,Újpest FC,"Jun 25, 2026",€3.50m,30.05.2025 - 11:27,0,2025-05-30 11:21:20
+Ángel Di María,Right Winger,37,Benfica,Rosario Central,"Jun 30, 2025",€2.00m,30.05.2025 - 11:27,78,2025-05-30 11:21:20
+Petar Stanic,Attacking Midfield,23,FK TSC,Újpest FC,"Jun 25, 2026",€1.80m,30.05.2025 - 11:29,0,2025-05-30 11:21:20
+Carlos Alcaraz,Central Midfield,22,Flamengo,Everton,"Jun 30, 2025",€14.00m,30.05.2025 - 11:28,98,2025-05-30 11:21:20
+Milos Pantovic,Centre-Forward,22,FK TSC,Újpest FC,"Jun 25, 2026",€3.50m,30.05.2025 - 11:27,0,2025-05-30 11:21:20
+Ángel Di María,Right Winger,37,Benfica,Rosario Central,"Jun 30, 2025",€2.00m,30.05.2025 - 11:27,78,2025-05-30 11:21:20
+Ezequiel Bonifacio,Right-Back,31,Banfield,Ind. Rivadavia,"Dec 31, 2025",€150k,30.05.2025 - 11:26,0,2025-05-30 11:21:20
+Ezequiel Bonifacio,Right-Back,31,Banfield,Ind. Rivadavia,"Dec 31, 2025",€150k,30.05.2025 - 11:26,0,2025-05-30 11:21:20
+Malcom Braida,Left-Back,28,San Lorenzo,Boca Juniors,"Dec 31, 2026",€4.00m,30.05.2025 - 11:25,0,2025-05-30 11:21:20
+Efraín Álvarez,Right Winger,22,Club Tijuana,Chivas,"Jun 30, 2026",€5.50m,30.05.2025 - 11:23,0,2025-05-30 11:21:20
+Juan José Purata,Centre-Back,27,Tigres UANL,Chivas,"Jun 30, 2025",€2.00m,30.05.2025 - 11:20,0,2025-05-30 11:21:20
+Eldar Civic,Left-Back,29,Ferencváros,Baltika,"Jun 30, 2025",€750k,30.05.2025 - 11:16,0,2025-05-30 11:21:20
+Florent Hadergjonaj,Right-Back,30,Alanyaspor,Persepolis,"Jun 30, 2025",€1.60m,30.05.2025 - 10:44,80,2025-05-30 11:21:20
+Vladimir Lucic,Left Winger,22,Red Star,OH Leuven,"Jun 30, 2025",€1.50m,30.05.2025 - 10:43,0,2025-05-30 11:21:20
+Balsa Popovic,Goalkeeper,24,OFK Beograd,Olympiacos,"Jun 30, 2026",€800k,30.05.2025 - 10:34,75,2025-05-30 11:21:20
+Franco Mastantuono,Attacking Midfield,17,River Plate,Paris SG,"Dec 31, 2026",€15.00m,30.05.2025 - 10:29,18,2025-05-30 11:21:20
+Kevin De Bruyne,Attacking Midfield,33,Man City,Napoli,"Jun 30, 2025",€27.00m,30.05.2025 - 10:24,68,2025-05-30 11:21:20
+Marquinhos,Right Winger,22,Arsenal,Cruzeiro,"Dec 31, 2025",€6.00m,30.05.2025 - 10:21,0,2025-05-30 11:21:20
+Kieran Morrison,Attacking Midfield,18,Liverpool U21,Wolves,-,-,30.05.2025 - 10:20,0,2025-05-30 11:21:20
+Gabri Veiga,Attacking Midfield,23,Al-Ahli,FC Porto,"Jun 30, 2026",€18.00m,30.05.2025 - 10:15,0,2025-05-30 11:21:20
+Tijjani Reijnders,Central Midfield,26,AC Milan,Man City,"Jun 30, 2030",€50.00m,30.05.2025 - 10:14,61,2025-05-30 11:21:20
+Zian Flemming,Centre-Forward,26,Millwall,Burnley,"Jun 30, 2025",€6.50m,30.05.2025 - 10:05,0,2025-05-30 11:21:20
+Jamie McGrath,Attacking Midfield,28,Aberdeen FC,Hibernian FC,"May 31, 2025",€1.20m,30.05.2025 - 10:04,0,2025-05-30 11:21:20
+Ross Doohan,Goalkeeper,27,Aberdeen FC,Celtic,"May 31, 2025",€250k,30.05.2025 - 10:02,0,2025-05-30 11:21:20
+Jack MacKenzie,Left-Back,25,Aberdeen FC,Plymouth,"May 31, 2025",€800k,30.05.2025 - 10:01,0,2025-05-30 11:21:20
+Daniel Cummings,Centre-Forward,19,Celtic B,West Ham,-,€250k,30.05.2025 - 09:59,0,2025-05-30 11:21:20
+Jadon Sancho,Left Winger,25,Man Utd,Chelsea,"Jun 30, 2025",€30.00m,30.05.2025 - 09:57,0,2025-05-30 11:21:20
+Bruno Fernandes,Attacking Midfield,30,Man Utd,Al-Hilal,"Jun 30, 2027",€55.00m,30.05.2025 - 09:36,31,2025-05-30 11:21:20
+Liam Delap,Centre-Forward,22,Ipswich,Chelsea,"Jun 30, 2029",€35.00m,30.05.2025 - 09:29,52,2025-05-30 11:21:20
+Cristian Romero,Centre-Back,27,Tottenham,Atlético Madrid,"Jun 30, 2027",€55.00m,30.05.2025 - 09:26,93,2025-05-30 11:21:20
+Cody Gakpo,Left Winger,26,Liverpool,Bayern Munich,"Jun 30, 2028",€70.00m,30.05.2025 - 09:25,0,2025-05-30 11:21:20
+Kaoru Mitoma,Left Winger,28,Brighton,Bayern Munich,"Jun 30, 2027",€45.00m,30.05.2025 - 09:25,100,2025-05-30 11:21:20
+Caoimhín Kelleher,Goalkeeper,26,Liverpool,West Ham,"Jun 30, 2026",€22.00m,30.05.2025 - 09:22,60,2025-05-30 11:21:20
+Matheus Cunha,Second Striker,26,Wolves,Man Utd,"Jun 30, 2029",€55.00m,30.05.2025 - 09:20,78,2025-05-30 11:21:20
+Nayef Aguerd,Centre-Back,29,West Ham,B. Leverkusen,"Jun 30, 2025",€25.00m,30.05.2025 - 08:44,0,2025-05-30 11:21:20
+Jonathan David,Centre-Forward,25,LOSC Lille,Napoli,"Jun 30, 2025",€45.00m,30.05.2025 - 08:42,39,2025-05-30 11:21:20
+Dragoș Albu,Defensive Midfield,24,FC U Craiova,FCV Farul,"Jun 30, 2025",€450k,30.05.2025 - 08:07,0,2025-05-30 11:21:20
+Efraín Álvarez,Right Winger,22,Club Tijuana,Chivas,"Jun 30, 2026",€5.50m,30.05.2025 - 04:41,0,2025-05-30 11:21:20
+Hamza Elowasti,Left Winger,30,Ittihad Tanger,Wydad AC,"Jun 30, 2025",€450k,30.05.2025 - 02:24,100,2025-05-30 11:21:20
+Seid Korac,Centre-Back,23,Vojvodina,OH Leuven,"Jun 30, 2027",€2.20m,30.05.2025 - 01:22,0,2025-05-30 11:21:20
+Theo Hernández,Left-Back,27,AC Milan,Al-Hilal,"Jun 30, 2026",€40.00m,30.05.2025 - 01:14,87,2025-05-30 11:21:20
+Borja Mayoral,Centre-Forward,28,Getafe,Monterrey,"Jun 30, 2027",€9.00m,30.05.2025 - 01:12,0,2025-05-30 11:21:20
+Álvaro Carreras,Left-Back,22,Benfica,Real Madrid,"Jun 30, 2029",€35.00m,30.05.2025 - 01:11,82,2025-05-30 11:21:20
+Joan García,Goalkeeper,24,Espanyol,Newcastle,"Jun 30, 2028",€20.00m,30.05.2025 - 01:08,0,2025-05-30 11:21:20
+Marc Guiu,Centre-Forward,19,Chelsea,Ipswich,"Jun 30, 2029",€8.00m,30.05.2025 - 01:07,0,2025-05-30 11:21:20
+Nélson Semedo,Right-Back,31,Wolves,Galatasaray,"Jun 30, 2025",€10.00m,30.05.2025 - 00:56,0,2025-05-30 11:21:20
+Ansu Fati,Left Winger,22,Barcelona,Monaco,"Jun 30, 2027",€5.00m,30.05.2025 - 00:54,95,2025-05-30 11:21:20
+Rayan Cherki,Right Winger,21,Olympique Lyon,Man City,"Jun 30, 2026",€35.00m,30.05.2025 - 00:53,48,2025-05-30 11:21:20
+Benjamin Sesko,Centre-Forward,21,RB Leipzig,Arsenal,"Jun 30, 2029",€65.00m,30.05.2025 - 00:31,47,2025-05-30 11:21:20
+Divin Mubama,Centre-Forward,20,Man City U21,LOSC Lille,-,€4.00m,30.05.2025 - 00:29,0,2025-05-30 11:21:20
+Divin Mubama,Centre-Forward,20,Man City U21,Ipswich,-,€4.00m,30.05.2025 - 00:27,0,2025-05-30 11:21:20
+Dávid Hancko,Centre-Back,27,Feyenoord,Al-Nassr,"Jun 30, 2028",€30.00m,30.05.2025 - 00:26,57,2025-05-30 11:21:20
+Joan García,Goalkeeper,24,Espanyol,Barcelona,"Jun 30, 2028",€20.00m,29.05.2025 - 23:43,53,2025-05-30 11:21:20
+Gonçalo Ramos,Centre-Forward,23,Paris SG,Liverpool,"Jun 30, 2028",€45.00m,29.05.2025 - 23:41,0,2025-05-30 11:21:20
+Roger,Right Winger,19,SC Braga,Benfica,"Jun 30, 2028",€22.00m,29.05.2025 - 23:34,0,2025-05-30 11:21:20
+Pedro Álvaro,Centre-Back,25,Estoril,Hellas Verona,"Jun 30, 2025",€2.00m,29.05.2025 - 23:32,0,2025-05-30 11:21:20
+Amad Diallo,Right Winger,22,Man Utd,Sunderland,"Jun 30, 2030",€40.00m,29.05.2025 - 20:59,40,2025-05-30 11:21:20
+Castello Lukeba,Centre-Back,22,RB Leipzig,Liverpool,"Jun 30, 2029",€50.00m,29.05.2025 - 20:56,0,2025-05-30 11:21:20
+Lorenzo Scipioni,Central Midfield,20,Tigre,Colorado,"Dec 31, 2026",€2.00m,29.05.2025 - 20:53,0,2025-05-30 11:21:20
+Rareș Pop,Right Winger,19,FC Rapid,Otelul Galati,"Jun 30, 2028",€750k,29.05.2025 - 19:42,65,2025-05-30 11:21:20
+Bryan González,Left-Back,22,Pachuca,Chivas,"Jun 30, 2027",€4.50m,29.05.2025 - 19:17,83,2025-05-30 11:21:20
+Sébastien Haller,Centre-Forward,30,Bor. Dortmund,Samsunspor,"Jun 30, 2025",€3.00m,29.05.2025 - 19:00,0,2025-05-30 11:21:20
+Bryan González,Left-Back,22,Pachuca,Chivas,"Jun 30, 2027",€4.50m,29.05.2025 - 19:17,83,2025-05-30 11:21:20
+Sébastien Haller,Centre-Forward,30,Bor. Dortmund,Samsunspor,"Jun 30, 2025",€3.00m,29.05.2025 - 19:00,0,2025-05-30 11:21:20
+Mile Svilar,Goalkeeper,25,AS Roma,Napoli,"Jun 30, 2027",€17.00m,29.05.2025 - 17:58,60,2025-05-30 11:21:20
+Barnabás Nagy,Left-Back,24,Nyíregyháza,Ferencváros,"Jun 30, 2026",€400k,29.05.2025 - 17:01,68,2025-05-30 11:21:20
+Karol Struski,Central Midfield,24,Aris Limassol,Raków,"May 31, 2026",€1.50m,29.05.2025 - 13:13,68,2025-05-30 11:21:20
+Morgan Ferrier,Centre-Forward,30,Omon. Aradippou,AEL Limassol,"May 31, 2025",€175k,29.05.2025 - 12:54,62,2025-05-30 11:21:20
+Uros Tegeltija,Right Winger,19,Red Star U19,Zelez. Pancevo,"Jun 30, 2025",-,29.05.2025 - 12:49,62,2025-05-30 11:21:20
+Claudy M'Buyi,Centre-Forward,25,SKN St. Pölten,Ahly SC,"Jun 30, 2026",€700k,29.05.2025 - 12:41,75,2025-05-30 11:21:20
+Claudy M'Buyi,Centre-Forward,25,SKN St. Pölten,Göztepe,"Jun 30, 2026",€700k,29.05.2025 - 12:40,10,2025-05-30 11:21:20
+Claudy M'Buyi,Centre-Forward,25,SKN St. Pölten,Rapid Vienna,"Jun 30, 2026",€700k,29.05.2025 - 12:39,23,2025-05-30 11:21:20
+Claudy M'Buyi,Centre-Forward,25,SKN St. Pölten,Legia Warszawa,"Jun 30, 2026",€700k,29.05.2025 - 12:39,58,2025-05-30 11:21:20
+Claudy M'Buyi,Centre-Forward,25,SKN St. Pölten,Slo. Bratislava,"Jun 30, 2026",€700k,29.05.2025 - 12:38,13,2025-05-30 11:21:20
+Veljko Ilic,Goalkeeper,21,FK TSC,Olympiacos,"Jun 30, 2026",€3.50m,29.05.2025 - 11:54,57,2025-05-30 11:21:20
+Dominik Holly,Central Midfield,21,Jablonec,Sparta Prague,-,€850k,29.05.2025 - 11:04,85,2025-05-30 11:21:20
+Róbert Boženík,Centre-Forward,25,Boavista,Vit. Guimarães,"Jun 30, 2026",€4.00m,29.05.2025 - 10:42,75,2025-05-30 11:21:20
+Yassine Benzia,Attacking Midfield,30,Qarabag FK,Esperance,"Jun 30, 2025",€1.20m,29.05.2025 - 09:57,35,2025-05-30 11:21:20
+Fernando Beltrán,Central Midfield,27,Chivas,León,"Dec 31, 2026",€4.00m,29.05.2025 - 09:00,65,2025-05-30 11:21:20
+Valentin Costache,Left Winger,26,UTA Arad,FC Dinamo,"Jun 30, 2025",€650k,29.05.2025 - 08:19,0,2025-05-30 11:21:20
+Saud Abdulhamid,Right-Back,25,AS Roma,Lens,"Jun 30, 2028",€4.00m,29.05.2025 - 01:07,73,2025-05-30 11:21:20
+Saud Abdulhamid,Right-Back,25,AS Roma,Toulouse,"Jun 30, 2028",€4.00m,29.05.2025 - 00:40,20,2025-05-30 11:21:20
+Luis Henrique,Right Winger,23,Marseille,Inter,"Jun 30, 2028",€18.00m,29.05.2025 - 00:33,61,2025-05-30 11:21:20
+Marcus Rashford,Left Winger,27,Man Utd,Barcelona,"Jun 30, 2025",€50.00m,29.05.2025 - 00:31,50,2025-05-30 11:21:20
+Lawrence Agyekum,Central Midfield,21,RB Salzburg,R. Strasbourg,"Jun 30, 2025",€1.50m,29.05.2025 - 00:23,0,2025-05-30 11:21:20
+Lawrence Agyekum,Central Midfield,21,RB Salzburg,Feyenoord,"Jun 30, 2025",€1.50m,29.05.2025 - 00:21,0,2025-05-30 11:21:20
+Sindre Walle Egeli,Right Winger,18,Nordsjaelland,LOSC Lille,"Jun 30, 2028",€7.00m,29.05.2025 - 00:20,51,2025-05-30 11:21:20
+Milos Kerkez,Left-Back,21,Bournemouth,Liverpool,"Jun 30, 2028",€35.00m,29.05.2025 - 00:19,95,2025-05-30 11:21:20
+Mark Flekken,Goalkeeper,31,Brentford,B. Leverkusen,"Jun 30, 2027",€10.00m,29.05.2025 - 00:16,0,2025-05-30 11:21:20
+Youssef Aït Bennasser,Defensive Midfield,28,Samsunspor,Wydad AC,"Jun 30, 2025",€1.20m,28.05.2025 - 21:50,70,2025-05-30 11:21:20
+Andrija Maksimovic,Attacking Midfield,17,Red Star,Paris SG,"Jun 30, 2027",€10.00m,28.05.2025 - 17:48,73,2025-05-30 11:21:20
+Abubacarr Sedi Kinteh,Centre-Back,18,Tromsø,Slavia Prague,"Dec 31, 2029",-,28.05.2025 - 17:44,60,2025-05-30 11:21:20
+Greg Taylor,Left-Back,27,Celtic,PAOK Salonika,"Jun 30, 2025",€6.50m,28.05.2025 - 14:46,40,2025-05-30 11:21:20
+Jordan Henderson,Defensive Midfield,34,Ajax,Sunderland,"Jun 30, 2026",€2.50m,28.05.2025 - 14:43,98,2025-05-30 11:21:20
+Jordan Henderson,Defensive Midfield,34,Ajax,Rangers,"Jun 30, 2026",€2.50m,28.05.2025 - 14:43,0,2025-05-30 11:21:20
+Leroy Sané,Right Winger,29,Bayern Munich,Tottenham,"Jun 30, 2025",€38.00m,28.05.2025 - 14:41,0,2025-05-30 11:21:20
+Daizen Maeda,Left Winger,27,Celtic,Fenerbahce,"May 31, 2027",€11.00m,28.05.2025 - 14:40,0,2025-05-30 11:21:20
+Youssef El Kachati,Centre-Forward,25,Telstar,Celtic,"Jun 30, 2025",€400k,28.05.2025 - 14:31,0,2025-05-30 11:21:20
+Yuri Alberto,Centre-Forward,24,Corinthians,Sporting CP,"Dec 31, 2027",€16.00m,28.05.2025 - 14:15,85,2025-05-30 11:21:20
+George Bello,Left-Back,23,LASK,Rangers,"Jun 30, 2026",€2.00m,28.05.2025 - 14:12,0,2025-05-30 11:21:20
+Omar Sijaric,Right Winger,23,Erzgebirge Aue,HNK Rijeka,"Jun 30, 2025",€300k,28.05.2025 - 14:12,0,2025-05-30 11:21:20
+Keita Kosugi,Left-Back,19,Djurgården,Atalanta BC,"Dec 31, 2027",€2.00m,28.05.2025 - 14:10,0,2025-05-30 11:21:20
+Keita Kosugi,Left-Back,19,Djurgården,Paris SG,"Dec 31, 2027",€2.00m,28.05.2025 - 14:09,0,2025-05-30 11:21:20
+Keita Kosugi,Left-Back,19,Djurgården,Celtic,"Dec 31, 2027",€2.00m,28.05.2025 - 14:09,0,2025-05-30 11:21:20
+Vaclav Cerny,Right Winger,27,VfL Wolfsburg,Trabzonspor,"Jun 30, 2025",€9.00m,28.05.2025 - 14:06,0,2025-05-30 11:21:20
+Oskar Fallenius,Right Winger,23,Djurgården,Celtic,"Dec 31, 2026",€400k,28.05.2025 - 13:30,0,2025-05-30 11:21:20
+Veljko Milosavljevic,Centre-Back,17,Red Star,Celtic,"Jun 30, 2027",€600k,28.05.2025 - 13:28,98,2025-05-30 11:21:20
+Lennon Miller,Central Midfield,18,Motherwell FC,Celtic,"May 31, 2026",€4.00m,28.05.2025 - 13:27,0,2025-05-30 11:21:20
+Million Manhoef,Right Winger,23,Stoke City,Celtic,"Jun 30, 2027",€3.80m,28.05.2025 - 13:27,0,2025-05-30 11:21:20
+Sondre Ørjasæter,Left Winger,21,Sarpsborg 08,Celtic,"Dec 31, 2028",€6.00m,28.05.2025 - 13:26,95,2025-05-30 11:21:20
+Raúl Moro,Left Winger,22,Real Valladolid,Celtic,"Jun 30, 2028",€5.00m,28.05.2025 - 13:25,0,2025-05-30 11:21:20
+Michel-Ange Balikwisha,Left Winger,24,Royal Antwerp,Celtic,"Jun 30, 2026",€5.50m,28.05.2025 - 13:24,0,2025-05-30 11:21:20
+Mathias Kvistgaarden,Centre-Forward,23,Bröndby IF,Celtic,"Jun 30, 2027",€8.00m,28.05.2025 - 13:23,24,2025-05-30 11:21:20
+Arne Engels,Central Midfield,21,FC Augsburg,Celtic,"Jun 30, 2028",€12.00m,28.05.2025 - 13:22,0,2025-05-30 11:21:20
+Soufiane El-Faouzi,Attacking Midfield,22,Alem. Aachen,Heart of Midl.,"Jun 30, 2026",€250k,28.05.2025 - 13:20,0,2025-05-30 11:21:20
+Nikola Stevanovic,Centre-Back,26,Otelul Galati,CS U Craiova,"Jun 30, 2026",€650k,28.05.2025 - 13:14,65,2025-05-30 11:21:20
+Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Wydad AC,"Jun 30, 2025",€12.00m,28.05.2025 - 13:07,28,2025-05-30 11:21:20
+Nordin Amrabat,Right Winger,38,Hull City,Wydad AC,"Jun 30, 2025",€150k,28.05.2025 - 13:05,95,2025-05-30 11:21:20
+Ludovit Reis,Central Midfield,24,Hamburger SV,Club Brugge,"Jun 30, 2026",€3.50m,28.05.2025 - 12:52,0,2025-05-30 11:21:20
+Evann Guessand,Centre-Forward,23,OGC Nice,Brighton,"Jun 30, 2028",€25.00m,28.05.2025 - 12:51,0,2025-05-30 11:21:20
+Kjell Peersman,Goalkeeper,21,PSV U21,KAA Gent,"Jun 30, 2025",€500k,28.05.2025 - 12:28,0,2025-05-30 11:21:20
+Axel Witsel,Centre-Back,36,Atlético Madrid,Standard Liège,"Jun 30, 2025",€2.50m,28.05.2025 - 12:27,0,2025-05-30 11:21:20
+Kjell Peersman,Goalkeeper,21,PSV U21,KAA Gent,"Jun 30, 2025",€500k,28.05.2025 - 12:28,0,2025-05-30 11:21:20
+Axel Witsel,Centre-Back,36,Atlético Madrid,Standard Liège,"Jun 30, 2025",€2.50m,28.05.2025 - 12:27,0,2025-05-30 11:21:20
+Ardon Jashari,Defensive Midfield,22,Club Brugge,Bor. Dortmund,"Jun 30, 2029",€25.00m,28.05.2025 - 12:24,0,2025-05-30 11:21:20
+Zoumana Keita,Centre-Back,19,Viktoria Köln,RSC Anderlecht,"Jun 30, 2027",€150k,28.05.2025 - 12:23,0,2025-05-30 11:21:20
+Nadir Zortea,Right Midfield,25,Cagliari,Fiorentina,"Jun 30, 2028",€4.50m,28.05.2025 - 11:58,0,2025-05-30 11:21:20
+Nadir Zortea,Right Midfield,25,Cagliari,Napoli,"Jun 30, 2028",€4.50m,28.05.2025 - 11:58,0,2025-05-30 11:21:20
+Miguel Gutiérrez,Left-Back,23,Girona,Atlético Madrid,"Jun 30, 2027",€25.00m,28.05.2025 - 11:56,0,2025-05-30 11:21:20
+Miguel Gutiérrez,Left-Back,23,Girona,Napoli,"Jun 30, 2027",€25.00m,28.05.2025 - 11:56,0,2025-05-30 11:21:20
+Miguel Gutiérrez,Left-Back,23,Girona,Juventus,"Jun 30, 2027",€25.00m,28.05.2025 - 11:55,0,2025-05-30 11:21:20
+Miguel Gutiérrez,Left-Back,23,Girona,AC Milan,"Jun 30, 2027",€25.00m,28.05.2025 - 11:55,0,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Benfica,"Dec 31, 2028",€32.00m,28.05.2025 - 11:53,98,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,FC Porto,"Dec 31, 2028",€32.00m,28.05.2025 - 11:53,60,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Brentford,"Dec 31, 2028",€32.00m,28.05.2025 - 11:52,53,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,West Ham,"Dec 31, 2028",€32.00m,28.05.2025 - 11:52,55,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Bournemouth,"Dec 31, 2028",€32.00m,28.05.2025 - 11:51,98,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Bournemouth,"Dec 31, 2028",€32.00m,28.05.2025 - 11:51,0,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Juventus,"Dec 31, 2028",€32.00m,28.05.2025 - 11:51,47,2025-05-30 11:21:20
+Georgiy Sudakov,Attacking Midfield,22,Shakhtar D.,Napoli,"Dec 31, 2028",€32.00m,28.05.2025 - 11:49,88,2025-05-30 11:21:20
+Victor Osimhen,Centre-Forward,26,Napoli,Al-Hilal,"Jun 30, 2025",€70.00m,28.05.2025 - 11:46,87,2025-05-30 11:21:20
+Marino Hinestroza,Right Winger,22,Atl. Nacional,Boca Juniors,"Dec 31, 2027",€4.00m,28.05.2025 - 11:45,0,2025-05-30 11:21:20
+Yuri Alberto,Centre-Forward,24,Corinthians,Fulham,"Dec 31, 2027",€16.00m,28.05.2025 - 11:44,0,2025-05-30 11:21:20
+Yuri Alberto,Centre-Forward,24,Corinthians,Wolves,"Dec 31, 2027",€16.00m,28.05.2025 - 11:44,0,2025-05-30 11:21:20
+Yuri Alberto,Centre-Forward,24,Corinthians,West Ham,"Dec 31, 2027",€16.00m,28.05.2025 - 11:43,0,2025-05-30 11:21:20
+Yuri Alberto,Centre-Forward,24,Corinthians,Forest,"Dec 31, 2027",€16.00m,28.05.2025 - 11:43,0,2025-05-30 11:21:20
+Rayan Cherki,Right Winger,21,Olympique Lyon,Bor. Dortmund,"Jun 30, 2026",€35.00m,28.05.2025 - 11:40,45,2025-05-30 11:21:20
+Rayan Cherki,Right Winger,21,Olympique Lyon,Man Utd,"Jun 30, 2026",€35.00m,28.05.2025 - 11:40,50,2025-05-30 11:21:20
+Rayan Cherki,Right Winger,21,Olympique Lyon,Chelsea,"Jun 30, 2026",€35.00m,28.05.2025 - 11:40,48,2025-05-30 11:21:20
+Nayef Aguerd,Centre-Back,29,West Ham,Real Sociedad,"Jun 30, 2025",€25.00m,28.05.2025 - 11:37,0,2025-05-30 11:21:20
+Diego Moreira,Left Midfield,20,R. Strasbourg,Juventus,"Jun 30, 2029",€10.00m,28.05.2025 - 11:36,0,2025-05-30 11:21:20
+Zepiqueno Redmond,Centre-Forward,18,Feyenoord U21,Aston Villa,"Jun 30, 2025",€800k,28.05.2025 - 11:35,75,2025-05-30 11:21:20
+Jorginho,Defensive Midfield,33,Arsenal,Flamengo,"Jun 30, 2025",€8.00m,28.05.2025 - 10:52,95,2025-05-30 11:21:20
+Florian Wirtz,Attacking Midfield,22,B. Leverkusen,Liverpool,"Jun 30, 2027",€140.00m,28.05.2025 - 10:50,83,2025-05-30 11:21:20
+Valentin Costache,Left Winger,26,UTA Arad,FC Hermannstadt,"Jun 30, 2025",€650k,28.05.2025 - 10:50,0,2025-05-30 11:21:20
+Amin Sarr,Centre-Forward,24,Olympique Lyon,Hellas Verona,"Jun 30, 2025",€4.00m,28.05.2025 - 10:49,0,2025-05-30 11:21:20
+Florin Ștefan,Left-Back,29,Sepsi OSK,FC Hermannstadt,"Jun 30, 2027",€900k,28.05.2025 - 10:49,0,2025-05-30 11:21:20
+Alexandru Crețu,Defensive Midfield,33,Al-Wehda,CFR Cluj,"Jun 30, 2026",€600k,28.05.2025 - 09:35,0,2025-05-30 11:21:20
+Alexandru Crețu,Defensive Midfield,33,Al-Wehda,FC Rapid,"Jun 30, 2026",€600k,28.05.2025 - 09:34,0,2025-05-30 11:21:20
+Tony Strata,Right-Back,20,AC Ajaccio,FC Dinamo,"Jun 30, 2027",€350k,28.05.2025 - 09:29,0,2025-05-30 11:21:20
+David Maftei,Right-Back,20,FCV Farul,FC Dinamo,-,€500k,28.05.2025 - 09:27,0,2025-05-30 11:21:20
+Andrei Dorobanțu,Right-Back,20,Unirea Slobozia,FCV Farul,-,€200k,28.05.2025 - 09:25,0,2025-05-30 11:21:20
+Bernardo Silva,Attacking Midfield,30,Man City,Galatasaray,"Jun 30, 2026",€45.00m,28.05.2025 - 09:01,67,2025-05-30 11:21:20
+Aliou Badji,Centre-Forward,27,Red Star FC,AS FAR Rabat,"Jun 30, 2025",€900k,28.05.2025 - 04:16,68,2025-05-30 11:21:20
+Eli Adams,Right Winger,23,Newcastle,Austria Vienna,"Jun 30, 2027",€250k,28.05.2025 - 03:58,0,2025-05-30 11:21:20
+Eli Adams,Right Winger,23,Newcastle,MK Dons,"Jun 30, 2027",€250k,28.05.2025 - 03:57,0,2025-05-30 11:21:20
+Florian Wirtz,Attacking Midfield,22,B. Leverkusen,Barcelona,"Jun 30, 2027",€140.00m,28.05.2025 - 03:26,0,2025-05-30 11:21:20
+Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Botafogo,"Jun 30, 2025",€12.00m,27.05.2025 - 22:39,21,2025-05-30 11:21:20
+Tarek Hamed,Defensive Midfield,36,Damac FC,Zamalek,"Jun 30, 2025",€300k,27.05.2025 - 22:36,0,2025-05-30 11:21:20
+Emam Ashour,Central Midfield,27,Ahly SC,NEOM SC,"Jun 30, 2028",€3.50m,27.05.2025 - 22:10,37,2025-05-30 11:21:20
+Ahmed Adel Al-Bagoori,Goalkeeper,22,Al-Kharaitiyat,Ahly SC,"Jun 30, 2026",-,27.05.2025 - 22:08,45,2025-05-30 11:21:20
+Luka Modrić,Central Midfield,39,Real Madrid,Miami,"Jun 30, 2025",€5.00m,27.05.2025 - 21:50,38,2025-05-30 11:21:20
+Luka Modrić,Central Midfield,39,Real Madrid,Al-Ettifaq,"Jun 30, 2025",€5.00m,27.05.2025 - 21:50,0,2025-05-30 11:21:20
+Luka Modrić,Central Midfield,39,Real Madrid,Al-Nassr,"Jun 30, 2025",€5.00m,27.05.2025 - 21:50,0,2025-05-30 11:21:20
+Morrison Agyemang,Centre-Back,20,HNK Sibenik,Charlotte,"Jun 30, 2027",€500k,27.05.2025 - 19:22,0,2025-05-30 11:21:20
+Rayan Aït-Nouri,Left-Back,23,Wolves,Man City,"Jun 30, 2026",€35.00m,27.05.2025 - 18:21,48,2025-05-30 11:21:20
+Cristiano Ronaldo,Centre-Forward,40,Al-Nassr,Without Club,"Jun 30, 2025",€12.00m,27.05.2025 - 17:45,75,2025-05-30 11:21:20
+Filip Stanković,Goalkeeper,23,Inter,Sassuolo,"Jun 30, 2025",€6.00m,27.05.2025 - 16:19,0,2025-05-30 11:21:20
+Sam Sutton,Left-Back,23,Wellington,Perth Glory,"Jun 30, 2025",€350k,27.05.2025 - 16:15,0,2025-05-30 11:21:20
+João Pedro,Centre-Forward,23,Brighton,Newcastle,"Jun 30, 2028",€50.00m,27.05.2025 - 15:46,0,2025-05-30 11:21:20
+Harry Darling,Centre-Back,25,Swansea,Rangers,"Jun 30, 2025",€3.50m,27.05.2025 - 15:42,0,2025-05-30 11:21:20
+Eberechi Eze,Attacking Midfield,26,Crystal Palace,Liverpool,"Jun 30, 2027",€55.00m,27.05.2025 - 15:17,42,2025-05-30 11:21:20
+Igor Paixão,Left Winger,24,Feyenoord,Barcelona,"Jun 30, 2029",€35.00m,27.05.2025 - 14:40,0,2025-05-30 11:21:20
+Emanuel Emegha,Centre-Forward,22,R. Strasbourg,Chelsea,"Jun 30, 2028",€20.00m,27.05.2025 - 14:36,0,2025-05-30 11:21:20
+Viktor Gyökeres,Centre-Forward,26,Sporting CP,Chelsea,"Jun 30, 2028",€75.00m,27.05.2025 - 14:34,38,2025-05-30 11:21:20
+Bart Verbruggen,Goalkeeper,22,Brighton,Barcelona,"Jun 30, 2028",€25.00m,27.05.2025 - 14:28,35,2025-05-30 11:21:20
+David de Gea,Goalkeeper,34,Fiorentina,Monaco,"Jun 30, 2025",€5.00m,27.05.2025 - 14:19,67,2025-05-30 11:21:20
+Kang-in Lee,Right Winger,24,Paris SG,Napoli,"Jun 30, 2028",€30.00m,27.05.2025 - 14:18,0,2025-05-30 11:21:20
+Richard Ledezma,Right-Back,24,PSV Eindhoven,Chivas,"Jun 30, 2025",€3.00m,21.05.2025 - 06:27,0,2025-05-30 11:21:20
+Jamie Vardy,Centre-Forward,38,Leicester,Charlotte,"Jun 30, 2025",€1.00m,18.05.2025 - 14:11,0,2025-05-30 11:21:20
+Brian Gutiérrez,Attacking Midfield,21,Chicago,AS Roma,"Dec 31, 2028",€4.00m,17.05.2025 - 10:47,55,2025-05-30 11:21:20
+Vincent Chyla,Central Midfield,21,Podbrezova,Seattle,"Jun 30, 2027",€250k,16.05.2025 - 19:15,0,2025-05-30 11:21:20
+Osman Bukari,Right Winger,26,Austin,Red Star,"Dec 31, 2027",€6.00m,16.05.2025 - 17:58,25,2025-05-30 11:21:20
+Thomas Müller,Second Striker,35,Bayern Munich,Dallas,"Jul 31, 2025",€6.00m,15.05.2025 - 12:24,30,2025-05-30 11:21:20
+Thomas Müller,Second Striker,35,Bayern Munich,LAFC,"Jul 31, 2025",€6.00m,15.05.2025 - 12:23,0,2025-05-30 11:21:20
+Pedro Vite,Central Midfield,23,Vancouver,AS Roma,"Dec 31, 2025",€5.00m,06.05.2025 - 21:30,0,2025-05-30 11:21:20
+Jonathan Gómez,Left-Back,21,PAOK Salonika,Chivas,"Jun 30, 2027",€800k,06.05.2025 - 18:23,0,2025-05-30 11:21:20
+Tahiel Jiménez,Centre-Forward,19,Santos U19,Royal Antwerp,-,€1.00m,03.05.2025 - 23:32,0,2025-05-30 11:21:20
+Kevin De Bruyne,Attacking Midfield,33,Man City,Chicago,"Jun 30, 2025",€27.00m,02.05.2025 - 17:44,55,2025-05-30 11:21:20
+Petar Stanic,Attacking Midfield,23,FK TSC,Vancouver,"Jun 25, 2026",€1.80m,01.05.2025 - 14:49,60,2025-05-30 11:21:20
