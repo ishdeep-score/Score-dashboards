@@ -9,8 +9,11 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 st.set_page_config(page_title="Tweet Performance Dashboard", layout="wide")
 
+import os
+
+
 @st.cache_data
-def load_data(csv_path="tweets.csv"):
+def load_data(csv_path="Tweets-Macrocosmos/tweets.csv"):
     return pd.read_csv(csv_path)
 
 df = load_data()
