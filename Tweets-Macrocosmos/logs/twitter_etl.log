@@ -20042,3 +20042,81 @@
     }
   }
 }
+2025-06-12 12:59:02,358 - INFO - Starting ETL pipeline in incremental mode
+2025-06-12 12:59:02,358 - INFO - Processing tweets from 2025-06-11T07:05:43Z
+2025-06-12 12:59:02,358 - INFO - Processing window: 2025-06-11T07:05:43Z to 2025-06-11T07:29:02Z
+2025-06-12 12:59:02,358 - INFO - Processing account: @webuildscore
+2025-06-12 12:59:02,358 - DEBUG - Making API call to URL: https://sn13.api.macrocosmos.ai/api/v1/on_demand_data_request
+2025-06-12 12:59:02,358 - DEBUG - Headers (API Key masked): {'Content-Type': application/json, 'X-API-KEY': ********}
+2025-06-12 12:59:02,358 - DEBUG - Request data: {
+  "source": "x",
+  "usernames": [
+    "@webuildscore"
+  ],
+  "limit": 1000,
+  "start_date": "2025-06-11T07:05:43Z",
+  "end_date": "2025-06-11T07:29:02Z"
+}
+2025-06-12 12:59:26,976 - DEBUG - Response status code: 200
+2025-06-12 12:59:26,976 - DEBUG - Response headers: {'Alt-Svc': 'h3=":443"; ma=2592000', 'Content-Length': '605', 'Content-Type': 'application/json', 'Date': 'Thu, 12 Jun 2025 07:25:26 GMT', 'Server': 'Caddy, uvicorn', 'X-Ratelimit-Limit': '100', 'X-Ratelimit-Remaining': '94', 'X-Ratelimit-Reset': '2025-06-12T08:25:59.641548'}
+2025-06-12 12:59:26,976 - DEBUG - Response content: {"status":"warning","data":[{"uri":"","datetime":"2025-06-12T07:25:59.636920+00:00","source":"X","label":null,"content":"","user":{"username":"","display_name":null,"id":null,"verified":null,"followers_count":null,"following_count":null},"tweet":{"id":null,"like_count":null,"retweet_count":null,"reply_count":null,"quote_count":null,"hashtags":[],"is_retweet":null,"is_reply":null,"is_quote":null,"conversation_id":null}}],"meta":{"miners_queried":5,"miners_responded":5,"verification_message":"Miners returned no data, but data was found. Results are from validator's direct check.","items_returned":1}}
+2025-06-12 12:59:26,976 - WARNING - API returned warning status: Miners returned no data, but data was found. Results are from validator's direct check.
+2025-06-12 12:59:26,976 - INFO - No valid tweets found for account @webuildscore in the specified time window
+2025-06-12 12:59:26,976 - INFO - No tweets found for @webuildscore in current window
+2025-06-12 12:59:26,976 - INFO - Processing account: @thedkingdao
+2025-06-12 12:59:26,976 - DEBUG - Making API call to URL: https://sn13.api.macrocosmos.ai/api/v1/on_demand_data_request
+2025-06-12 12:59:26,976 - DEBUG - Headers (API Key masked): {'Content-Type': application/json, 'X-API-KEY': ********}
+2025-06-12 12:59:26,976 - DEBUG - Request data: {
+  "source": "x",
+  "usernames": [
+    "@thedkingdao"
+  ],
+  "limit": 1000,
+  "start_date": "2025-06-11T07:05:43Z",
+  "end_date": "2025-06-11T07:29:02Z"
+}
+2025-06-12 12:59:51,809 - DEBUG - Response status code: 200
+2025-06-12 12:59:51,810 - DEBUG - Response headers: {'Alt-Svc': 'h3=":443"; ma=2592000', 'Content-Length': '605', 'Content-Type': 'application/json', 'Date': 'Thu, 12 Jun 2025 07:25:59 GMT', 'Server': 'Caddy, uvicorn', 'X-Ratelimit-Limit': '100', 'X-Ratelimit-Remaining': '92', 'X-Ratelimit-Reset': '2025-06-12T08:26:24.492966'}
+2025-06-12 12:59:51,811 - DEBUG - Response content: {"status":"warning","data":[{"uri":"","datetime":"2025-06-12T07:26:24.484136+00:00","source":"X","label":null,"content":"","user":{"username":"","display_name":null,"id":null,"verified":null,"followers_count":null,"following_count":null},"tweet":{"id":null,"like_count":null,"retweet_count":null,"reply_count":null,"quote_count":null,"hashtags":[],"is_retweet":null,"is_reply":null,"is_quote":null,"conversation_id":null}}],"meta":{"miners_queried":5,"miners_responded":5,"verification_message":"Miners returned no data, but data was found. Results are from validator's direct check.","items_returned":1}}
+2025-06-12 12:59:51,812 - WARNING - API returned warning status: Miners returned no data, but data was found. Results are from validator's direct check.
+2025-06-12 12:59:51,812 - INFO - No valid tweets found for account @thedkingdao in the specified time window
+2025-06-12 12:59:51,813 - INFO - No tweets found for @thedkingdao in current window
+2025-06-12 12:59:52,601 - INFO - Completed processing window, moving to 2025-06-11T07:29:02Z
+2025-06-12 12:59:52,602 - INFO - ETL Stats: {
+  "duration_seconds": 50.24377,
+  "tweets_per_second": 0.0,
+  "total_tweets": 0,
+  "total_api_calls": 2,
+  "errors": {},
+  "accounts": {
+    "@webuildscore": {
+      "tweets_processed": 0,
+      "api_calls": 1,
+      "errors": 0
+    },
+    "@thedkingdao": {
+      "tweets_processed": 0,
+      "api_calls": 1,
+      "errors": 0
+    }
+  }
+}
+2025-06-12 12:59:52,603 - INFO - ETL Stats: {
+  "duration_seconds": 50.244787,
+  "tweets_per_second": 0.0,
+  "total_tweets": 0,
+  "total_api_calls": 2,
+  "errors": {},
+  "accounts": {
+    "@webuildscore": {
+      "tweets_processed": 0,
+      "api_calls": 1,
+      "errors": 0
+    },
+    "@thedkingdao": {
+      "tweets_processed": 0,
+      "api_calls": 1,
+      "errors": 0
+    }
+  }
+}
