@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+matplotlib
+mplsoccer
+seaborn
+scipy
+highlight_text
+unidecode
+joblib
+psycopg2-binary

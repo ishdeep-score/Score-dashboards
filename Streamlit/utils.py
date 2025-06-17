@@ -23,9 +23,12 @@ from matplotlib import colormaps
 import joblib
 from unidecode import unidecode
 from scipy.ndimage import gaussian_filter
+import sqlite3
 
 
-font_path = r'C:\Users\acer\Documents\GitHub\IndianCitizen\ScorePredict\Score Logos-20241022T100701Z-001\Score Logos\Sora_Font\Sora-Regular.ttf'
+base_path = '/Users/ishdeepchadha/Documents/GitHub/Score/Football'
+# Set the path to the locally downloaded font file
+font_path = f'{base_path}/Sora_Font/Sora-Regular.ttf'
 font_prop = fm.FontProperties(fname=font_path)
 fm_sora = FontManager()
 
@@ -266,20 +269,19 @@ team_colors = {
 
 @st.cache_data
 
-def load_data(root_folder):
-    csv_files = glob.glob(os.path.join(root_folder, "**", "*.csv"), recursive=True)
-    dataframes = []
-    for file in csv_files:
-        try:
-            dfi = pd.read_csv(file)
-            dataframes.append(dfi)
-        except Exception as e:
-            st.error(f"Error reading {file}: {e}")
-    if dataframes:
-        df = pd.concat(dataframes, ignore_index=True)
-    else:
-        df = pd.DataFrame()  # empty fallback
-    return df, csv_files
+
+
+def load_data_from_db(league, season):
+    db_path = f'{base_path}/data extraction/score_football.db'
+    conn = sqlite3.connect(db_path)
+    # Adjust WHERE clause as per your table's columns for league and season
+    query = f"""
+        SELECT * FROM event_data
+        WHERE league = ? AND season = ?
+    """
+    df = pd.read_sql_query(query, conn, params=(league, season))
+    conn.close()
+    return df
 
 def highlight_higher(val, all_vals):
     return 'color: green; font-weight: bold' if val == max(all_vals) else ''
@@ -400,7 +402,7 @@ def cumulative_match_mins(events_df):
     events_out = pd.concat([events_out, match_events])
     return events_out
 
-def get_match_df(df, home_team, away_team,team_dict,team_colors):
+def get_match_df(df, home_team, away_team,team_colors):
     # Find matchId(s) where selected home_team was home ('h') AND away_team was away ('a')
     matching_matches = df[
         (df['teamName'] == home_team) & (df['h_a'] == 'h')
@@ -420,66 +422,11 @@ def get_match_df(df, home_team, away_team,team_dict,team_colors):
         selected_match_id = valid_match_ids[0]
 
         # Filter df to keep only events from this match
-        match_df = df[df['matchId'] == selected_match_id]
-
-        match_df['period'] = match_df['period'].replace({'FirstHalf': 1, 'SecondHalf': 2, 'FirstPeriodOfExtraTime': 3, 'SecondPeriodOfExtraTime': 4,
-                                     'PenaltyShootout': 5, 'PostGame': 14, 'PreMatch': 16})
-        match_df = cumulative_match_mins(match_df)
-        match_df = insert_ball_carries(match_df, min_carry_length=15, max_carry_length=60, min_carry_duration=4, max_carry_duration=10)
-        match_df = match_df.reset_index(drop=True)
-        match_df['index'] = range(1, len(match_df) + 1)
-        match_df = match_df[['index'] + [col for col in match_df.columns if col != 'index']]
-
-        df_base  = match_df
-        dfxT = df_base.copy()
-        dfxT['qualifiers'] = dfxT['qualifiers'].astype(str)
-        dfxT = dfxT[(~dfxT['qualifiers'].str.contains('Corner'))]
-        dfxT = dfxT[(dfxT['type'].isin(['Pass', 'Carry'])) & (dfxT['outcomeType']=='Successful')]
-
-
-        xT = pd.read_csv('https://raw.githubusercontent.com/mckayjohns/youtube-videos/main/data/xT_Grid.csv', header=None) # use this if you don't have your own xT value Grid
-        # xT = pd.read_csv("/content/xT_Grid.csv", header=None)    # use this if you have your own xT value Grid, then place your file path here
-        xT = np.array(xT)
-        xT_rows, xT_cols = xT.shape
-
-        dfxT['x1_bin_xT'] = pd.cut(dfxT['x'], bins=xT_cols, labels=False)
-        dfxT['y1_bin_xT'] = pd.cut(dfxT['y'], bins=xT_rows, labels=False)
-        dfxT['x2_bin_xT'] = pd.cut(dfxT['endX'], bins=xT_cols, labels=False)
-        dfxT['y2_bin_xT'] = pd.cut(dfxT['endY'], bins=xT_rows, labels=False)
-
-        dfxT['start_zone_value_xT'] = dfxT[['x1_bin_xT', 'y1_bin_xT']].apply(lambda x: xT[x[1]][x[0]], axis=1)
-        dfxT['end_zone_value_xT'] = dfxT[['x2_bin_xT', 'y2_bin_xT']].apply(lambda x: xT[x[1]][x[0]], axis=1)
-
-        dfxT['xT'] = dfxT['end_zone_value_xT'] - dfxT['start_zone_value_xT']
-        columns_to_drop = ['eventId', 'minute', 'second', 'teamId', 'x', 'y', 'expandedMinute', 'period', 'type', 'outcomeType', 'qualifiers', 'satisfiedEventsTypes', 'isTouch', 'playerId', 'endX', 'endY', 'blockedX', 'blockedY', 'goalMouthZ', 'goalMouthY', 'isShot', 'relatedEventId', 'relatedPlayerId', 'isGoal', 'cardType', 'isOwnGoal', 'cumulative_mins', 'Unnamed: 0', 'id', 'h_a', 'matchId', 'startDate', 'startTime', 'score', 'ftScore', 'htScore', 'etScore', 'venueName', 'maxMinute', 'playerName', 'shotBodyType', 'situation', 'shotSixYardBox', 'shotPenaltyArea', 'shotOboxTotal', 'shotOpenPlay', 'shotCounter', 'shotSetPiece', 'shotDirectCorner', 'shotOffTarget', 'shotOnPost', 'shotOnTarget', 'shotsTotal', 'shotBlocked', 'shotRightFoot', 'shotLeftFoot', 'shotHead', 'shotObp', 'goalSixYardBox', 'goalPenaltyArea', 'goalObox', 'goalOpenPlay', 'goalCounter', 'goalSetPiece', 'penaltyScored', 'goalOwn', 'goalNormal', 'goalRightFoot', 'goalLeftFoot', 'goalHead', 'goalObp', 'shortPassInaccurate', 'shortPassAccurate', 'passCorner', 'passCornerAccurate', 'passCornerInaccurate', 'passFreekick', 'passBack', 'passForward', 'passLeft', 'passRight', 'keyPassLong', 'keyPassShort', 'keyPassCross', 'keyPassCorner', 'keyPassThroughball', 'keyPassFreekick', 'keyPassThrowin', 'keyPassOther', 'assistCross', 'assistCorner', 'assistThroughball', 'assistFreekick', 'assistThrowin', 'assistOther', 'dribbleLost', 'dribbleWon', 'challengeLost', 'interceptionWon', 'clearanceHead', 'outfielderBlock', 'passCrossBlockedDefensive', 'outfielderBlockedPass', 'offsideGiven', 'offsideProvoked', 'foulGiven', 'foulCommitted', 'yellowCard', 'voidYellowCard', 'secondYellow', 'redCard', 'turnover', 'dispossessed', 'saveLowLeft', 'saveHighLeft', 'saveLowCentre', 'saveHighCentre', 'saveLowRight', 'saveHighRight', 'saveHands', 'saveFeet', 'saveObp', 'saveSixYardBox', 'savePenaltyArea', 'saveObox', 'keeperDivingSave', 'standingSave', 'closeMissHigh', 'closeMissHighLeft', 'closeMissHighRight', 'closeMissLeft', 'closeMissRight', 'shotOffTargetInsideBox', 'touches', 'assist', 'ballRecovery', 'clearanceEffective', 'clearanceTotal', 'clearanceOffTheLine', 'dribbleLastman', 'errorLeadsToGoal', 'errorLeadsToShot', 'intentionalAssist', 'interceptionAll', 'interceptionIntheBox', 'keeperClaimHighLost', 'keeperClaimHighWon', 'keeperClaimLost', 'keeperClaimWon', 'keeperOneToOneWon', 'parriedDanger', 'parriedSafe', 'collected', 'keeperPenaltySaved', 'keeperSaveInTheBox', 'keeperSaveTotal', 'keeperSmother', 'keeperSweeperLost', 'keeperMissed', 'passAccurate', 'passBackZoneInaccurate', 'passForwardZoneAccurate', 'passInaccurate', 'passAccuracy', 'cornerAwarded', 'passKey', 'passChipped', 'passCrossAccurate', 'passCrossInaccurate', 'passLongBallAccurate', 'passLongBallInaccurate', 'passThroughBallAccurate', 'passThroughBallInaccurate', 'passThroughBallInacurate', 'passFreekickAccurate', 'passFreekickInaccurate', 'penaltyConceded', 'penaltyMissed', 'penaltyWon', 'passRightFoot', 'passLeftFoot', 'passHead', 'sixYardBlock', 'tackleLastMan', 'tackleLost', 'tackleWon', 'cleanSheetGK', 'cleanSheetDL', 'cleanSheetDC', 'cleanSheetDR', 'cleanSheetDML', 'cleanSheetDMC', 'cleanSheetDMR', 'cleanSheetML', 'cleanSheetMC', 'cleanSheetMR', 'cleanSheetAML', 'cleanSheetAMC', 'cleanSheetAMR', 'cleanSheetFWL', 'cleanSheetFW', 'cleanSheetFWR', 'cleanSheetSub', 'goalConcededByTeamGK', 'goalConcededByTeamDL', 'goalConcededByTeamDC', 'goalConcededByTeamDR', 'goalConcededByTeamDML', 'goalConcededByTeamDMC', 'goalConcededByTeamDMR', 'goalConcededByTeamML', 'goalConcededByTeamMC', 'goalConcededByTeamMR', 'goalConcededByTeamAML', 'goalConcededByTeamAMC', 'goalConcededByTeamAMR', 'goalConcededByTeamFWL', 'goalConcededByTeamFW', 'goalConcededByTeamFWR', 'goalConcededByTeamSub', 'goalConcededOutsideBoxGoalkeeper', 'goalScoredByTeamGK', 'goalScoredByTeamDL', 'goalScoredByTeamDC', 'goalScoredByTeamDR', 'goalScoredByTeamDML', 'goalScoredByTeamDMC', 'goalScoredByTeamDMR', 'goalScoredByTeamML', 'goalScoredByTeamMC', 'goalScoredByTeamMR', 'goalScoredByTeamAML', 'goalScoredByTeamAMC', 'goalScoredByTeamAMR', 'goalScoredByTeamFWL', 'goalScoredByTeamFW', 'goalScoredByTeamFWR', 'goalScoredByTeamSub', 'aerialSuccess', 'duelAerialWon', 'duelAerialLost', 'offensiveDuel', 'defensiveDuel', 'bigChanceMissed', 'bigChanceScored', 'bigChanceCreated', 'overrun', 'successfulFinalThirdPasses', 'punches', 'penaltyShootoutScored', 'penaltyShootoutMissedOffTarget', 'penaltyShootoutSaved', 'penaltyShootoutSavedGK', 'penaltyShootoutConcededGK', 'throwIn', 'subOn', 'subOff', 'defensiveThird', 'midThird', 'finalThird', 'pos']
-        dfxT.drop(columns=columns_to_drop, inplace=True)
-
-        match_df = match_df.merge(dfxT, on='index', how='left')
-
-        match_df['x'] = match_df['x']*1.05
-        match_df['y'] = match_df['y']*0.68
-        match_df['endX'] = match_df['endX']*1.05
-        match_df['endY'] = match_df['endY']*0.68
-        match_df['goalMouthY'] = match_df['goalMouthY']*0.68
-
-        match_df['qualifiers'] = match_df['qualifiers'].astype(str)
-        # Calculating passing distance, to find out progressive pass, this will just show the distance reduced by a pass, then will be able to filter passes which has reduced distance value more than 10yds as a progressive pass
-        match_df['prog_pass'] = np.where((match_df['type'] == 'Pass'),
-                                np.sqrt((105 - match_df['x'])**2 + (34 - match_df['y'])**2) - np.sqrt((105 - match_df['endX'])**2 + (34 - match_df['endY'])**2), 0)
-        # Calculating carrying distance, to find out progressive carry, this will just show the distance reduced by a carry, then will be able to filter carries which has reduced distance value more than 10yds as a progressive carry
-        match_df['prog_carry'] = np.where((match_df['type'] == 'Carry'),
-                                    np.sqrt((105 - match_df['x'])**2 + (34 - match_df['y'])**2) - np.sqrt((105 - match_df['endX'])**2 + (34 - match_df['endY'])**2), 0)
-        match_df['pass_or_carry_angle'] = np.degrees(np.arctan2(match_df['endY'] - match_df['y'], match_df['endX'] - match_df['x']))
-
-        columns_to_drop2 = ['id']
-        match_df.drop(columns=columns_to_drop2, inplace=True)
-
-        match_df['period'] = match_df['period'].replace({1: 'FirstHalf', 2: 'SecondHalf', 3: 'FirstPeriodOfExtraTime', 4: 'SecondPeriodOfExtraTime',
-                                            5: 'PenaltyShootout', 14: 'PostGame', 16: 'PreMatch'})
-
-        match_df['teamName'] = match_df['teamId'].map(team_dict)
-        match_df['teamColor'] = match_df['teamName'].map(team_colors)
+        match_df = df[df['matchId'] == selected_match_id].copy()
         match_df = match_df.sort_values(by='index').reset_index(drop=True)
+
+        match_df['teamColor'] = match_df['teamName'].map(team_colors)
+        
 
         match_df['event_time'] = match_df['minute'] * 60 + match_df['second']
 
@@ -2065,45 +2012,6 @@ def calculate_angle(x, y,GOAL_X,GOAL_Y):
 
 def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text_color,background,situation):
 
-    xgb_model = joblib.load('C://Users//acer//Documents//GitHub//IndianCitizen//ScorePredict//notebooks//xgboost_xg_model.pkl')
-
-    # Filter shot events
-    shot_events = ['SavedShot', 'MissedShots', 'ShotOnPost', 'Goal']
-    df = df[df['type'].isin(shot_events)].copy()
-
-    # Compute distance
-    GOAL_X = 105
-    GOAL_Y = 34
-    df['shot_distance'] = np.sqrt((GOAL_X - df['x'])**2 + (GOAL_Y - df['y'])**2)
-
-    df['shot_angle'] = df.apply(lambda row: calculate_angle(row['x'], row['y'],GOAL_X,GOAL_Y), axis=1)
-
-    # Fill missing shotBodyType and one-hot encode
-    df['shotBodyType'] = df['shotBodyType'].fillna('Unknown')
-    df = pd.get_dummies(df, columns=['shotBodyType'], drop_first=True)
-
-    
-    # Use same features as training
-    training_features = ['shot_distance', 'shot_angle', 'shotOpenPlay', 'shotCounter', 
-                        'shotSetPiece', 'shotDirectCorner'] + \
-                        [col for col in xgb_model.get_booster().feature_names if col.startswith('shotBodyType_')]
-
-    # Add any missing columns (if some shotBodyType dummies didn’t appear in this match)
-    for col in training_features:
-        if col not in df.columns:
-            df[col] = 0
-
-
-    # Reorder columns
-    X_match = df[training_features]
-
-    # Ensure these columns are proper booleans
-    bool_cols = ['shotOpenPlay', 'shotCounter', 'shotSetPiece', 'shotDirectCorner']
-    for col in bool_cols:
-        X_match[col] = X_match[col].astype(bool)
-
-    df['xG'] = xgb_model.predict_proba(X_match)[:, 1]
-
     if situation == 'All':
         mask1 = ((df['teamName'] == hteam)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
         mask2 = ((df['teamName'] == ateam)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
@@ -2184,19 +2092,19 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
     pitch.annotate('Blocked', xy=(98,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs['pitch'], ha='center', va='center')
 
     #pitch.annotate('ShotMap', xy=(1, 75),fontproperties=font_prop, fontsize=80,color=text_color,ax=axs['pitch'], ha='left', va='center')
+    '''
+    hteam_img = mpimg.imread(f'{base_path}/TeamLogos/{hteam}.png')
+    if hteam_img:
+        ax_image = add_image(
+            hteam_img, fig, left=0.35, bottom=0.65, width=0.12, height=0.12,aspect='equal'
+        )
 
-    hteam_img = mpimg.imread(f'C:\\Users\\acer\\Documents\\GitHub\\IndianCitizen\\ScorePredict\\Images\\TeamLogos\\{hteam}.png')
-
-    ax_image = add_image(
-        hteam_img, fig, left=0.35, bottom=0.65, width=0.12, height=0.12,aspect='equal'
-    )
-
-    ateam_img = mpimg.imread(f'C:\\Users\\acer\\Documents\\GitHub\\IndianCitizen\\ScorePredict\\Images\\TeamLogos\\{ateam}.png')
-
-    ax_image = add_image(
-        ateam_img, fig, left=0.52, bottom=0.65, width=0.12, height=0.12,aspect='equal'
-    )
-
+    ateam_img = mpimg.imread(f'{base_path}/TeamLogos/{ateam}.png')
+    if ateam_img:
+        ax_image = add_image(
+            ateam_img, fig, left=0.52, bottom=0.65, width=0.12, height=0.12,aspect='equal'
+        )
+    '''
     h_xg = round(home_shots_df['xG'].sum(),2)
     a_xg = round(away_shots_df['xG'].sum(),2)
     summary_data = {

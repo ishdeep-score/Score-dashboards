@@ -3,8 +3,8 @@ import random
 import streamlit as st
 import pandas as pd
 import os,glob
-from st_aggrid import AgGrid
-from st_aggrid.grid_options_builder import GridOptionsBuilder
+#from st_aggrid import AgGrid
+#from st_aggrid.grid_options_builder import GridOptionsBuilder
 import psycopg2
 
 
@@ -252,8 +252,9 @@ team_colors = {
     'Italy': '#008C45'
     }
 
+base_path = '/Users/ishdeepchadha/Documents/GitHub/Score/Football'
 # Set the path to the locally downloaded font file
-font_path = r'C:\Users\acer\Documents\GitHub\IndianCitizen\ScorePredict\Score Logos-20241022T100701Z-001\Score Logos\Sora_Font\Sora-Regular.ttf'
+font_path = f'{base_path}/Sora_Font/Sora-Regular.ttf'
 
 # Add the font to matplotlib
 font_prop = fm.FontProperties(fname=font_path)
@@ -274,8 +275,7 @@ league = st.selectbox(
     index=0
 )
 
-if league == 'Champions League':
-    season = st.selectbox('Select Season',['2024_25', '2023_24'],index=0)
+season = st.selectbox('Select Season',['2025:26','2024:25'],index=0)
 
 league_mapping = {
     'Premier League': 'premier-league',
@@ -288,20 +288,20 @@ league_mapping = {
     'Nations League': 'uefa-nations-league-a'
 }
 
+
+
 # Use the mapping directly
 mapped_league = league_mapping[league]
 
-root_folder = f"D:/Scrape-Whoscored-Event-Data/data/{mapped_league}/"
-if league == 'Champions League':
-    root_folder = f"D:/Scrape-Whoscored-Event-Data/data/{mapped_league}/{season}/"
-
-df, csv_files = load_data(root_folder)
+# Load data from SQLite database
+df = load_data_from_db(mapped_league, season)
 
 if df.empty:
-    st.warning("No valid data could be loaded from CSV files.")
+    st.warning("No valid data could be loaded from the database.")
     st.stop()
 
-df,teams = get_team_names(df,team_dict,team_colors)
+#df,teams = get_team_names(df,team_dict,team_colors)
+teams = df['teamName'].unique().tolist()
 col1, col2 = st.columns(2)
 
 with col1:
@@ -310,8 +310,8 @@ with col1:
 with col2:
     away_team = st.selectbox('Select Away Team', teams, index=0)
 
-
-match_df = get_match_df(df, home_team, away_team,team_dict,team_colors)
+#st.dataframe(df[df['subOn'] != 0][['index','matchId','startDate','teamName','playerName','type','situation']], width=1000)
+match_df = get_match_df(df, home_team, away_team,team_colors)
 #match_df = match_df.sort_values(by='id').reset_index(drop=True)
 home_team_col = match_df[match_df['teamName'] == home_team]['teamColor'].unique()[0]
 away_team_col = match_df[match_df['teamName'] == away_team]['teamColor'].unique()[0]
@@ -331,13 +331,13 @@ if theme == '🌙 Dark':
     background = "#010b14"
     line_color = 'white'
     text_color = 'white'
-    logo = mpimg.imread('C:/Users/acer/Documents/GitHub/IndianCitizen/ScorePredict/Score Logos-20241022T100701Z-001/Score Logos/ScoreSquareWhite.png')
+    logo = mpimg.imread(f'{base_path}/ScoreSquareWhite.png')
 
 else:
     background = "#FFFFFF"
     line_color = 'black'
     text_color = 'black'
-    logo = mpimg.imread('C:/Users/acer/Documents/GitHub/IndianCitizen/ScorePredict/Score Logos-20241022T100701Z-001/Score Logos/ScoreSquareDark.png')
+    logo = mpimg.imread(f'{base_path}/ScoreSquareDark.png')
 
 
 if viz == 'Shots':
@@ -376,6 +376,7 @@ if viz == 'Shots':
 
 if viz == 'In Possession':
     st.markdown("## Passing Network and Pass Combination Matrix")
+    #st.dataframe(match_df[match_df['subOff'] != 0][['index','matchId','minute','second','event_time','playerName','isFirstEleven']], width=1000)
     passes_df = get_passes_df(match_df)
     team = st.radio('',options=[home_team, away_team],index=0,horizontal=True, label_visibility='collapsed')
     fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,15))
