@@ -20976,3 +20976,2323 @@
     }
   }
 }
+2025-06-18 12:17:48,484 - INFO - Starting ETL pipeline in incremental mode
+2025-06-18 12:17:48,484 - INFO - Processing tweets from 2025-06-12T07:29:02Z
+2025-06-18 12:17:48,484 - INFO - Processing window: 2025-06-12T07:29:02Z to 2025-06-17T06:47:48Z
+2025-06-18 12:17:48,484 - INFO - Processing account: @webuildscore
+2025-06-18 12:17:48,484 - DEBUG - Making API call to URL: https://sn13.api.macrocosmos.ai/api/v1/on_demand_data_request
+2025-06-18 12:17:48,484 - DEBUG - Headers (API Key masked): {'Content-Type': application/json, 'X-API-KEY': ********}
+2025-06-18 12:17:48,484 - DEBUG - Request data: {
+  "source": "x",
+  "usernames": [
+    "@webuildscore"
+  ],
+  "limit": 1000,
+  "start_date": "2025-06-12T07:29:02Z",
+  "end_date": "2025-06-17T06:47:48Z"
+}
+2025-06-18 12:17:56,017 - DEBUG - Response status code: 200
+2025-06-18 12:17:56,017 - DEBUG - Response headers: {'Alt-Svc': 'h3=":443"; ma=2592000', 'Content-Length': '15909', 'Content-Type': 'application/json', 'Date': 'Wed, 18 Jun 2025 06:47:49 GMT', 'Server': 'Caddy, uvicorn', 'X-Ratelimit-Limit': '100', 'X-Ratelimit-Remaining': '98', 'X-Ratelimit-Reset': '2025-06-18T07:47:55.520080'}
+2025-06-18 12:17:56,018 - DEBUG - Response content: {"status":"success","data":[{"uri":"https://x.com/webuildscore/status/1934594762058633725","datetime":"2025-06-16T12:51:48+00:00","source":"X","label":null,"content":"The Most Defensive Champions 🛡️\n\nNapoli were the most defensive team among all Top 5 league winners - the only champion with under 2 goals and fewer than 10 chances created per game.\n\nTheir compact style paid off: just 1.4 goals conceded per 90, second only to PSG (1.26). 🔽","user":{"username":"webuildscore","display_name":"Score","id":"1816264150755979264","verified":false,"followers_count":4930,"following_count":614},"tweet":{"id":"1934594762058633725","like_count":9,"retweet_count":1,"reply_count":2,"quote_count":0,"hashtags":[],"is_retweet":false,"is_reply":false,"is_quote":false,"conversation_id":"1934594762058633725"},"media":[{"url":"https://pbs.twimg.com/media/GtkPcnSWUAA_7gT.jpg","type":"photo"}]},{"uri":"https://x.com/webuildscore/status/1934207025753256205","datetime":"2025-06-15T11:11:05+00:00","source":"X
+2025-06-18 12:17:56,018 - INFO - Found 18 valid tweets in response
+2025-06-18 12:17:56,019 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1934594762058633725",
+  "datetime": "2025-06-16T12:51:48+00:00",
+  "source": "X",
+  "label": null,
+  "content": "The Most Defensive Champions \ud83d\udee1\ufe0f\n\nNapoli were the most defensive team among all Top 5 league winners - the only champion with under 2 goals and fewer than 10 chances created per game.\n\nTheir compact style paid off: just 1.4 goals conceded per 90, second only to PSG (1.26). \ud83d\udd3d",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1934594762058633725",
+    "like_count": 9,
+    "retweet_count": 1,
+    "reply_count": 2,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1934594762058633725"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtkPcnSWUAA_7gT.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,019 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934594762058633725",
+  "uri": "https://x.com/webuildscore/status/1934594762058633725",
+  "datetime": "2025-06-16T12:51:48Z",
+  "content": "The Most Defensive Champions \ud83d\udee1\ufe0f\n\nNapoli were the most defensive team among all Top 5 league winners - the only champion with under 2 goals and fewer than 10 chances created per game.\n\nTheir compact style paid off: just 1.4 goals conceded per 90, second only to PSG (1.26). \ud83d\udd3d",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 9,
+  "retweet_count": 1,
+  "reply_count": 2,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1934594762058633725",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,021 - DEBUG - Processed tweet 1934594762058633725
+2025-06-18 12:17:56,021 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933495090150060189",
+  "datetime": "2025-06-13T12:02:06+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Guess the player \ud83d\udc40\n\nOne of the most dangerous forwards in Europe this season. Quick, technical, and ice-cold in front of goal - a nightmare for defenders.\n\nHint: Premier League \ud83e\udd14",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933495090150060189",
+    "like_count": 34,
+    "retweet_count": 1,
+    "reply_count": 9,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933495090150060189"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtUnX5HWMAAunKn.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,021 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933495090150060189",
+  "uri": "https://x.com/webuildscore/status/1933495090150060189",
+  "datetime": "2025-06-13T12:02:06Z",
+  "content": "Guess the player \ud83d\udc40\n\nOne of the most dangerous forwards in Europe this season. Quick, technical, and ice-cold in front of goal - a nightmare for defenders.\n\nHint: Premier League \ud83e\udd14",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 34,
+  "retweet_count": 1,
+  "reply_count": 9,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933495090150060189",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,021 - DEBUG - Processed tweet 1933495090150060189
+2025-06-18 12:17:56,021 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933147390275407928",
+  "datetime": "2025-06-12T13:00:28+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Score at @VivaTech\n\nWe joined Europe\u2019s biggest tech &amp; startup event to discuss the future of decentralised AI and the role of Bittensor in powering AI innovation.",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933147390275407928",
+    "like_count": 4,
+    "retweet_count": 0,
+    "reply_count": 2,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": true,
+    "conversation_id": "1933147383262548430",
+    "in_reply_to": {
+      "user_id": "1816264150755979264"
+    }
+  }
+}
+2025-06-18 12:17:56,021 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933147390275407928",
+  "uri": "https://x.com/webuildscore/status/1933147390275407928",
+  "datetime": "2025-06-12T13:00:28Z",
+  "content": "Score at @VivaTech\n\nWe joined Europe\u2019s biggest tech &amp; startup event to discuss the future of decentralised AI and the role of Bittensor in powering AI innovation.",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 4,
+  "retweet_count": 0,
+  "reply_count": 2,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": true,
+  "conversation_id": "1933147383262548430",
+  "in_reply_to_user_id": "1816264150755979264",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,022 - DEBUG - Processed tweet 1933147390275407928
+2025-06-18 12:17:56,022 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1932845676440019397",
+  "datetime": "2025-06-11T17:01:34+00:00",
+  "source": "X",
+  "label": "#TAO",
+  "content": "A big day for @webuildscore\n\nAfter wrapping up the final day at @proofoftalk, our CEO @mxmsbt took the stage again at @VivaTech - Europe\u2019s biggest tech &amp; startup event, to spread the word on Bittensor and how Score is building collaborative, decentralised AI. $TAO",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1932845676440019397",
+    "like_count": 114,
+    "retweet_count": 16,
+    "reply_count": 5,
+    "quote_count": 4,
+    "hashtags": [
+      "#TAO"
+    ],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1932845676440019397"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtLYx1vWAAEBu3_.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,022 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1932845676440019397",
+  "uri": "https://x.com/webuildscore/status/1932845676440019397",
+  "datetime": "2025-06-11T17:01:34Z",
+  "content": "A big day for @webuildscore\n\nAfter wrapping up the final day at @proofoftalk, our CEO @mxmsbt took the stage again at @VivaTech - Europe\u2019s biggest tech &amp; startup event, to spread the word on Bittensor and how Score is building collaborative, decentralised AI. $TAO",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 114,
+  "retweet_count": 16,
+  "reply_count": 5,
+  "quote_count": 4,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1932845676440019397",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,022 - DEBUG - Processed tweet 1932845676440019397
+2025-06-18 12:17:56,022 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933147383262548430",
+  "datetime": "2025-06-12T13:00:26+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Score Weekly Roundup\n\nBig announcements, major events, and even bigger things ahead.\n\nHere\u2019s a quick recap of everything that happened this week \u2935\ufe0f\n\n1/5 \ud83e\uddf5",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933147383262548430",
+    "like_count": 54,
+    "retweet_count": 4,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933147383262548430"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtPqZ3xXMAATHCq.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,022 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933147383262548430",
+  "uri": "https://x.com/webuildscore/status/1933147383262548430",
+  "datetime": "2025-06-12T13:00:26Z",
+  "content": "Score Weekly Roundup\n\nBig announcements, major events, and even bigger things ahead.\n\nHere\u2019s a quick recap of everything that happened this week \u2935\ufe0f\n\n1/5 \ud83e\uddf5",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 54,
+  "retweet_count": 4,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933147383262548430",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,023 - DEBUG - Processed tweet 1933147383262548430
+2025-06-18 12:17:56,023 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933840126100025651",
+  "datetime": "2025-06-14T10:53:09+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Tijjani Reijnders to Manchester City confirmed \ud83d\udd35\n\nReijnders recorded 524 touches in the final third last season and 77 shots (8th among midfielders), offering control and attacking drive suited to Guardiola\u2019s system. \n\nHow do you see Reijnders fitting into City\u2019s setup?",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933840126100025651",
+    "like_count": 15,
+    "retweet_count": 0,
+    "reply_count": 0,
+    "quote_count": 1,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933840126100025651"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtZg3YKXsAAB2xk.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,024 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933840126100025651",
+  "uri": "https://x.com/webuildscore/status/1933840126100025651",
+  "datetime": "2025-06-14T10:53:09Z",
+  "content": "Tijjani Reijnders to Manchester City confirmed \ud83d\udd35\n\nReijnders recorded 524 touches in the final third last season and 77 shots (8th among midfielders), offering control and attacking drive suited to Guardiola\u2019s system. \n\nHow do you see Reijnders fitting into City\u2019s setup?",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 15,
+  "retweet_count": 0,
+  "reply_count": 0,
+  "quote_count": 1,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933840126100025651",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,025 - DEBUG - Processed tweet 1933840126100025651
+2025-06-18 12:17:56,025 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933547131287347495",
+  "datetime": "2025-06-13T15:28:54+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Finding Football\u2019s \u2018Move 37\u2019 \ud83d\udd0d\n\nThe game of Go once seemed too complex for machines - until AlphaGo made the impossible move.\n\nFootball has its own version of \u2018Move 37\u2019, and @webuildscore is building the AI to find it.\n\nRead more \ud83d\udd3d",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933547131287347495",
+    "like_count": 25,
+    "retweet_count": 4,
+    "reply_count": 0,
+    "quote_count": 1,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1933547131287347495"
+  }
+}
+2025-06-18 12:17:56,025 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933547131287347495",
+  "uri": "https://x.com/webuildscore/status/1933547131287347495",
+  "datetime": "2025-06-13T15:28:54Z",
+  "content": "Finding Football\u2019s \u2018Move 37\u2019 \ud83d\udd0d\n\nThe game of Go once seemed too complex for machines - until AlphaGo made the impossible move.\n\nFootball has its own version of \u2018Move 37\u2019, and @webuildscore is building the AI to find it.\n\nRead more \ud83d\udd3d",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 25,
+  "retweet_count": 4,
+  "reply_count": 0,
+  "quote_count": 1,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1933547131287347495",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,025 - DEBUG - Processed tweet 1933547131287347495
+2025-06-18 12:17:56,025 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933095833718710280",
+  "datetime": "2025-06-12T09:35:36+00:00",
+  "source": "X",
+  "label": null,
+  "content": "This season\u2019s top xA overachievers \ud83c\udfaf\n\nSalah, Kane, and Vinicius all registered significantly more assists than expected, a result of teammates consistently converting even low-quality chances into goals.\n\nGood passes + even better finishing.\ud83d\udd3d",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933095833718710280",
+    "like_count": 27,
+    "retweet_count": 1,
+    "reply_count": 0,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933095833718710280"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtO8Vk3XwAAXpxt.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,025 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933095833718710280",
+  "uri": "https://x.com/webuildscore/status/1933095833718710280",
+  "datetime": "2025-06-12T09:35:36Z",
+  "content": "This season\u2019s top xA overachievers \ud83c\udfaf\n\nSalah, Kane, and Vinicius all registered significantly more assists than expected, a result of teammates consistently converting even low-quality chances into goals.\n\nGood passes + even better finishing.\ud83d\udd3d",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 27,
+  "retweet_count": 1,
+  "reply_count": 0,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933095833718710280",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,025 - DEBUG - Processed tweet 1933095833718710280
+2025-06-18 12:17:56,026 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1934677960541274440",
+  "datetime": "2025-06-16T18:22:25+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Club World Cup: Chelsea vs LAFC \n\nChelsea\u2019s threat comes from all directions - Palmer, Enzo, and Madueke lead a well-balanced mix of carries and sharp passes. LAFC rely heavily on Bouanga, with little support from deeper areas.\n\nWho wins the Group D opener? \ud83d\udc40",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1934677960541274440",
+    "like_count": 10,
+    "retweet_count": 1,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1934677960541274440"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtlbIUDXAAAOANP.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,026 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934677960541274440",
+  "uri": "https://x.com/webuildscore/status/1934677960541274440",
+  "datetime": "2025-06-16T18:22:25Z",
+  "content": "Club World Cup: Chelsea vs LAFC \n\nChelsea\u2019s threat comes from all directions - Palmer, Enzo, and Madueke lead a well-balanced mix of carries and sharp passes. LAFC rely heavily on Bouanga, with little support from deeper areas.\n\nWho wins the Group D opener? \ud83d\udc40",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 10,
+  "retweet_count": 1,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1934677960541274440",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,026 - DEBUG - Processed tweet 1934677960541274440
+2025-06-18 12:17:56,026 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1934278602880667809",
+  "datetime": "2025-06-15T15:55:30+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Club World Cup: PSG vs Atl\u00e9tico Madrid\n\nAtl\u00e9tico\u2019s pass flow is left-heavy and direct, focusing on central buildup before going wide. PSG are more balanced, building deeper and progressing through midfield with control.\n\nWho gets the 3 points today? \ud83c\udfaf",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1934278602880667809",
+    "like_count": 10,
+    "retweet_count": 0,
+    "reply_count": 0,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1934278602880667809"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtfwD7fb0AAQ1z4.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,026 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934278602880667809",
+  "uri": "https://x.com/webuildscore/status/1934278602880667809",
+  "datetime": "2025-06-15T15:55:30Z",
+  "content": "Club World Cup: PSG vs Atl\u00e9tico Madrid\n\nAtl\u00e9tico\u2019s pass flow is left-heavy and direct, focusing on central buildup before going wide. PSG are more balanced, building deeper and progressing through midfield with control.\n\nWho gets the 3 points today? \ud83c\udfaf",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 10,
+  "retweet_count": 0,
+  "reply_count": 0,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1934278602880667809",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,027 - DEBUG - Processed tweet 1934278602880667809
+2025-06-18 12:17:56,027 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1934642664995193071",
+  "datetime": "2025-06-16T16:02:09+00:00",
+  "source": "X",
+  "label": null,
+  "content": "This season\u2019s top xA underachievers \u274c\n\nMbapp\u00e9 leads the list with a staggering 5.3-assist gap between his expected assists (8.3) and actual assists.\n\nKubo and Teze ended the season with zero assists despite solid chance creation.\n\nGreat passing - let down by finishing. \ud83d\ude2c",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1934642664995193071",
+    "like_count": 19,
+    "retweet_count": 1,
+    "reply_count": 1,
+    "quote_count": 3,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1934642664995193071"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/Gtk6nvjboAAQTOI.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,027 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934642664995193071",
+  "uri": "https://x.com/webuildscore/status/1934642664995193071",
+  "datetime": "2025-06-16T16:02:09Z",
+  "content": "This season\u2019s top xA underachievers \u274c\n\nMbapp\u00e9 leads the list with a staggering 5.3-assist gap between his expected assists (8.3) and actual assists.\n\nKubo and Teze ended the season with zero assists despite solid chance creation.\n\nGreat passing - let down by finishing. \ud83d\ude2c",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 19,
+  "retweet_count": 1,
+  "reply_count": 1,
+  "quote_count": 3,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1934642664995193071",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,027 - DEBUG - Processed tweet 1934642664995193071
+2025-06-18 12:17:56,027 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933147387993723083",
+  "datetime": "2025-06-12T13:00:28+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Subnet Presentation at Proof of Talk\n\nOur CEO @mxmsbt presented Score's journey - from a football-focused Subnet to a real computer vision AI company thanks to Bittensor.",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933147387993723083",
+    "like_count": 5,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": true,
+    "conversation_id": "1933147383262548430",
+    "in_reply_to": {
+      "user_id": "1816264150755979264"
+    }
+  }
+}
+2025-06-18 12:17:56,027 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933147387993723083",
+  "uri": "https://x.com/webuildscore/status/1933147387993723083",
+  "datetime": "2025-06-12T13:00:28Z",
+  "content": "Subnet Presentation at Proof of Talk\n\nOur CEO @mxmsbt presented Score's journey - from a football-focused Subnet to a real computer vision AI company thanks to Bittensor.",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 5,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": true,
+  "conversation_id": "1933147383262548430",
+  "in_reply_to_user_id": "1816264150755979264",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,028 - DEBUG - Processed tweet 1933147387993723083
+2025-06-18 12:17:56,028 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1932480795400126813",
+  "datetime": "2025-06-10T16:51:40+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Score CEO @mxmsbt wrapped up his first talk at @proofoftalk \ud83c\udf99\ufe0f\n\nDuring presentations by Bittensor Subnets, Max introduced @webuildscore with:\n\n\u201cFrom a football-focused subnet to a real computer vision AI company - thanks to Bittensor.\u201d",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1932480795400126813",
+    "like_count": 114,
+    "retweet_count": 16,
+    "reply_count": 4,
+    "quote_count": 1,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1932480795400126813"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtGM-E1XAAAkr5Q.jpg",
+      "type": "photo"
+    },
+    {
+      "url": "https://pbs.twimg.com/media/GtGM-E1XgAA4i1z.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,028 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1932480795400126813",
+  "uri": "https://x.com/webuildscore/status/1932480795400126813",
+  "datetime": "2025-06-10T16:51:40Z",
+  "content": "Score CEO @mxmsbt wrapped up his first talk at @proofoftalk \ud83c\udf99\ufe0f\n\nDuring presentations by Bittensor Subnets, Max introduced @webuildscore with:\n\n\u201cFrom a football-focused subnet to a real computer vision AI company - thanks to Bittensor.\u201d",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 114,
+  "retweet_count": 16,
+  "reply_count": 4,
+  "quote_count": 1,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1932480795400126813",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,028 - DEBUG - Processed tweet 1932480795400126813
+2025-06-18 12:17:56,028 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933594243718684798",
+  "datetime": "2025-06-13T18:36:06+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Score Vision (SN44) Update \ud83d\udd25\n\nThe @sicssport  X @webuildscore partnership provides Score with football footage of 280+ leagues. The pipeline to annotate this footage is now live for the Top 5 European Leagues + MLS.\n\nGet ready for real-time video annotation on Bittensor.",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933594243718684798",
+    "like_count": 63,
+    "retweet_count": 6,
+    "reply_count": 3,
+    "quote_count": 1,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933594243718684798"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtWBn3eXUAAGwl0.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:17:56,029 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933594243718684798",
+  "uri": "https://x.com/webuildscore/status/1933594243718684798",
+  "datetime": "2025-06-13T18:36:06Z",
+  "content": "Score Vision (SN44) Update \ud83d\udd25\n\nThe @sicssport  X @webuildscore partnership provides Score with football footage of 280+ leagues. The pipeline to annotate this footage is now live for the Top 5 European Leagues + MLS.\n\nGet ready for real-time video annotation on Bittensor.",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 63,
+  "retweet_count": 6,
+  "reply_count": 3,
+  "quote_count": 1,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933594243718684798",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,029 - DEBUG - Processed tweet 1933594243718684798
+2025-06-18 12:17:56,029 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1934207137313419371",
+  "datetime": "2025-06-15T11:11:32+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Winning Metrics #05: PPDA\n\nPasses Per Defensive Action (PPDA) is the stat behind pressing intensity and a key to modern football tactics.\n\nWe break down what it reveals and how AI helps measure the unseen.\n\nRead more \ud83d\udd3d",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1934207137313419371",
+    "like_count": 20,
+    "retweet_count": 2,
+    "reply_count": 0,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1934207137313419371"
+  }
+}
+2025-06-18 12:17:56,029 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934207137313419371",
+  "uri": "https://x.com/webuildscore/status/1934207137313419371",
+  "datetime": "2025-06-15T11:11:32Z",
+  "content": "Winning Metrics #05: PPDA\n\nPasses Per Defensive Action (PPDA) is the stat behind pressing intensity and a key to modern football tactics.\n\nWe break down what it reveals and how AI helps measure the unseen.\n\nRead more \ud83d\udd3d",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 20,
+  "retweet_count": 2,
+  "reply_count": 0,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1934207137313419371",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,030 - DEBUG - Processed tweet 1934207137313419371
+2025-06-18 12:17:56,030 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933147392309641359",
+  "datetime": "2025-06-12T13:00:29+00:00",
+  "source": "X",
+  "label": null,
+  "content": "To everyone who stopped by our booth at @proofoftalk - thank you.\n\nIt was great to connect in person, share what we\u2019re building, and hear your thoughts on Score. Your feedback means a lot, and we\u2019re just getting started. \ud83d\udd25",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933147392309641359",
+    "like_count": 9,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933147383262548430",
+    "in_reply_to": {
+      "user_id": "1816264150755979264"
+    }
+  }
+}
+2025-06-18 12:17:56,030 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933147392309641359",
+  "uri": "https://x.com/webuildscore/status/1933147392309641359",
+  "datetime": "2025-06-12T13:00:29Z",
+  "content": "To everyone who stopped by our booth at @proofoftalk - thank you.\n\nIt was great to connect in person, share what we\u2019re building, and hear your thoughts on Score. Your feedback means a lot, and we\u2019re just getting started. \ud83d\udd25",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 9,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933147383262548430",
+  "in_reply_to_user_id": "1816264150755979264",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,030 - DEBUG - Processed tweet 1933147392309641359
+2025-06-18 12:17:56,030 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1933147385615790341",
+  "datetime": "2025-06-12T13:00:27+00:00",
+  "source": "X",
+  "label": null,
+  "content": "$300M Partnership Revealed at @proofoftalk\n\nWe announced a major milestone: @thedkingdao is partnering with a top sports-betting hedge fund.",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1933147385615790341",
+    "like_count": 4,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": true,
+    "conversation_id": "1933147383262548430",
+    "in_reply_to": {
+      "user_id": "1816264150755979264"
+    }
+  }
+}
+2025-06-18 12:17:56,030 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933147385615790341",
+  "uri": "https://x.com/webuildscore/status/1933147385615790341",
+  "datetime": "2025-06-12T13:00:27Z",
+  "content": "$300M Partnership Revealed at @proofoftalk\n\nWe announced a major milestone: @thedkingdao is partnering with a top sports-betting hedge fund.",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 4,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": true,
+  "conversation_id": "1933147383262548430",
+  "in_reply_to_user_id": "1816264150755979264",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,031 - DEBUG - Processed tweet 1933147385615790341
+2025-06-18 12:17:56,031 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/webuildscore/status/1932744735866655125",
+  "datetime": "2025-06-11T10:20:28+00:00",
+  "source": "X",
+  "label": "#DKING",
+  "content": "$300M AUM $DKING Partnership \u2705\n\nLive at @proofoftalk, @mxmsbt revealed the new @thedkingdao partnership with one of the world\u2019s largest sports-betting hedge funds.\n\nThey\u2019ll deploy $300M AUM using DKING\u2019s DeFAI strategies, starting this 2025/26 season.\n\n$TAO\n\nWatch the moment \ud83d\udd3d",
+  "user": {
+    "username": "webuildscore",
+    "display_name": "Score",
+    "id": "1816264150755979264",
+    "verified": false,
+    "followers_count": 4930,
+    "following_count": 614
+  },
+  "tweet": {
+    "id": "1932744735866655125",
+    "like_count": 166,
+    "retweet_count": 35,
+    "reply_count": 12,
+    "quote_count": 13,
+    "hashtags": [
+      "#DKING",
+      "#TAO"
+    ],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1932744735866655125"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/amplify_video_thumb/1932744314611707904/img/B7nWdItnHzvMscNy.jpg",
+      "type": "video"
+    }
+  ]
+}
+2025-06-18 12:17:56,031 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1932744735866655125",
+  "uri": "https://x.com/webuildscore/status/1932744735866655125",
+  "datetime": "2025-06-11T10:20:28Z",
+  "content": "$300M AUM $DKING Partnership \u2705\n\nLive at @proofoftalk, @mxmsbt revealed the new @thedkingdao partnership with one of the world\u2019s largest sports-betting hedge funds.\n\nThey\u2019ll deploy $300M AUM using DKING\u2019s DeFAI strategies, starting this 2025/26 season.\n\n$TAO\n\nWatch the moment \ud83d\udd3d",
+  "username": "webuildscore",
+  "display_name": "Score",
+  "user_id": "1816264150755979264",
+  "verified": false,
+  "followers_count": 4930,
+  "following_count": 614,
+  "like_count": 166,
+  "retweet_count": 35,
+  "reply_count": 12,
+  "quote_count": 13,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1932744735866655125",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:47:56Z"
+}
+2025-06-18 12:17:56,031 - DEBUG - Processed tweet 1932744735866655125
+2025-06-18 12:17:56,031 - INFO - Successfully processed 18 out of 18 tweets for @webuildscore
+2025-06-18 12:17:56,031 - INFO - Processing account: @thedkingdao
+2025-06-18 12:17:56,031 - DEBUG - Making API call to URL: https://sn13.api.macrocosmos.ai/api/v1/on_demand_data_request
+2025-06-18 12:17:56,031 - DEBUG - Headers (API Key masked): {'Content-Type': application/json, 'X-API-KEY': ********}
+2025-06-18 12:17:56,031 - DEBUG - Request data: {
+  "source": "x",
+  "usernames": [
+    "@thedkingdao"
+  ],
+  "limit": 1000,
+  "start_date": "2025-06-12T07:29:02Z",
+  "end_date": "2025-06-17T06:47:48Z"
+}
+2025-06-18 12:18:43,223 - DEBUG - Response status code: 200
+2025-06-18 12:18:43,223 - DEBUG - Response headers: {'Alt-Svc': 'h3=":443"; ma=2592000', 'Content-Length': '18728', 'Content-Type': 'application/json', 'Date': 'Wed, 18 Jun 2025 06:47:56 GMT', 'Server': 'Caddy, uvicorn', 'X-Ratelimit-Limit': '100', 'X-Ratelimit-Remaining': '96', 'X-Ratelimit-Reset': '2025-06-18T07:48:42.737041'}
+2025-06-18 12:18:43,223 - DEBUG - Response content: {"status":"warning","data":[{"uri":"https://x.com/thedkingdao/status/1934673567620476983","datetime":"2025-06-16T18:04:57+00:00","source":"X","label":null,"content":"Club World Cup: Chelsea vs LAFC\n\nThe draw is priced at 7.00 on bet365, with a 23.53% probability and a +EV of +47.49% (fair odds: 4.75).\n\nA high-risk pick, but the numbers point to solid value on the draw. 🔽","user":{"username":"@thedkingdao","display_name":"DKING","id":"1882543910888632320","verified":true,"followers_count":2696,"following_count":1},"tweet":{"id":"1934673567620476983","like_count":16,"retweet_count":0,"reply_count":1,"quote_count":0,"hashtags":[],"is_retweet":false,"is_reply":false,"is_quote":false,"conversation_id":"1934673567620476983"},"media":[{"url":"https://pbs.twimg.com/media/GtlXSFVW0AAkLBd.jpg","type":"photo"}]},{"uri":"https://x.com/thedkingdao/status/1934645487551791473","datetime":"2025-06-16T16:13:22+00:00","source":"X","label":null,"content":"","user":{"username":"@thedkingdao","display_
+2025-06-18 12:18:43,224 - WARNING - API returned warning status: Miners returned no data, but data was found. Results are from validator's direct check.
+2025-06-18 12:18:43,224 - INFO - Found 22 valid tweets in response
+2025-06-18 12:18:43,225 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1934673567620476983",
+  "datetime": "2025-06-16T18:04:57+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Club World Cup: Chelsea vs LAFC\n\nThe draw is priced at 7.00 on bet365, with a 23.53% probability and a +EV of +47.49% (fair odds: 4.75).\n\nA high-risk pick, but the numbers point to solid value on the draw. \ud83d\udd3d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1934673567620476983",
+    "like_count": 16,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1934673567620476983"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtlXSFVW0AAkLBd.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,225 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934673567620476983",
+  "uri": "https://x.com/thedkingdao/status/1934673567620476983",
+  "datetime": "2025-06-16T18:04:57Z",
+  "content": "Club World Cup: Chelsea vs LAFC\n\nThe draw is priced at 7.00 on bet365, with a 23.53% probability and a +EV of +47.49% (fair odds: 4.75).\n\nA high-risk pick, but the numbers point to solid value on the draw. \ud83d\udd3d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 16,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1934673567620476983",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,225 - DEBUG - Processed tweet 1934673567620476983
+2025-06-18 12:18:43,225 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1934636186603061659",
+  "datetime": "2025-06-16T15:36:25+00:00",
+  "source": "X",
+  "label": "$DKING",
+  "content": "The $DKING Club World Cup Contest has officially started \ud83c\udfc6\n\nMake predictions, collect XP, win prizes, and earn a Discord role that marks you as a Season 1 OG. \ud83d\ude0e\n\nJoin the contest \ud83d\udd3d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1934636186603061659",
+    "like_count": 34,
+    "retweet_count": 0,
+    "reply_count": 2,
+    "quote_count": 0,
+    "hashtags": [
+      "$DKING"
+    ],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1934636186603061659"
+  }
+}
+2025-06-18 12:18:43,226 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934636186603061659",
+  "uri": "https://x.com/thedkingdao/status/1934636186603061659",
+  "datetime": "2025-06-16T15:36:25Z",
+  "content": "The $DKING Club World Cup Contest has officially started \ud83c\udfc6\n\nMake predictions, collect XP, win prizes, and earn a Discord role that marks you as a Season 1 OG. \ud83d\ude0e\n\nJoin the contest \ud83d\udd3d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 34,
+  "retweet_count": 0,
+  "reply_count": 2,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1934636186603061659",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,226 - DEBUG - Processed tweet 1934636186603061659
+2025-06-18 12:18:43,226 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1934552027129860162",
+  "datetime": "2025-06-16T10:02:00+00:00",
+  "source": "X",
+  "label": "$DKING",
+  "content": "Another one \u2705\n\nDKING nailed the PSG vs Atl\u00e9tico call - and if you followed, you're up 95%.\n\n$DKING",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1934552027129860162",
+    "like_count": 65,
+    "retweet_count": 14,
+    "reply_count": 8,
+    "quote_count": 3,
+    "hashtags": [
+      "$DKING"
+    ],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1934552027129860162"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtjoeslXMAAheEF.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,226 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934552027129860162",
+  "uri": "https://x.com/thedkingdao/status/1934552027129860162",
+  "datetime": "2025-06-16T10:02:00Z",
+  "content": "Another one \u2705\n\nDKING nailed the PSG vs Atl\u00e9tico call - and if you followed, you're up 95%.\n\n$DKING",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 65,
+  "retweet_count": 14,
+  "reply_count": 8,
+  "quote_count": 3,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1934552027129860162",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,226 - DEBUG - Processed tweet 1934552027129860162
+2025-06-18 12:18:43,226 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1934215365502095733",
+  "datetime": "2025-06-15T11:44:13+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Club World Cup Group B: PSG vs Atletico Madrid\n\nPSG to win is priced at 1.95 on bet365, with a 54.1% probability and a +EV of +5.53% (fair odds: 1.85).\n\nA tight matchup on paper, but there\u2019s slight value on PSG\u2019s side. \ud83d\udca1",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1934215365502095733",
+    "like_count": 28,
+    "retweet_count": 2,
+    "reply_count": 4,
+    "quote_count": 2,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1934215365502095733"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/Gte2loYa4AEPfu1.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,226 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934215365502095733",
+  "uri": "https://x.com/thedkingdao/status/1934215365502095733",
+  "datetime": "2025-06-15T11:44:13Z",
+  "content": "Club World Cup Group B: PSG vs Atletico Madrid\n\nPSG to win is priced at 1.95 on bet365, with a 54.1% probability and a +EV of +5.53% (fair odds: 1.85).\n\nA tight matchup on paper, but there\u2019s slight value on PSG\u2019s side. \ud83d\udca1",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 28,
+  "retweet_count": 2,
+  "reply_count": 4,
+  "quote_count": 2,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1934215365502095733",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,226 - DEBUG - Processed tweet 1934215365502095733
+2025-06-18 12:18:43,227 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1934197078239908186",
+  "datetime": "2025-06-15T10:31:33+00:00",
+  "source": "X",
+  "label": "$DKING",
+  "content": "$DKING Club World Cup Contest \ud83c\udfc6 Season 1\n\nThe first DKING community contest kicks off with the Club World Cup.\n\nPredict match outcomes, climb the leaderboard, and win NFTs with 6 months of DKING Pro access.\n\nRead more \ud83d\udd3d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1934197078239908186",
+    "like_count": 43,
+    "retweet_count": 7,
+    "reply_count": 3,
+    "quote_count": 0,
+    "hashtags": [
+      "$DKING"
+    ],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1934197078239908186"
+  }
+}
+2025-06-18 12:18:43,227 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1934197078239908186",
+  "uri": "https://x.com/thedkingdao/status/1934197078239908186",
+  "datetime": "2025-06-15T10:31:33Z",
+  "content": "$DKING Club World Cup Contest \ud83c\udfc6 Season 1\n\nThe first DKING community contest kicks off with the Club World Cup.\n\nPredict match outcomes, climb the leaderboard, and win NFTs with 6 months of DKING Pro access.\n\nRead more \ud83d\udd3d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 43,
+  "retweet_count": 7,
+  "reply_count": 3,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1934197078239908186",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,227 - DEBUG - Processed tweet 1934197078239908186
+2025-06-18 12:18:43,227 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933942211193765910",
+  "datetime": "2025-06-14T17:38:48+00:00",
+  "source": "X",
+  "label": null,
+  "content": "howlooks at me when I say I\u2019m done with betting \n\n(Club World Cup starts tomorrow)",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933942211193765910",
+    "like_count": 35,
+    "retweet_count": 0,
+    "reply_count": 0,
+    "quote_count": 1,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1933942211193765910"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/Gta-B2pWIAAUvaM.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,227 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933942211193765910",
+  "uri": "https://x.com/thedkingdao/status/1933942211193765910",
+  "datetime": "2025-06-14T17:38:48Z",
+  "content": "howlooks at me when I say I\u2019m done with betting \n\n(Club World Cup starts tomorrow)",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 35,
+  "retweet_count": 0,
+  "reply_count": 0,
+  "quote_count": 1,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1933942211193765910",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,227 - DEBUG - Processed tweet 1933942211193765910
+2025-06-18 12:18:43,227 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933836065795694926",
+  "datetime": "2025-06-14T10:37:01+00:00",
+  "source": "X",
+  "label": "$DKING",
+  "content": "$DKING Roadmap \u2013 Milestone 6 \ud83c\udfaf\n\nDKING\u2019s Upgraded Meta-Model will power one of the world\u2019s top sports hedge funds - the first fully autonomous AI betting strategy deployed at institutional scale.\n\nRead more \ud83d\udd3d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933836065795694926",
+    "like_count": 94,
+    "retweet_count": 37,
+    "reply_count": 8,
+    "quote_count": 2,
+    "hashtags": [
+      "$DKING"
+    ],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1933836065795694926"
+  }
+}
+2025-06-18 12:18:43,227 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933836065795694926",
+  "uri": "https://x.com/thedkingdao/status/1933836065795694926",
+  "datetime": "2025-06-14T10:37:01Z",
+  "content": "$DKING Roadmap \u2013 Milestone 6 \ud83c\udfaf\n\nDKING\u2019s Upgraded Meta-Model will power one of the world\u2019s top sports hedge funds - the first fully autonomous AI betting strategy deployed at institutional scale.\n\nRead more \ud83d\udd3d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 94,
+  "retweet_count": 37,
+  "reply_count": 8,
+  "quote_count": 2,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1933836065795694926",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,227 - DEBUG - Processed tweet 1933836065795694926
+2025-06-18 12:18:43,227 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933815753318506550",
+  "datetime": "2025-06-14T09:16:18+00:00",
+  "source": "X",
+  "label": "$DKING",
+  "content": "$DKING Update - FIFA Club World Cup Now Live \ud83c\udfc6\n\nYou can now get data-backed picks for Club World Cup directly on",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933815753318506550",
+    "like_count": 57,
+    "retweet_count": 6,
+    "reply_count": 3,
+    "quote_count": 1,
+    "hashtags": [
+      "$DKING"
+    ],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933815753318506550"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtZKdNGWcAAUqnO.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,227 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933815753318506550",
+  "uri": "https://x.com/thedkingdao/status/1933815753318506550",
+  "datetime": "2025-06-14T09:16:18Z",
+  "content": "$DKING Update - FIFA Club World Cup Now Live \ud83c\udfc6\n\nYou can now get data-backed picks for Club World Cup directly on",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 57,
+  "retweet_count": 6,
+  "reply_count": 3,
+  "quote_count": 1,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933815753318506550",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,228 - DEBUG - Processed tweet 1933815753318506550
+2025-06-18 12:18:43,228 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933553524174172654",
+  "datetime": "2025-06-13T15:54:18+00:00",
+  "source": "X",
+  "label": null,
+  "content": "What\u2019s the biggest win you\u2019ve had using DKING\u2019s picks? \ud83d\udc40\n\nDrop a screenshot below \ud83d\udc47",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933553524174172654",
+    "like_count": 16,
+    "retweet_count": 0,
+    "reply_count": 2,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933553524174172654"
+  }
+}
+2025-06-18 12:18:43,228 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933553524174172654",
+  "uri": "https://x.com/thedkingdao/status/1933553524174172654",
+  "datetime": "2025-06-13T15:54:18Z",
+  "content": "What\u2019s the biggest win you\u2019ve had using DKING\u2019s picks? \ud83d\udc40\n\nDrop a screenshot below \ud83d\udc47",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 16,
+  "retweet_count": 0,
+  "reply_count": 2,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933553524174172654",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,228 - DEBUG - Processed tweet 1933553524174172654
+2025-06-18 12:18:43,228 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489643481149582",
+  "datetime": "2025-06-13T11:40:28+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Want to learn more about Benham\u2019s story? \n\nRead our full article \ud83d\udd3d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489643481149582",
+    "like_count": 3,
+    "retweet_count": 0,
+    "reply_count": 0,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": true,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  }
+}
+2025-06-18 12:18:43,228 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489643481149582",
+  "uri": "https://x.com/thedkingdao/status/1933489643481149582",
+  "datetime": "2025-06-13T11:40:28Z",
+  "content": "Want to learn more about Benham\u2019s story? \n\nRead our full article \ud83d\udd3d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 3,
+  "retweet_count": 0,
+  "reply_count": 0,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": true,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,228 - DEBUG - Processed tweet 1933489643481149582
+2025-06-18 12:18:43,228 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489641568809129",
+  "datetime": "2025-06-13T11:40:27+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Our LLM acts as your betting assistant, scanning markets, spotting inefficiencies, and surfacing +EV picks.\n\nWant uncorrelated yield? The Agentic Wager auto-executes bets the moment edge appears, just like Smartodds but open to all, and compounds returns (Coming Soon \ud83d\udc40)",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489641568809129",
+    "like_count": 4,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  }
+}
+2025-06-18 12:18:43,229 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489641568809129",
+  "uri": "https://x.com/thedkingdao/status/1933489641568809129",
+  "datetime": "2025-06-13T11:40:27Z",
+  "content": "Our LLM acts as your betting assistant, scanning markets, spotting inefficiencies, and surfacing +EV picks.\n\nWant uncorrelated yield? The Agentic Wager auto-executes bets the moment edge appears, just like Smartodds but open to all, and compounds returns (Coming Soon \ud83d\udc40)",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 4,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,230 - DEBUG - Processed tweet 1933489641568809129
+2025-06-18 12:18:43,231 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489639551381601",
+  "datetime": "2025-06-13T11:40:27+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Benham\u2019s edge worked, but it stayed locked inside Smartodds.\n\nAt DKING, we\u2019re building something different: an open, intelligent system that anyone can use.",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489639551381601",
+    "like_count": 2,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  }
+}
+2025-06-18 12:18:43,231 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489639551381601",
+  "uri": "https://x.com/thedkingdao/status/1933489639551381601",
+  "datetime": "2025-06-13T11:40:27Z",
+  "content": "Benham\u2019s edge worked, but it stayed locked inside Smartodds.\n\nAt DKING, we\u2019re building something different: an open, intelligent system that anyone can use.",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 2,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,231 - DEBUG - Processed tweet 1933489639551381601
+2025-06-18 12:18:43,231 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489635340222486",
+  "datetime": "2025-06-13T11:40:26+00:00",
+  "source": "X",
+  "label": null,
+  "content": "To prove his model worked anywhere, Benham bought FC Midtjylland in 2014.\n\nIt became his sandbox for innovation\u2014testing set-piece routines, scouting models, and in-game tactics.\n\nThe payoff? 3 league titles in 6 years, and a proven playbook could be replicated.",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489635340222486",
+    "like_count": 3,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtUh7FPXoAAEm4I.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,231 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489635340222486",
+  "uri": "https://x.com/thedkingdao/status/1933489635340222486",
+  "datetime": "2025-06-13T11:40:26Z",
+  "content": "To prove his model worked anywhere, Benham bought FC Midtjylland in 2014.\n\nIt became his sandbox for innovation\u2014testing set-piece routines, scouting models, and in-game tactics.\n\nThe payoff? 3 league titles in 6 years, and a proven playbook could be replicated.",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 3,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,231 - DEBUG - Processed tweet 1933489635340222486
+2025-06-18 12:18:43,231 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489633117286695",
+  "datetime": "2025-06-13T11:40:25+00:00",
+  "source": "X",
+  "label": null,
+  "content": "It didn\u2019t stop at scouting.\n\nBenham\u2019s data-first approach refined tactics too; especially set pieces.\n\nIn 2022\u201323, Brentford scored 16 goals from set plays. Second-most in the league.",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489633117286695",
+    "like_count": 2,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  }
+}
+2025-06-18 12:18:43,231 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489633117286695",
+  "uri": "https://x.com/thedkingdao/status/1933489633117286695",
+  "datetime": "2025-06-13T11:40:25Z",
+  "content": "It didn\u2019t stop at scouting.\n\nBenham\u2019s data-first approach refined tactics too; especially set pieces.\n\nIn 2022\u201323, Brentford scored 16 goals from set plays. Second-most in the league.",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 2,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,231 - DEBUG - Processed tweet 1933489633117286695
+2025-06-18 12:18:43,232 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489629564383246",
+  "datetime": "2025-06-13T11:40:24+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Example: Ollie Watkins: bought for \u00a31.8M, sold for \u00a328M. \n\nBrentford's edge was spotting undervalued talent. DKING does the same for bets - surfacing hidden value with real-time insight.",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489629564383246",
+    "like_count": 2,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtUhtP9WEAEHm92.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,232 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489629564383246",
+  "uri": "https://x.com/thedkingdao/status/1933489629564383246",
+  "datetime": "2025-06-13T11:40:24Z",
+  "content": "Example: Ollie Watkins: bought for \u00a31.8M, sold for \u00a328M. \n\nBrentford's edge was spotting undervalued talent. DKING does the same for bets - surfacing hidden value with real-time insight.",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 2,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,232 - DEBUG - Processed tweet 1933489629564383246
+2025-06-18 12:18:43,232 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489627425616112",
+  "datetime": "2025-06-13T11:40:24+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Then came the leap: if algorithms could find undervalued bets\u2026 why not undervalued players?\n\nBenham used the same model logic to scout talent and reshape Brentford from the ground up.",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489627425616112",
+    "like_count": 2,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  }
+}
+2025-06-18 12:18:43,232 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489627425616112",
+  "uri": "https://x.com/thedkingdao/status/1933489627425616112",
+  "datetime": "2025-06-13T11:40:24Z",
+  "content": "Then came the leap: if algorithms could find undervalued bets\u2026 why not undervalued players?\n\nBenham used the same model logic to scout talent and reshape Brentford from the ground up.",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 2,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,232 - DEBUG - Processed tweet 1933489627425616112
+2025-06-18 12:18:43,232 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489625382678572",
+  "datetime": "2025-06-13T11:40:23+00:00",
+  "source": "X",
+  "label": null,
+  "content": "At Smartodds, Benham\u2019s algorithms spotted mispriced odds, and leveraged those inefficiencies to compounding consistent small gains.\n\nHis secret? Math over instinct; exactly the mindset DKING is built on.",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489625382678572",
+    "like_count": 2,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  }
+}
+2025-06-18 12:18:43,232 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489625382678572",
+  "uri": "https://x.com/thedkingdao/status/1933489625382678572",
+  "datetime": "2025-06-13T11:40:23Z",
+  "content": "At Smartodds, Benham\u2019s algorithms spotted mispriced odds, and leveraged those inefficiencies to compounding consistent small gains.\n\nHis secret? Math over instinct; exactly the mindset DKING is built on.",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 2,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,233 - DEBUG - Processed tweet 1933489625382678572
+2025-06-18 12:18:43,233 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489621796859919",
+  "datetime": "2025-06-13T11:40:22+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Benham, a physicist &amp; lifelong Brentford fan, loaned \u00a3700K to save the club from collapse in 2005.\n\nBut his real edge wasn\u2019t sentiment, it was a betting model built on cold data, probability, and predictive analytics.\n\nQuietly, it made him millions while staying under the radar.",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489621796859919",
+    "like_count": 3,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtUhmFiXQAAhS8d.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,233 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489621796859919",
+  "uri": "https://x.com/thedkingdao/status/1933489621796859919",
+  "datetime": "2025-06-13T11:40:22Z",
+  "content": "Benham, a physicist &amp; lifelong Brentford fan, loaned \u00a3700K to save the club from collapse in 2005.\n\nBut his real edge wasn\u2019t sentiment, it was a betting model built on cold data, probability, and predictive analytics.\n\nQuietly, it made him millions while staying under the radar.",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 3,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,233 - DEBUG - Processed tweet 1933489621796859919
+2025-06-18 12:18:43,233 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933489618177175612",
+  "datetime": "2025-06-13T11:40:22+00:00",
+  "source": "X",
+  "label": null,
+  "content": "How Matthew Benham Beat the Odds \ud83c\udfaf\n\nOver 95% of bettors lose. Pioneers like Matthew Benham beat the odds with data.\n\nMeet the quant who built an edge &amp; inspired DKING. \ud83d\udd3d\n\n\ud83e\uddf5 1/10",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933489618177175612",
+    "like_count": 27,
+    "retweet_count": 3,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933489618177175612"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtUgjVkW4AA_pLy.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,233 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933489618177175612",
+  "uri": "https://x.com/thedkingdao/status/1933489618177175612",
+  "datetime": "2025-06-13T11:40:22Z",
+  "content": "How Matthew Benham Beat the Odds \ud83c\udfaf\n\nOver 95% of bettors lose. Pioneers like Matthew Benham beat the odds with data.\n\nMeet the quant who built an edge &amp; inspired DKING. \ud83d\udd3d\n\n\ud83e\uddf5 1/10",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 27,
+  "retweet_count": 3,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933489618177175612",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,233 - DEBUG - Processed tweet 1933489618177175612
+2025-06-18 12:18:43,233 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933194119834206292",
+  "datetime": "2025-06-12T16:06:09+00:00",
+  "source": "X",
+  "label": null,
+  "content": "DeFi\u2019s Yield Illusion \ud83d\ude35\u200d\ud83d\udcab\n\nDeFi promised freedom from traditional finance - but ended up mimicking its worst cycles, with even more volatility.\n\nTo truly mature, it still needs what it\u2019s always lacked: real yield that isn\u2019t tied to crypto market sentiment.\n\nRead more \ud83d\udd3d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933194119834206292",
+    "like_count": 45,
+    "retweet_count": 9,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": true,
+    "conversation_id": "1933194119834206292"
+  }
+}
+2025-06-18 12:18:43,233 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933194119834206292",
+  "uri": "https://x.com/thedkingdao/status/1933194119834206292",
+  "datetime": "2025-06-12T16:06:09Z",
+  "content": "DeFi\u2019s Yield Illusion \ud83d\ude35\u200d\ud83d\udcab\n\nDeFi promised freedom from traditional finance - but ended up mimicking its worst cycles, with even more volatility.\n\nTo truly mature, it still needs what it\u2019s always lacked: real yield that isn\u2019t tied to crypto market sentiment.\n\nRead more \ud83d\udd3d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 45,
+  "retweet_count": 9,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": true,
+  "conversation_id": "1933194119834206292",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,234 - DEBUG - Processed tweet 1933194119834206292
+2025-06-18 12:18:43,234 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933114595943555580",
+  "datetime": "2025-06-12T10:50:09+00:00",
+  "source": "X",
+  "label": null,
+  "content": "Prompt: \u201cHere is the list of games. Scan them for any bets with +EV (positive expected value). Highlight the ones that meet your +EV criteria, explain why they qualify, and rank them by confidence level.\n[Paste list of games here]\u201d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933114595943555580",
+    "like_count": 2,
+    "retweet_count": 0,
+    "reply_count": 0,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": true,
+    "is_quote": false,
+    "conversation_id": "1933114590981722427",
+    "in_reply_to": {
+      "user_id": "1882543910888632320"
+    }
+  }
+}
+2025-06-18 12:18:43,234 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933114595943555580",
+  "uri": "https://x.com/thedkingdao/status/1933114595943555580",
+  "datetime": "2025-06-12T10:50:09Z",
+  "content": "Prompt: \u201cHere is the list of games. Scan them for any bets with +EV (positive expected value). Highlight the ones that meet your +EV criteria, explain why they qualify, and rank them by confidence level.\n[Paste list of games here]\u201d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 2,
+  "retweet_count": 0,
+  "reply_count": 0,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": true,
+  "is_quote": false,
+  "conversation_id": "1933114590981722427",
+  "in_reply_to_user_id": "1882543910888632320",
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,234 - DEBUG - Processed tweet 1933114595943555580
+2025-06-18 12:18:43,234 - DEBUG - Processing raw tweet: {
+  "uri": "https://x.com/thedkingdao/status/1933114590981722427",
+  "datetime": "2025-06-12T10:50:08+00:00",
+  "source": "X",
+  "label": null,
+  "content": "\ud83d\udcd5 #5 Prompting Guide \u2013 Scan for +EV Picks\n\nWant to identify the best value bets from a list of matches?\n\nTry this prompt \ud83d\udd3d",
+  "user": {
+    "username": "@thedkingdao",
+    "display_name": "DKING",
+    "id": "1882543910888632320",
+    "verified": true,
+    "followers_count": 2696,
+    "following_count": 1
+  },
+  "tweet": {
+    "id": "1933114590981722427",
+    "like_count": 11,
+    "retweet_count": 0,
+    "reply_count": 1,
+    "quote_count": 0,
+    "hashtags": [],
+    "is_retweet": false,
+    "is_reply": false,
+    "is_quote": false,
+    "conversation_id": "1933114590981722427"
+  },
+  "media": [
+    {
+      "url": "https://pbs.twimg.com/media/GtPNJqMXAAA3R7J.jpg",
+      "type": "photo"
+    }
+  ]
+}
+2025-06-18 12:18:43,234 - DEBUG - Transformed tweet: {
+  "original_tweet_id": "1933114590981722427",
+  "uri": "https://x.com/thedkingdao/status/1933114590981722427",
+  "datetime": "2025-06-12T10:50:08Z",
+  "content": "\ud83d\udcd5 #5 Prompting Guide \u2013 Scan for +EV Picks\n\nWant to identify the best value bets from a list of matches?\n\nTry this prompt \ud83d\udd3d",
+  "username": "@thedkingdao",
+  "display_name": "DKING",
+  "user_id": "1882543910888632320",
+  "verified": true,
+  "followers_count": 2696,
+  "following_count": 1,
+  "like_count": 11,
+  "retweet_count": 0,
+  "reply_count": 1,
+  "quote_count": 0,
+  "is_retweet": false,
+  "is_reply": false,
+  "is_quote": false,
+  "conversation_id": "1933114590981722427",
+  "in_reply_to_user_id": null,
+  "in_reply_to_username": null,
+  "processed_at": "2025-06-18T06:48:43Z"
+}
+2025-06-18 12:18:43,235 - DEBUG - Processed tweet 1933114590981722427
+2025-06-18 12:18:43,235 - INFO - Successfully processed 22 out of 22 tweets for @thedkingdao
+2025-06-18 12:18:43,236 - INFO - Completed processing window, moving to 2025-06-17T06:47:48Z
+2025-06-18 12:18:43,237 - INFO - ETL Stats: {
+  "duration_seconds": 54.752923,
+  "tweets_per_second": 0.7305546043633141,
+  "total_tweets": 40,
+  "total_api_calls": 2,
+  "errors": {},
+  "accounts": {
+    "@webuildscore": {
+      "tweets_processed": 0,
+      "api_calls": 1,
+      "errors": 0
+    },
+    "webuildscore": {
+      "tweets_processed": 18,
+      "api_calls": 0,
+      "errors": 0
+    },
+    "@thedkingdao": {
+      "tweets_processed": 22,
+      "api_calls": 1,
+      "errors": 0
+    }
+  }
+}
+2025-06-18 12:18:43,237 - INFO - ETL Stats: {
+  "duration_seconds": 54.753093,
+  "tweets_per_second": 0.7305523361027294,
+  "total_tweets": 40,
+  "total_api_calls": 2,
+  "errors": {},
+  "accounts": {
+    "@webuildscore": {
+      "tweets_processed": 0,
+      "api_calls": 1,
+      "errors": 0
+    },
+    "webuildscore": {
+      "tweets_processed": 18,
+      "api_calls": 0,
+      "errors": 0
+    },
+    "@thedkingdao": {
+      "tweets_processed": 22,
+      "api_calls": 1,
+      "errors": 0
+    }
+  }
+}
