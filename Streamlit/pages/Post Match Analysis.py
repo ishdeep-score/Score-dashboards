@@ -241,18 +241,32 @@ team_colors = {
     'Willem II': '#E30613',
     'RKC Waalwijk': '#FCE500',
     'Almere City': '#E30613',
-    'Germany': '#000000',
-    'Portugal': '#008000',
-    'Spain': '#FF0000',
-    'France': '#0055A4',
-    'Poland': '#DC143C',
-    'Scotland': '#002147',
-    'Croatia': '#FF0000',
-    'Belgium': '#FF0000',
-    'Italy': '#008C45'
+    'Palmeiras' : "#216348",
+    'Inter Miami' : "#E067C2",
+    'Porto' : '#005BAC',
+    'Al Ahly' : '#E30613',
+    'Botafogo' : "#E3DADA",
+    'Seattle Sounders' : "#238486",
+    'Boca Juniors' : "#E0E723",
+    'Auckland City' : '#005BAC',
+    'Flamengo' : '#E30613',
+    'Esperance' : "#7B79D9",
+    'Los Angeles FC' : "#949430",
+    'River Plate' : '#E30613',
+    'Monterrey' : '#005BAC',
+    'Urawa Red Diamonds' : '#E30613',
+    'Mamelodi Sundowns' : "#AEE54F",
+    'Fluminense' : "#68202B",
+    'Ulsan HD FC' : '#005BAC',
+    'Wydad' : '#E30613',
+    'Al Ain' : "#721A70",
+    'Salzburg' : '#E30613',
+    'Al Hilal' : '#005BAC',
+    'Pachuca' : "#E39606"
     }
 
-base_path = '/Users/ishdeepchadha/Documents/GitHub/Score/Football'
+base_path = '/Users/ishdeepchadha/Documents/Score/Football'
+logo_path = f'logos/Logo.png'
 # Set the path to the locally downloaded font file
 font_path = f'{base_path}/Sora_Font/Sora-Regular.ttf'
 
@@ -269,53 +283,21 @@ theme = st.radio(
     horizontal=True
 )
 
-league = st.selectbox(
-    'Select League',
-    ['Premier League', 'La Liga', 'Bundesliga', 'SerieA', 'Ligue1', 'Champions League', 'Europa League','Nations League'],
-    index=0
-)
-
-season = st.selectbox('Select Season',['2025:26','2024:25'],index=0)
-
-league_mapping = {
-    'Premier League': 'premier-league',
-    'La Liga': 'laliga',
-    'Bundesliga': 'bundesliga',
-    'SerieA': 'serie-a',
-    'Ligue1': 'ligue-1',
-    'Champions League': 'champions-league',
-    'Europa League': 'europa-league',
-    'Nations League': 'uefa-nations-league-a'
-}
-
-
-
-# Use the mapping directly
-mapped_league = league_mapping[league]
-
-# Load data from SQLite database
-df = load_data_from_db(mapped_league, season)
-
-if df.empty:
-    st.warning("No valid data could be loaded from the database.")
-    st.stop()
-
-#df,teams = get_team_names(df,team_dict,team_colors)
-teams = df['teamName'].unique().tolist()
-col1, col2 = st.columns(2)
-
-with col1:
-    home_team = st.selectbox('Select Home Team', teams, index=0)
-
-with col2:
-    away_team = st.selectbox('Select Away Team', teams, index=0)
-
 #st.dataframe(df[df['subOn'] != 0][['index','matchId','startDate','teamName','playerName','type','situation']], width=1000)
-match_df = get_match_df(df, home_team, away_team,team_colors)
+league = st.session_state.get('league')
+season = st.session_state.get('season')
+home_team = st.session_state.get('home_team')
+away_team = st.session_state.get('away_team')
+matchId = st.session_state.get('matchId')
+
+# Now use these variables as needed
+
+match_df = load_and_process_match_data(base_path, league, season, matchId, team_colors)
+#st.write("Columns in match_df:", match_df.columns.tolist())
+
 #match_df = match_df.sort_values(by='id').reset_index(drop=True)
 home_team_col = match_df[match_df['teamName'] == home_team]['teamColor'].unique()[0]
 away_team_col = match_df[match_df['teamName'] == away_team]['teamColor'].unique()[0]
-#print(match_df['matchId'].unique(),match_df['startDate'].unique())
 
 ## Shots - ShotMap , xG Flow , OnGoal Shots
 ## Passing - Passing Network , Average On Ball Positions - Passes Played , Passes Received
@@ -323,7 +305,7 @@ away_team_col = match_df[match_df['teamName'] == away_team]['teamColor'].unique(
 
 viz = st.selectbox(
     'Select Action',
-    ['Shots', 'In Possession', 'Duels', 'Out of Possession', 'Set Pieces'],
+    ['Match Dynamics','Shots', 'In Possession', 'Duels', 'Out of Possession', 'Set Pieces', 'Transitions'],
     index=0
 )
 
@@ -331,13 +313,13 @@ if theme == '🌙 Dark':
     background = "#010b14"
     line_color = 'white'
     text_color = 'white'
-    logo = mpimg.imread(f'{base_path}/ScoreSquareWhite.png')
+    logo = mpimg.imread(logo_path)
 
 else:
     background = "#FFFFFF"
     line_color = 'black'
     text_color = 'black'
-    logo = mpimg.imread(f'{base_path}/ScoreSquareDark.png')
+    logo = mpimg.imread(logo_path)
 
 
 if viz == 'Shots':
@@ -349,6 +331,7 @@ if viz == 'Shots':
     fig.set_facecolor(background)
 
     situations = match_df['situation'].dropna().unique().tolist()
+    #print(situations)
     situations = ['All'] + situations
     situation = st.radio('',options=situations,index=0,horizontal=True,label_visibility='collapsed')
     
@@ -590,3 +573,75 @@ if viz == 'Duels':
     st.pyplot(fig)
     st.dataframe(result, width=1000)
 
+if viz == 'Out of Possession':
+    st.markdown("## Defensive Actions")
+    team = st.radio('',options=[home_team, away_team],index=0,horizontal=True, label_visibility='collapsed')
+    halves = st.radio('',options=['Full 90','First Half', 'Second Half'],index=0,horizontal=True, label_visibility='collapsed')
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,15))
+    fig.set_facecolor(background)
+    axs.set_facecolor(background)
+    if team == home_team:
+        defensive_actions_df = match_df[match_df['teamName'] == home_team]
+        team_color = home_team_col
+        if halves == 'First Half':
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] < 45]
+        elif halves == 'Second Half':
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] >= 45]
+        
+        if "selected_player" not in st.session_state:
+            st.session_state.selected_player = None
+        #defensive_block(axs,defensive_actions_df,away_team,away_team_col,background,text_color,True)
+        defensive_block_with_player_actions(axs, defensive_actions_df, home_team, home_team_col, background, text_color,
+                                        flipped=False, selected_player_name=st.session_state.selected_player)
+        st.pyplot(fig)
+
+        zone_filter = st.selectbox("Select Defensive Zone", ["All", "Attacking Third", "Middle Third", "Defensive Third"])
+        team_df = get_defensive_action_distribution_by_type(defensive_actions_df, zone=zone_filter, halves=halves)
+        # Show table row by row with a button for each player
+        if st.button("Clear Selected Player"):
+            st.session_state.selected_player = None
+            st.rerun()
+
+        for i, row in team_df.reset_index().iterrows():
+            col1, col2 = st.columns([1, 5])
+            with col1:
+                if st.button(row['playerName'], key=f"player_{row['playerName']}"):
+                    st.session_state.selected_player = row['playerName']  # ✅ FIXED HERE
+                    st.rerun()  # Immediately rerun to update pitch
+            with col2:
+                st.dataframe(pd.DataFrame([row.drop(['index', 'playerName'])]), use_container_width=True)
+
+
+    else:
+        defensive_actions_df = match_df[match_df['teamName'] == away_team]
+        team_color = away_team_col
+        if halves == 'First Half':
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] < 45]
+        elif halves == 'Second Half':
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] >= 45]
+        
+        if "selected_player" not in st.session_state:
+            st.session_state.selected_player = None
+        #defensive_block(axs,defensive_actions_df,away_team,away_team_col,background,text_color,True)
+        defensive_block_with_player_actions(axs, defensive_actions_df, away_team, away_team_col, background, text_color,
+                                        flipped=True, selected_player_name=st.session_state.selected_player)
+        st.pyplot(fig)
+
+        zone_filter = st.selectbox("Select Defensive Zone", ["All", "Attacking Third", "Middle Third", "Defensive Third"])
+        team_df = get_defensive_action_distribution_by_type(defensive_actions_df, zone=zone_filter, halves=halves)
+        # Show table row by row with a button for each player
+        if st.button("Clear Selected Player"):
+            st.session_state.selected_player = None
+            st.rerun()
+
+        for i, row in team_df.reset_index().iterrows():
+            col1, col2 = st.columns([1, 5])
+            with col1:
+                if st.button(row['playerName'], key=f"player_{row['playerName']}"):
+                    st.session_state.selected_player = row['playerName']  # ✅ FIXED HERE
+                    st.rerun()  # Immediately rerun to update pitch
+            with col2:
+                st.dataframe(pd.DataFrame([row.drop(['index', 'playerName'])]), use_container_width=True)
+
+    
+    

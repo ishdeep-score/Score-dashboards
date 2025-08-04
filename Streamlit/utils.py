@@ -24,9 +24,14 @@ import joblib
 from unidecode import unidecode
 from scipy.ndimage import gaussian_filter
 import sqlite3
+import pandas as pd
+import numpy as np
+import altair as alt
+import streamlit as st
+import matplotlib.patches as mpatches
 
 
-base_path = '/Users/ishdeepchadha/Documents/GitHub/Score/Football'
+base_path = '/Users/ishdeepchadha/Documents/Score/Football'
 # Set the path to the locally downloaded font file
 font_path = f'{base_path}/Sora_Font/Sora-Regular.ttf'
 font_prop = fm.FontProperties(fname=font_path)
@@ -146,7 +151,29 @@ team_dict = {
         327 : 'Hungary',
         425 : 'Denmark',
         423 : 'Switzerland',
-        771 : 'Serbia'
+        771 : 'Serbia',
+        1234 : 'Palmeiras',
+        28925 : 'Inter Miami',
+        297 : 'Porto',
+        4869 : 'Al Ahly',
+        1227 : 'Botafogo',
+        5973 : 'Seattle Sounders',
+        889 : 'Boca Juniors',
+        3951 : 'Auckland City',
+        1239 : 'Flamengo',
+        4861 : 'Esperance',
+        27482 : 'Los Angeles FC',
+        905 : 'River Plate',
+        1452 : 'Monterrey',
+        2403 : 'Urawa Red Diamonds',
+        3306 : 'Mamelodi Sundowns',
+        1232 : 'Fluminense',
+        6327 : 'Ulsan HD FC',
+        5099 : 'Wydad',
+        5138 : 'Al Ain',
+        361 : 'Salzburg',
+        4975 : 'Al Hilal',
+        1449 : 'Pachuca'
 }
     
 team_colors = {
@@ -264,22 +291,84 @@ team_colors = {
     'Sparta Rotterdam': '#E30613',
     'Willem II': '#E30613',
     'RKC Waalwijk': '#FCE500',
-    'Almere City': '#E30613'
+    'Almere City': '#E30613',
+    'Palmeiras' : "#216348",
+    'Inter Miami' : "#E067C2",
+    'Porto' : '#005BAC',
+    'Al Ahly' : '#E30613',
+    'Botafogo' : "#E3DADA",
+    'Seattle Sounders' : "#238486",
+    'Boca Juniors' : "#E0E723",
+    'Auckland City' : '#005BAC',
+    'Flamengo' : '#E30613',
+    'Esperance' : "#7B79D9",
+    'Los Angeles FC' : "#949430",
+    'River Plate' : '#E30613',
+    'Monterrey' : '#005BAC',
+    'Urawa Red Diamonds' : '#E30613',
+    'Mamelodi Sundowns' : "#AEE54F",
+    'Fluminense' : "#68202B",
+    'Ulsan HD FC' : '#005BAC',
+    'Wydad' : '#E30613',
+    'Al Ain' : "#721A70",
+    'Salzburg' : '#E30613',
+    'Al Hilal' : '#005BAC',
+    'Pachuca' : "#E39606"
     }
 
 @st.cache_data
 
 
+def load_and_process_match_data(base_path, league, season, matchId, team_colors):
+    db_path = f'{base_path}/data extraction/score_football.db'
+    conn = sqlite3.connect(db_path)
+    
+    query = """
+        SELECT * FROM event_data
+        WHERE league = ? AND season = ? AND matchId = ?
+    """
+    df = pd.read_sql_query(query, conn, params=(league, season, matchId))
+    conn.close()
 
-def load_data_from_db(league, season):
+    if df.empty:
+        st.warning("No data found for this match.")
+        return pd.DataFrame()
+
+    df = df.sort_values(by='index').reset_index(drop=True)
+
+    # Assign team colors
+    df['teamColor'] = df['teamName'].map(team_colors)
+
+    # Calculate event time in seconds
+    df['event_time'] = df['minute'] * 60 + df['second']
+
+    # First substitution time per team
+    first_sub_times = df[df['type'] == 'SubstitutionOn'] \
+        .groupby('teamName')['event_time'].min().to_dict()
+
+    # Determine if player was in the starting XI
+    def is_first_eleven(row):
+        team = row['teamName']
+        event_time = row['event_time']
+        return event_time < first_sub_times.get(team, float('inf'))
+
+    df['isFirstEleven'] = df.apply(is_first_eleven, axis=1)
+
+    # Force 'SubstitutionOn' players to False regardless
+    df.loc[df['type'] == 'SubstitutionOn', 'isFirstEleven'] = False
+
+    return df
+
+
+def load_data_from_db(league, season,matchId):
     db_path = f'{base_path}/data extraction/score_football.db'
     conn = sqlite3.connect(db_path)
     # Adjust WHERE clause as per your table's columns for league and season
     query = f"""
         SELECT * FROM event_data
-        WHERE league = ? AND season = ?
+        WHERE league = ? AND season = ? AND matchId = ?
     """
-    df = pd.read_sql_query(query, conn, params=(league, season))
+    df = pd.read_sql_query(query, conn, params=(league, season,matchId))
     conn.close()
     return df
 
@@ -2124,105 +2213,118 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
     #st.dataframe(summary_df)
     return summary_df,player_df,home_shots_df,away_shots_df
 
-def xgFlow(ax,home_shots_df,away_shots_df,team1,team2,team1_facecolor,team2_facecolor,text_color,background):
+def xgFlow(ax, home_shots_df, away_shots_df, team1, team2, team1_facecolor, team2_facecolor, text_color, background):
+    # Combine and sort shots
     home_shots_df = home_shots_df.sort_values(by='eventId')
     away_shots_df = away_shots_df.sort_values(by='eventId')
-    dfhome_xG = home_shots_df[['playerName','minute','xG','type','situation','teamName']]
-    dfaway_xG = away_shots_df[['playerName','minute','xG','type','situation','teamName']]
-    
+
+    dfhome_xG = home_shots_df[['playerName', 'minute', 'xG', 'type', 'situation', 'teamName']]
+    dfaway_xG = away_shots_df[['playerName', 'minute', 'xG', 'type', 'situation', 'teamName']]
     df_xG = pd.concat([dfhome_xG, dfaway_xG], ignore_index=True)
-    
-    #df_xG['cumulative_xG'] = df_xG.groupby('teamName')['xG'].sum()
+
+    df_xG['minute'] = pd.to_numeric(df_xG['minute'], errors='coerce')
     df_xG['cumulative_xG'] = df_xG.groupby('teamName')['xG'].cumsum()
 
-    
-    df_xG['minute'] = pd.to_numeric(df_xG['minute'], errors='coerce')
-    
-    df_xG['half'] = df_xG['minute'].apply(lambda x: 1 if x <= 45 else 2)
-
+    # Set background
     ax.set_facecolor(background)
-    
+
+    # Team color map
+    team_colors = {team1: team1_facecolor, team2: team2_facecolor}
+
+    # Determine full match duration
+    full_time = int(max(90, df_xG['minute'].max()))
+
     for team in df_xG['teamName'].unique():
-        
-        team_df = df_xG[df_xG['teamName'] == team]
-        
-        # add a 0 xG row at the start of the match
-        team_df = pd.concat([pd.DataFrame({'teamName': team, 'minute': 0, 'xG': 0, 'type': 'Goal', 'cumulative_xG': 0, 'half': 1},
-                                          index=[0]), team_df])
-        
-        # Also add a row at the beginning of the second half to make the lines start where the first half ended
-        team_df = pd.concat([team_df[team_df['half'] == 1], pd.DataFrame({'teamName': team, 'minute': 45, 'xG': 0, 'type': 'Goal',
-                                                                          'cumulative_xG': team_df[team_df['half'] == 1]['cumulative_xG'].iloc[-1],
-                                                                          'half': 2}, index=[0]), team_df[team_df['half'] == 2]])
-    
-        for half in team_df['half'].unique():
-            half_df = team_df[team_df['half'] == half]
-            ax.plot(
-                half_df['minute'], 
-                half_df['cumulative_xG'], 
-                label=team, 
-                drawstyle='steps-post',
-                c=team2_facecolor if team == team2 else team1_facecolor,
-                linewidth=5
-            )   
-            
-    
-    # We Can add a scatter plot to show the goals
+        team_df = df_xG[df_xG['teamName'] == team].copy()
+
+        # Add minute 0
+        initial_row = pd.DataFrame([{
+            'minute': 0,
+            'xG': 0,
+            'cumulative_xG': 0,
+            'type': 'None',
+            'playerName': '',
+            'situation': '',
+            'teamName': team
+        }])
+
+        team_df = pd.concat([initial_row, team_df], ignore_index=True)
+
+        # Group by minute, keeping last xG event per minute
+        team_df = team_df.sort_values('minute').groupby('minute').last().reset_index()
+
+        # Build full grid of minutes and merge
+        minute_grid = pd.DataFrame({'minute': np.arange(0, full_time + 1)})
+        team_df = pd.merge(minute_grid, team_df, on='minute', how='left')
+
+        # Forward fill to ensure continuous steps
+        team_df['cumulative_xG'] = team_df['cumulative_xG'].ffill().fillna(0)
+
+        # Plot step line
+        ax.plot(
+            team_df['minute'],
+            team_df['cumulative_xG'],
+            label=team,
+            drawstyle='steps-post',
+            c=team_colors[team],
+            linewidth=5,
+            zorder=2
+        )
+
+    # Plot goals with markers and labels
     for team in df_xG['teamName'].unique():
-        team_df = df_xG[(df_xG['teamName'] == team) & (df_xG['type'] == 'Goal')].to_dict(orient='records')
-        for x in team_df:
+        goals = df_xG[(df_xG['teamName'] == team) & (df_xG['type'] == 'Goal')].to_dict(orient='records')
+
+        for goal in goals:
             ax.scatter(
-                x['minute'], 
-                x['cumulative_xG'], 
-                c=team2_facecolor if team == team2 else team1_facecolor,
+                goal['minute'],
+                goal['cumulative_xG'],
+                c=team_colors[team],
                 edgecolor=text_color,
                 s=800,
                 marker='*',
-                # We want the goals to be on top of the lines
                 zorder=5
             )
-            ymin, ymax = ax.get_ylim()
-            y_range = ymax - ymin
 
-            # Define a vertical offset as a percentage of the y-range
-            offset_y = 0.08 * y_range
-            # add a label to the goals for the player who scored
+            # Calculate vertical offset for text
+            ymin, ymax = ax.get_ylim()
+            offset_y = 0.08 * (ymax - ymin)
+
             ax.text(
-                x['minute']+1, 
-                x['cumulative_xG'] + offset_y, 
-                f"{x['playerName']}\nxG: {round(x['xG'],2)}", 
-                ha='center', 
+                goal['minute'] + 1,
+                goal['cumulative_xG'] + offset_y,
+                f"{goal['playerName']}\nxG: {round(goal['xG'], 2)}",
+                ha='center',
                 va='center',
-                c=text_color,
+                c=background,
                 fontproperties=font_prop,
                 fontsize=22,
-                zorder=10
+                zorder=10,
+                bbox=dict(
+                    boxstyle="round,pad=0.3",
+                    facecolor=text_color,  # or a neutral/light color
+                    edgecolor=background,
+                    linewidth=1.5,
+                    alpha=0.9
+                )
             )
-            
-    # Let's label the x axis with first and second half
+
+    # X and Y axis formatting
     ax.set_xticks([0, 45, 90])
     ax.set_xticklabels(['0\'', '45\'', '90\''])
-    
-    #ax.text(-0.9, df_xG['cumulative_xG'].max() + 0.12, 'xG Flow', ha='left',fontproperties=font_prop, fontsize=50,color='white')
-    
-    # Let's label the y axis with the cumulative xG
-    ax.set_ylabel('Cumulative xG', fontfamily='monospace',fontproperties=font_prop, fontsize=22,color=text_color)
-    
-    # Let's get rid of the right and top spines
-    ax.spines['left'].set_visible(True)
-    ax.spines['left'].set_color(text_color)
-    ax.spines['top'].set_visible(True)
-    ax.spines['top'].set_color(text_color)
+    ax.set_ylabel('Cumulative xG', fontfamily='monospace', fontproperties=font_prop, fontsize=22, color=text_color)
 
-    ax.spines['right'].set_visible(True)
-    ax.spines['right'].set_color(text_color)
-    ax.spines['bottom'].set_visible(True)
-    ax.spines['bottom'].set_color(text_color)
-    
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_color(text_color)
+
     ax.tick_params(axis='x', colors=text_color, labelsize=15)
     ax.tick_params(axis='y', colors=text_color, labelsize=15)
-    
-    ax.axvline(x=45, color=text_color, linestyle='--', linewidth=1,alpha=0.5)
+
+    # Half-time divider
+    ax.axvline(x=45, color=text_color, linestyle='--', linewidth=1, alpha=0.5)
+
+    #ax.legend(prop=font_prop, fontsize=20, facecolor=background)
 
 def get_passes_df(df):
     df1 = df[~df['type'].str.contains('SubstitutionOn|FormationChange|FormationSet|Card')]
@@ -2539,7 +2641,7 @@ def plot_duels_by_type(ax, df, team1_name, team2_name, duel_type,
 
     # Define duel type filters
     offensive_types = ['TakeOn', 'GoodSkill', 'ShieldBallOpp']
-    defensive_types = ['Tackle', 'Challenge', 'Dispossessed']
+    defensive_types = ['Tackle', 'Challenge', 'BallRecovery', 'BlockedPass']
 
     # Filter data by duel type
     if duel_type == 'Total':
@@ -2597,7 +2699,7 @@ def plot_duels_by_type(ax, df, team1_name, team2_name, duel_type,
 
             # Text inside bins
             ax.text(x0 + bin_w/2, y0 + bin_h/2, f"{int(t1)}/{int(t2)}",
-                    ha='center', va='center', fontsize=18, color=text_color, fontproperties=font_prop, zorder=4)
+                    ha='center', va='center', fontsize=20, color=text_color, fontproperties=font_prop, zorder=4)
 
     # Direction arrows
     ax.text(0,  -3, 'Attacking Direction--->', color=team1_color, fontsize=22, ha='left', va='center', fontproperties=font_prop)
@@ -2634,17 +2736,23 @@ def plot_duels_by_type(ax, df, team1_name, team2_name, duel_type,
 
 def get_defensive_action_df(df):
     # filter only defensive actions
-    defensive_actions_ids = df.index[(df['type'] == 'Aerial') & (df['qualifiers'].str.contains('Defensive')) |
-                                     (df['type'] == 'BallRecovery') |
-                                     (df['type'] == 'BlockedPass') |
-                                     (df['type'] == 'Challenge') |
-                                     (df['type'] == 'Clearance') |
-                                     (df['type'] == 'Error') |
-                                     (df['type'] == 'Foul') |
-                                     (df['type'] == 'Interception') |
-                                     (df['type'] == 'Tackle')]
-    df_defensive_actions = df.loc[defensive_actions_ids, ["index", "x", "y", "teamName", "playerId", "type", "outcomeType","name"]]
+    defensive_actions_ids = df.index[
+        ((df['type'] == 'Aerial') & (df['qualifiers'].str.contains('Defensive')) |
+        (df['type'] == 'BallRecovery') |
+        (df['type'] == 'BlockedPass') |
+        (df['type'] == 'Challenge') |
+        (df['type'] == 'Clearance') |
+        (df['type'] == 'Error') |
+        (df['type'] == 'Foul') |
+        (df['type'] == 'Interception') |
+        (df['type'] == 'Tackle'))
+        & (df['outcomeType'] == 'Successful')
+    ]
+    
+    cols_needed = ["index", "x", "y", "teamName", "playerId", "type", "outcomeType",
+                   "playerName", "minute", "second", "situation"]  # ✅ include time & context
 
+    df_defensive_actions = df.loc[defensive_actions_ids, cols_needed]
     return df_defensive_actions
 
 def calculate_event_types(dataframe, event_types=None):
@@ -2680,38 +2788,164 @@ def get_da_count_df(team_name, defensive_actions_df, players_df):
 
     return  average_locs_and_count_df
 
-def defensive_block(ax,df,hteam,average_locs_and_count_df, team_name, col,flipped=True):
+def defensive_block(ax,df, team_name, col,background,text_color,flipped=True):
     defensive_actions_df = get_defensive_action_df(df)
-    defensive_actions_team_df = defensive_actions_df[defensive_actions_df["teamName"] == team_name]
-    pitch = Pitch(pitch_type='uefa', pitch_color=background, line_color='white', linewidth=1.5, line_zorder=2, corner_arcs=True)
+    pitch = Pitch(pitch_type='uefa', pitch_color=background, line_color=text_color, linewidth=1.5, line_zorder=2, corner_arcs=True,
+                  positional=True, shade_middle=True, positional_color=text_color, shade_color=text_color, shade_alpha=0.1, positional_alpha=0.5)
     pitch.draw(ax=ax)
     ax.set_facecolor(background)
-    if team_name == hteam:
-        ax.text(32,73,"Defensive Actions", color='white', fontsize=25,fontproperties=font_prop)
-    else:
-        ax.text(75,-5,"Defensive Actions", color='white', fontsize=25,fontproperties=font_prop)
-    #ax.set_xlim(-0.5, 105.5)
-    #ax.set_ylim(-0.5, 68.5)
-    color = np.array(to_rgba(col))
-    flamingo_cmap = LinearSegmentedColormap.from_list("Flamingo - 100 colors", [background, col], N=500)
-    kde = pitch.kdeplot(defensive_actions_team_df.x, defensive_actions_team_df.y, ax=ax, fill=True, levels=5000,alpha=0.7, thresh=0.02, cut=4, cmap=flamingo_cmap)
 
-    average_locs_and_count_df = average_locs_and_count_df.reset_index(drop=True)
-    for index,row in defensive_actions_team_df.iterrows():
-        if row['type'] == 'Aerial':
-            pitch.scatter(row.x, row.y, s=20, marker='x', color='white', alpha=0.8, ax=ax)
-        elif row['type'] == 'BallRecovery':
-            pitch.scatter(row.x, row.y, s=20, marker='o', color='white', alpha=0.8, ax=ax)
-        elif row['type'] == 'Challenge':
-            pitch.scatter(row.x, row.y, s=20, marker='^', color='white', alpha=0.8, ax=ax)
-        elif row['type'] == 'Interception':
-            pitch.scatter(row.x, row.y, s=20, marker='+', color='white', alpha=0.8, ax=ax)
-        elif row['type'] == 'Tackle':
-            pitch.scatter(row.x, row.y, s=20, marker='*', color='white', alpha=0.8, ax=ax)
-        else:
-            pitch.scatter(row.x, row.y, s=10, marker='.', color='white', alpha=0.5, ax=ax)
+    color = np.array(to_rgba(col))
+    cmap = LinearSegmentedColormap.from_list("Flamingo - 100 colors", [background, col], N=500)
+    bin_statistic = pitch.bin_statistic_positional(defensive_actions_df.x, defensive_actions_df.y, statistic='count',
+                                               positional='full', normalize=True)
+    pitch.heatmap_positional(bin_statistic, ax=ax, cmap=cmap, edgecolors=text_color)
+    path_eff = [path_effects.Stroke(linewidth=3, foreground='grey'), path_effects.Normal()]
+    #pitch.scatter(defensive_actions_df.x, defensive_actions_df.y, c='black',marker='*', s=2,alpha=0.5, ax=ax)
+    labels = pitch.label_heatmap(bin_statistic, color=text_color, fontsize=22,
+                                ax=ax, ha='center', va='center',
+                                str_format='{:.0%}', path_effects=path_eff)
+
+
 
     if flipped == True:
+        ax.invert_xaxis()
+        ax.invert_yaxis()
+
+def get_defensive_action_distribution_by_type(defensive_actions_df, zone='All', halves='All'):
+    """
+    Returns a DataFrame with players as rows and defensive action types as columns.
+    Column names include marker symbols.
+    """
+    df = get_defensive_action_df(defensive_actions_df)
+
+    # Define zones
+    def classify_zone(x):
+        if x > 75:
+            return "Attacking Third"
+        elif x > 30:
+            return "Middle Third"
+        else:
+            return "Defensive Third"
+
+    df["zone"] = df["x"].apply(classify_zone)
+
+    # Filter by zone if specified
+    if zone != "All":
+        df = df[df["zone"] == zone]
+
+    # Group by player and action type
+    action_counts = (
+        df.groupby(["playerName", "type"])
+        .size()
+        .reset_index(name="count")
+    )
+
+    # Pivot so types are columns
+    action_distribution = action_counts.pivot_table(
+        index=["playerName"],
+        columns="type",
+        values="count",
+        fill_value=0
+    ).reset_index()
+
+    # Define marker mapping
+    marker_mapping = {
+        "Aerial": "x",
+        "BallRecovery": "o",
+        "Challenge": "^",
+        "Interception": "+",
+        "Tackle": "*",
+        "Clearance": ".",
+        "Foul": "!",
+        "BlockedPass": "#",
+        "Error": "E"
+    }
+
+    # Rename columns to include marker types
+    new_columns = {
+        col: f"{col} ({marker_mapping[col]})"
+        for col in action_distribution.columns
+        if col in marker_mapping
+    }
+
+    action_distribution = action_distribution.rename(columns=new_columns)
+
+    return action_distribution
+
+def defensive_block_with_player_actions(ax, df, team_name, col, background, text_color,
+                                        flipped=True, selected_player_name=None):
+    defensive_actions_df = get_defensive_action_df(df)
+    defensive_actions_team_df = defensive_actions_df[defensive_actions_df["teamName"] == team_name]
+
+    pitch = Pitch(
+        pitch_type='uefa',
+        pitch_color=background,
+        line_color=text_color,
+        linewidth=1,
+        line_zorder=1,
+        corner_arcs=True,
+        positional=True,
+        shade_middle=True,
+        positional_color=text_color,
+        shade_color=text_color,
+        shade_alpha=0.1,
+        positional_alpha=0.4
+    )
+    pitch.draw(ax=ax)
+    ax.set_facecolor(background)
+    if selected_player_name == None:
+        # Positional heatmap
+        cmap = LinearSegmentedColormap.from_list("Flamingo - 100 colors", [background, col], N=500)
+        bin_statistic = pitch.bin_statistic_positional(
+            defensive_actions_team_df.x,
+            defensive_actions_team_df.y,
+            statistic='count',
+            positional='full',
+            normalize=True
+        )
+        pitch.heatmap_positional(bin_statistic, ax=ax, cmap=cmap, edgecolors=text_color)
+
+        path_eff = [path_effects.Stroke(linewidth=3, foreground='grey'), path_effects.Normal()]
+        pitch.label_heatmap(
+            bin_statistic,
+            color=text_color,
+            fontsize=22,
+            ax=ax,
+            ha='center',
+            va='center',
+            str_format='{:.0%}',
+            path_effects=path_eff
+        )
+
+    # If player is selected, highlight their defensive actions
+    elif selected_player_name:
+        player_events = defensive_actions_team_df[defensive_actions_team_df["playerName"] == selected_player_name]
+
+        for _, row in player_events.iterrows():
+            marker_style = {
+                "Aerial": 'x',
+                "BallRecovery": 'o',
+                "Challenge": '^',
+                "Interception": '+',
+                "Tackle": '*',
+            }.get(row['type'], '.')
+
+            pitch.scatter(
+                row.x,
+                row.y,
+                s=800,
+                marker=marker_style,
+                color=text_color,
+                edgecolors=col,
+                linewidth=2,
+                alpha=0.9,
+                ax=ax,
+                zorder=3
+            )
+
+
+    if flipped:
         ax.invert_xaxis()
         ax.invert_yaxis()
 
@@ -3352,3 +3586,33 @@ def plot_lost_pos(df,ax,team1_name,team2_name,team1_facecolor,team2_facecolor):
         ax.text(130, 68 - (i * 6.5), f"{player}: {count}", color=team2_facecolor, fontsize=15, ha='right', va='top', font_properties=font_prop)
         
     return
+
+# ---------- Classify Zones ----------
+def classify_defensive_zones(df, team_name, home_team):
+    df = df.copy()
+    is_home = team_name == home_team
+    df["defensive_zone"] = np.where(
+        (df["x"] < 50) if is_home else (df["x"] > 50),
+        "Own Half",
+        "Opponent Half"
+    )
+    return df
+
+# ---------- Zone Breakdown Bar Chart ----------
+def plot_defensive_zone_bar(df, team_name):
+    df_team = df[df['teamName'] == team_name]
+    zone_counts = df_team['defensive_zone'].value_counts().reset_index()
+    zone_counts.columns = ['Zone', 'Count']
+
+    chart = alt.Chart(zone_counts).mark_bar().encode(
+        x=alt.X('Count:Q'),
+        y=alt.Y('Zone:N', sort=['Opponent Half', 'Own Half']),
+        color=alt.Color('Zone:N', legend=None),
+        tooltip=['Zone', 'Count']
+    ).properties(
+        width=300,
+        height=150,
+        title="Defensive Actions by Zone"
+    )
+
+    return chart

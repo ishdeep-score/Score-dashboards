@@ -583,7 +583,8 @@ if __name__ == "__main__":
     # List of Twitter/X accounts to monitor
     target_accounts = [
         # Add your target accounts here
-        "@AndyRobsonTips","@JamesMurphyTips","@MarkOHaire","@TheFootieGuys","@predictzcom"
+        "@webuildscore",
+        "@thedkingdao"
     ]
 
     # Initial start date for historical data
