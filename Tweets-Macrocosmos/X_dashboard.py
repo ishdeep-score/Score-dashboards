@@ -297,7 +297,7 @@ score_df["Non_Football_Category"] = score_df.apply(
 )
 
 def show_score_analysis():
-    st.header("Score Account Analysis (SCORE_X.csv)")
+    st.header("Score Account Analysis")
     
     score_df["Engagement"] = score_df["Likes"].fillna(0) + score_df["Engagements"].fillna(0)
     score_df["Total_Engagement"] = (score_df["Likes"].fillna(0) + score_df["Reposts"].fillna(0) + 
@@ -405,7 +405,7 @@ def show_score_analysis():
     """)
 
 def show_dking_analysis():
-    st.header("DKING Account Analysis (DKING_X.csv)")
+    st.header("DKING Account Analysis")
     
     dking_df["Engagement"] = dking_df["Likes"].fillna(0) + dking_df["Engagements"].fillna(0)
     dking_df["Total_Engagement"] = (dking_df["Likes"].fillna(0) + dking_df["Reposts"].fillna(0) + 
@@ -422,23 +422,6 @@ def show_dking_analysis():
     col4.metric("Total Profile Visits", f"{dking_df['Profile visits'].sum():,}")
     col5.metric("Avg Engagement Rate", f"{(dking_df['Engagement'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
 
-    # Profile Visits Analysis for DKING
-    st.subheader("Profile Visits Analysis")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Profile Visit Rate", f"{(dking_df['Profile visits'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
-        st.bar_chart(dking_df.groupby("Category")["Profile visits"].sum())
-    with col2:
-        st.subheader("Profile Visits vs Other Metrics")
-        dking_engagement_df = pd.DataFrame({
-            'Likes': dking_df["Likes"].sum(),
-            'Reposts': dking_df["Reposts"].sum(),
-            'Replies': dking_df["Replies"].sum(),
-            'Bookmarks': dking_df["Bookmarks"].sum(),
-            'Profile Visits': dking_df["Profile visits"].sum()
-        }, index=['Total'])
-        st.bar_chart(dking_engagement_df.T)
-
     # DKING Category Analysis
     st.subheader("DKING Post Categories")
     st.bar_chart(dking_df["Category"].value_counts())
@@ -454,23 +437,9 @@ def show_dking_analysis():
     }).round(2)
     st.table(dking_stats)
 
-    # Enhanced DKING Content Analysis
-    st.subheader("Enhanced DKING Content Analysis")
-    analyze_dking_content()
-    content_stats = dking_df.groupby("Content_Category").agg({
-        "Engagement": "sum",
-        "Likes": "sum",
-        "Reposts": "sum",
-        "Replies": "sum",
-        "Bookmarks": "sum",
-        "Profile visits": "sum",
-        "New follows": "sum"
-    }).round(2)
-    st.table(content_stats)
-
 # Add navigation
 extra_page = st.sidebar.selectbox(
-    "Extra Analysis",
+    "Account Analysis",
     ("None", "Score Account", "DKING Account")
 )
 
