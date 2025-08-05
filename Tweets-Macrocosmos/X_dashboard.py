@@ -313,23 +313,6 @@ def show_score_analysis():
     col4.metric("Total Profile Visits", f"{score_df['Profile visits'].sum():,}")
     col5.metric("Avg Engagement Rate", f"{(score_df['Engagement'].sum() / score_df['Impressions'].sum() * 100):.2f}%")
 
-    # Profile Visits Analysis
-    st.subheader("Profile Visits Analysis")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Profile Visit Rate", f"{(score_df['Profile visits'].sum() / score_df['Impressions'].sum() * 100):.2f}%")
-        st.bar_chart(score_df.groupby("Category")["Profile visits"].sum())
-    with col2:
-        st.subheader("Profile Visits vs Other Metrics")
-        profile_engagement_df = pd.DataFrame({
-            'Likes': score_df["Likes"].sum(),
-            'Reposts': score_df["Reposts"].sum(),
-            'Replies': score_df["Replies"].sum(),
-            'Bookmarks': score_df["Bookmarks"].sum(),
-            'Profile Visits': score_df["Profile visits"].sum()
-        }, index=['Total'])
-        st.bar_chart(profile_engagement_df.T)
-
     # Football vs Non-Football Analysis
     st.subheader("Football vs Non-Football Post Performance")
     category_stats = score_df.groupby("Category").agg({
