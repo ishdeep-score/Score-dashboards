@@ -312,32 +312,26 @@ def show_score_analysis():
     # Football vs Non-Football Analysis
     st.subheader("Football vs Non-Football Post Performance")
     category_stats = score_df.groupby("Category").agg({
-        "Impressions": "sum",
         "Engagement": "sum",
-        "Likes": "sum",
-        "Reposts": "sum",
-        "Replies": "sum",
-        "New follows": "sum"
-    })
-    # Add engagement rate for each category
-    category_stats["Engagement Rate %"] = (category_stats["Engagement"] / category_stats["Impressions"] * 100).round(2)
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Replies": "mean",
+        "New follows": "mean"
+    }).round(2)
     st.table(category_stats)
 
     # Post Type Analysis (Articles, Threads, Posts)
     st.subheader("Performance by Post Type (Articles vs Threads vs Posts)")
     type_stats = score_df.groupby("Type").agg({
-        "Impressions": "sum",
         "Engagement": "sum",
-        "Likes": "sum",
-        "Reposts": "sum",
-        "Replies": "sum",
-        "New follows": "sum"
-    })
-    # Add engagement rate for each type
-    type_stats["Engagement Rate %"] = (type_stats["Engagement"] / type_stats["Impressions"] * 100).round(2)
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Replies": "mean",
+        "Impressions": "mean"
+    }).round(2)
     st.table(type_stats)
     
-    st.bar_chart(type_stats["Engagement"])
+    st.bar_chart(score_df.groupby("Type")["Engagement"].mean())
 
     # Non-Football Category Breakdown
     st.subheader("Non-Football Post Categories")
@@ -347,13 +341,11 @@ def show_score_analysis():
         
         st.subheader("Non-Football Category Performance")
         non_football_stats = non_football_posts.groupby("Non_Football_Category").agg({
-            "Impressions": "sum",
             "Engagement": "sum",
-            "Likes": "sum",
-            "Reposts": "sum",
-            "New follows": "sum"
-        })
-        non_football_stats["Engagement Rate %"] = (non_football_stats["Engagement"] / non_football_stats["Impressions"] * 100).round(2)
+            "Likes": "mean",
+            "Reposts": "mean",
+            "New follows": "mean"
+        }).round(2)
         st.table(non_football_stats)
 
     # Football Category Analysis
@@ -364,13 +356,11 @@ def show_score_analysis():
         
         st.subheader("Football Category Performance")
         football_stats = football_posts.groupby("Football_Category").agg({
-            "Impressions": "sum",
             "Engagement": "sum",
-            "Likes": "sum",
-            "Reposts": "sum",
-            "New follows": "sum"
-        })
-        football_stats["Engagement Rate %"] = (football_stats["Engagement"] / football_stats["Impressions"] * 100).round(2)
+            "Likes": "mean",
+            "Reposts": "mean",
+            "New follows": "mean"
+        }).round(2)
         st.table(football_stats)
 
     # Top Performing Posts by Type
@@ -379,31 +369,25 @@ def show_score_analysis():
         type_posts = score_df[score_df["Type"] == post_type].sort_values("Engagement", ascending=False).head(3)
         st.write(f"**Top {post_type}s:**")
         for _, row in type_posts.iterrows():
-            st.write(f"- {row['Post text'][:100]}... | Total Engagement: {row['Engagement']} | Impressions: {row['Impressions']:,}")
+            st.write(f"- {row['Post text'][:100]}... | Engagement: {row['Engagement']} | Likes: {row['Likes']}")
         st.write("")
 
-    # Simplified Insights
-    st.subheader("Key Performance Insights")
-    
-    # Calculate totals for each type
-    thread_total = score_df[score_df["Type"] == "Thread"]["Engagement"].sum()
-    post_total = score_df[score_df["Type"] == "Post"]["Engagement"].sum()
-    article_total = score_df[score_df["Type"] == "Article"]["Engagement"].sum()
-    
-    thread_impressions = score_df[score_df["Type"] == "Thread"]["Impressions"].sum()
-    post_impressions = score_df[score_df["Type"] == "Post"]["Impressions"].sum()
-    article_impressions = score_df[score_df["Type"] == "Article"]["Impressions"].sum()
+    # Insights and Recommendations
+    st.subheader("Key Insights")
+    avg_thread_engagement = score_df[score_df["Type"] == "Thread"]["Engagement"].mean()
+    avg_post_engagement = score_df[score_df["Type"] == "Post"]["Engagement"].mean()
+    avg_article_engagement = score_df[score_df["Type"] == "Article"]["Engagement"].mean()
     
     st.markdown(f"""
-    **Post Type Total Performance:**
-    - Threads: {thread_total:,} total engagement from {thread_impressions:,} impressions ({(thread_total/thread_impressions*100):.2f}% rate)
-    - Regular posts: {post_total:,} total engagement from {post_impressions:,} impressions ({(post_total/post_impressions*100):.2f}% rate)
-    - Articles: {article_total:,} total engagement from {article_impressions:,} impressions ({(article_total/article_impressions*100):.2f}% rate)
+    **Post Type Performance:**
+    - Threads average: {avg_thread_engagement:.1f} engagement
+    - Regular posts average: {avg_post_engagement:.1f} engagement  
+    - Articles average: {avg_article_engagement:.1f} engagement
     
-    **Key Insights:**
-    - Best performing content type: {max([("Threads", thread_total/thread_impressions), ("Posts", post_total/post_impressions), ("Articles", article_total/article_impressions)], key=lambda x: x[1])[0]}
-    - Total new followers gained: {score_df['New follows'].sum():,}
-    - Most engaging category: {score_df.groupby('Category')['Engagement'].sum().idxmax()}
+    **Recommendations:**
+    - {"Threads perform best - create more threaded content" if avg_thread_engagement > avg_post_engagement else "Regular posts perform well - maintain current strategy"}
+    - Non-football technical content tends to get higher quality followers
+    - Football content drives more casual engagement and broader reach
     """)
 
 def show_dking_analysis():
@@ -418,7 +402,7 @@ def show_dking_analysis():
     col1.metric("Total Posts", len(dking_df))
     col2.metric("Total Impressions", f"{dking_df['Impressions'].sum():,}")
     col3.metric("Total Engagement", f"{dking_df['Engagement'].sum():,}")
-    col4.metric("Overall Engagement Rate", f"{(dking_df['Engagement'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
+    col4.metric("Avg Engagement Rate", f"{(dking_df['Engagement'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
 
     # DKING Category Analysis
     st.subheader("DKING Post Categories")
@@ -426,45 +410,90 @@ def show_dking_analysis():
     
     st.subheader("Performance by Category")
     dking_stats = dking_df.groupby("Category").agg({
-        "Impressions": "sum",
         "Engagement": "sum",
-        "Likes": "sum",
-        "Reposts": "sum",
-        "Replies": "sum",
-        "New follows": "sum"
-    })
-    dking_stats["Engagement Rate %"] = (dking_stats["Engagement"] / dking_stats["Impressions"] * 100).round(2)
+        "Likes": "mean",
+        "Reposts": "mean"
+    }).round(2)
     st.table(dking_stats)
 
     # Top DKING Posts
     st.subheader("Top DKING Posts")
     top_dking = dking_df.sort_values("Engagement", ascending=False).head(5)
-    st.table(top_dking[["Date", "Post text", "Category", "Engagement", "Impressions", "Likes"]])
+    st.table(top_dking[["Date", "Post text", "Category", "Engagement", "Likes", "Impressions"]])
 
     # Enhanced DKING Content Analysis
     st.subheader("Enhanced DKING Content Analysis")
     analyze_dking_content()
     content_stats = dking_df.groupby("Content_Category").agg({
-        "Impressions": "sum",
         "Engagement": "sum",
-        "Likes": "sum",
-        "Reposts": "sum",
-        "Replies": "sum",
-        "New follows": "sum"
-    })
-    content_stats["Engagement Rate %"] = (content_stats["Engagement"] / content_stats["Impressions"] * 100).round(2)
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Replies": "mean",
+        "New follows": "mean"
+    }).round(2)
     st.table(content_stats)
 
-    # DKING Insights
-    st.subheader("DKING Performance Insights")
-    best_category = dking_stats["Engagement"].idxmax()
-    best_rate = dking_stats.loc[best_category, "Engagement Rate %"]
-    
-    st.markdown(f"""
-    **Top Performing Category:** {best_category} ({best_rate}% engagement rate)
-    **Total Followers Gained:** {dking_df['New follows'].sum():,}
-    **Total Profile Visits:** {dking_df['Profile visits'].sum():,}
-    **Best Post:** {dking_df.loc[dking_df['Engagement'].idxmax(), 'Post text'][:100]}...
-    """)
+# Add navigation
+extra_page = st.sidebar.selectbox(
+    "Extra Analysis",
+    ("None", "Score Account", "DKING Account")
+)
 
-# ...rest of existing code...
+if extra_page == "Score Account":
+    show_score_analysis()
+elif extra_page == "DKING Account":
+    show_dking_analysis()
+
+def analyze_dking_content():
+    # Enhanced categorization
+    def categorize_dking_content(text):
+        text = str(text).lower()
+        if any(kw in text for kw in ["roi", "profit", "%", "✅", "another one", "green day"]):
+            return "Win Celebrations"
+        elif any(kw in text for kw in ["ev", "probability", "odds", "fair odds", "value"]):
+            return "Betting Analysis"
+        elif any(kw in text for kw in ["roadmap", "milestone", "update", "partnership", "$300m"]):
+            return "Product Updates"
+        elif any(kw in text for kw in ["prompt", "guide", "try this", "use this prompt"]):
+            return "Educational Content"
+        elif any(kw in text for kw in ["buyback", "token", "$dking", "migration", "sire"]):
+            return "Token Updates"
+        elif any(kw in text for kw in ["contest", "community", "join", "leaderboard"]):
+            return "Community Building"
+        else:
+            return "Match Predictions"
+    
+    dking_df["Content_Category"] = dking_df["Post text"].apply(categorize_dking_content)
+
+    # Compare educational content performance
+    educational_vs_promo = dking_df.groupby("Content_Category").agg({
+        "Engagements": "sum",
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Profile visits": "mean"
+    }).round(2)
+    
+def engagement_quality_analysis():
+    # DKING engagement breakdown
+    dking_engagement_quality = {
+        "Engagement Rate": (dking_df["Engagements"].sum() / dking_df["Impressions"].sum()) * 100,
+        "Like Rate": (dking_df["Likes"].sum() / dking_df["Impressions"].sum()) * 100,
+        "Repost Rate": (dking_df["Reposts"].sum() / dking_df["Impressions"].sum()) * 100,
+        "Profile Visit Rate": (dking_df["Profile visits"].sum() / dking_df["Impressions"].sum()) * 100
+    }
+    
+    # Score engagement breakdown  
+    score_engagement_quality = {
+        "Engagement Rate": (score_df["Engagement"].sum() / score_df["Impressions"].sum()) * 100,
+        "Like Rate": (score_df["Likes"].sum() / score_df["Impressions"].sum()) * 100,
+        "Repost Rate": (score_df["Reposts"].sum() / score_df["Impressions"].sum()) * 100,
+        "Follower Growth Rate": (score_df["New follows"].sum() / len(score_df)) * 100
+    }
+
+def growth_analysis():
+    # 7-day rolling averages
+    dking_df["Rolling_Engagement"] = dking_df["Engagements"].rolling(7).mean()
+    score_df["Rolling_Engagement"] = score_df["Engagement"].rolling(7).mean()
+    
+    # Growth rate calculation
+    dking_df["Engagement_Growth"] = dking_df["Rolling_Engagement"].pct_change() * 100
