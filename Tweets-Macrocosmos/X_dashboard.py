@@ -210,4 +210,79 @@ if page == "Overview ":
 elif page == "thedkingdao Analysis":
     show_account_analysis("thedkingdao")
 elif page == "webuildscore Analysis":
-    show_account_analysis("webuildscore") 
+    show_account_analysis("webuildscore")
+
+# Load DKING and SCORE posts
+@st.cache_data
+def load_extra_csvs():
+    score_df = pd.read_csv("Tweets-Macrocosmos/SCORE_X.csv")
+    dking_df = pd.read_csv("Tweets-Macrocosmos/DKING_X.csv")
+    return score_df, dking_df
+
+score_df, dking_df = load_extra_csvs()
+
+# Helper: Classify Score posts
+def classify_score_post(text):
+    football_keywords = [
+        "football", "goal", "match", "league", "player", "coach", "club", "La Liga", "Premier League", "Serie A",
+        "Bundesliga", "Champions League", "UCL", "World Cup", "dribble", "xG", "xA", "xT", "EPV", "packing", "shot"
+    ]
+    if any(kw.lower() in text.lower() for kw in football_keywords):
+        return "Football"
+    return "Other"
+
+def classify_post_type(text):
+    if "🧵" in text or "thread" in text.lower():
+        return "Thread"
+    elif "Read more" in text or "article" in text.lower():
+        return "Article"
+    else:
+        return "Post"
+
+score_df["Category"] = score_df["Post text"].fillna("").apply(classify_score_post)
+score_df["Type"] = score_df["Post text"].fillna("").apply(classify_post_type)
+
+# DKING posts: All are betting-related, but you can add more logic if needed
+
+def show_score_analysis():
+    st.header("Score Account Analysis (SCORE_X.csv)")
+    st.subheader("Football vs Other Posts")
+    football_counts = score_df["Category"].value_counts()
+    st.bar_chart(football_counts)
+
+    st.subheader("Posts, Threads, Articles")
+    type_counts = score_df["Type"].value_counts()
+    st.bar_chart(type_counts)
+
+    st.subheader("Engagement by Category")
+    score_df["Engagement"] = score_df["Likes"].fillna(0) + score_df["Engagements"].fillna(0)
+    st.bar_chart(score_df.groupby("Category")["Engagement"].mean())
+
+    st.subheader("Engagement by Type")
+    st.bar_chart(score_df.groupby("Type")["Engagement"].mean())
+
+    st.subheader("Engagement Over Time")
+    score_df["Date"] = pd.to_datetime(score_df["Date"], errors="coerce")
+    st.line_chart(score_df.groupby("Date")["Engagement"].sum())
+
+def show_dking_analysis():
+    st.header("DKING Account Analysis (DKING_X.csv)")
+    dking_df["Engagement"] = dking_df["Likes"].fillna(0) + dking_df["Engagements"].fillna(0)
+    st.subheader("Engagement Over Time")
+    dking_df["Date"] = pd.to_datetime(dking_df["Date"], errors="coerce")
+    st.line_chart(dking_df.groupby("Date")["Engagement"].sum())
+
+    st.subheader("Top Posts by Engagement")
+    top_posts = dking_df.sort_values("Engagement", ascending=False).head(10)
+    st.table(top_posts[["Date", "Post text", "Engagement"]])
+
+# Add sidebar options
+extra_page = st.sidebar.selectbox(
+    "Extra Analysis",
+    ("None", "Score Account", "DKING Account")
+)
+
+if extra_page == "Score Account":
+    show_score_analysis()
+elif extra_page == "DKING Account":
+    show_dking_analysis()
