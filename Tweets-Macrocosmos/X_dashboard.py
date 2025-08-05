@@ -261,64 +261,167 @@ score_df["Football_Category"] = score_df.apply(
     lambda row: classify_football_category(row["Post text"]) if row["Category"] == "Football" else "Non-Football", axis=1
 )
 
+def classify_non_football_category(text):
+    """Classify non-football posts into detailed categories"""
+    text = str(text).lower()
+    if any(kw in text for kw in ["subnet", "sn44", "validator", "bittensor", "ai", "machine learning", "model"]):
+        return "Technical/AI/Subnet"
+    elif any(kw in text for kw in ["rebrand", "website", "identity", "brand", "design", "logo"]):
+        return "Branding/Marketing"
+    elif any(kw in text for kw in ["roundup", "weekly", "recap", "update", "announcement"]):
+        return "Updates/Announcements"
+    elif any(kw in text for kw in ["mindshare", "ranking", "top", "performance", "metrics"]):
+        return "Performance/Metrics"
+    elif any(kw in text for kw in ["hotfix", "deploy", "bug", "fix", "patch"]):
+        return "Technical Updates"
+    else:
+        return "Other Non-Football"
+
+def classify_dking_category(text):
+    """Classify DKING posts into betting categories"""
+    text = str(text).lower()
+    if any(kw in text for kw in ["+ev", "probability", "fair odds", "value"]):
+        return "Betting Analysis"
+    elif any(kw in text for kw in ["prompt", "guide", "how to", "try this"]):
+        return "Educational/Guides"
+    elif any(kw in text for kw in ["sire", "dking", "migration", "unstaking", "token"]):
+        return "Token/Migration"
+    elif any(kw in text for kw in ["tony bloom", "starlizard", "brighton"]):
+        return "Industry Stories"
+    else:
+        return "Other Betting"
+
+# Apply classifications
+score_df["Non_Football_Category"] = score_df.apply(
+    lambda row: classify_non_football_category(row["Post text"]) if row["Category"] == "Other" else "Football Related", axis=1
+)
+
 def show_score_analysis():
     st.header("Score Account Analysis (SCORE_X.csv)")
-
+    
     score_df["Engagement"] = score_df["Likes"].fillna(0) + score_df["Engagements"].fillna(0)
     score_df["Date"] = pd.to_datetime(score_df["Date"], errors="coerce")
 
-    # Followers, Likes, Reposts Over Time
-    st.subheader("Followers, Likes, Reposts Over Time")
-    st.line_chart(score_df.groupby("Date")[["New follows", "Likes", "Reposts"]].sum())
+    # Overall Performance Metrics
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Posts", len(score_df))
+    col2.metric("Total Impressions", f"{score_df['Impressions'].sum():,}")
+    col3.metric("Total Engagement", f"{score_df['Engagement'].sum():,}")
+    col4.metric("Avg Engagement Rate", f"{(score_df['Engagement'].sum() / score_df['Impressions'].sum() * 100):.2f}%")
 
-    # Football Category Distribution
-    st.subheader("Football Post Category Distribution")
+    # Football vs Non-Football Analysis
+    st.subheader("Football vs Non-Football Post Performance")
+    category_stats = score_df.groupby("Category").agg({
+        "Engagement": ["mean", "sum", "count"],
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Replies": "mean",
+        "New follows": "mean"
+    }).round(2)
+    st.table(category_stats)
+
+    # Post Type Analysis (Articles, Threads, Posts)
+    st.subheader("Performance by Post Type (Articles vs Threads vs Posts)")
+    type_stats = score_df.groupby("Type").agg({
+        "Engagement": ["mean", "sum", "count"],
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Replies": "mean",
+        "Impressions": "mean"
+    }).round(2)
+    st.table(type_stats)
+    
+    st.bar_chart(score_df.groupby("Type")["Engagement"].mean())
+
+    # Non-Football Category Breakdown
+    st.subheader("Non-Football Post Categories")
+    non_football_posts = score_df[score_df["Category"] == "Other"]
+    if len(non_football_posts) > 0:
+        st.bar_chart(non_football_posts["Non_Football_Category"].value_counts())
+        
+        st.subheader("Non-Football Category Performance")
+        non_football_stats = non_football_posts.groupby("Non_Football_Category").agg({
+            "Engagement": "mean",
+            "Likes": "mean",
+            "Reposts": "mean",
+            "New follows": "mean"
+        }).round(2)
+        st.table(non_football_stats)
+
+    # Football Category Analysis
+    st.subheader("Football Post Categories")
     football_posts = score_df[score_df["Category"] == "Football"]
-    st.bar_chart(football_posts["Football_Category"].value_counts())
+    if len(football_posts) > 0:
+        st.bar_chart(football_posts["Football_Category"].value_counts())
+        
+        st.subheader("Football Category Performance")
+        football_stats = football_posts.groupby("Football_Category").agg({
+            "Engagement": "mean",
+            "Likes": "mean",
+            "Reposts": "mean",
+            "New follows": "mean"
+        }).round(2)
+        st.table(football_stats)
 
-    # Engagement by Football Category
-    st.subheader("Average Engagement by Football Category")
-    st.bar_chart(football_posts.groupby("Football_Category")["Engagement"].mean().sort_values(ascending=False))
+    # Top Performing Posts by Type
+    st.subheader("Top Posts by Type")
+    for post_type in score_df["Type"].unique():
+        type_posts = score_df[score_df["Type"] == post_type].sort_values("Engagement", ascending=False).head(3)
+        st.write(f"**Top {post_type}s:**")
+        for _, row in type_posts.iterrows():
+            st.write(f"- {row['Post text'][:100]}... | Engagement: {row['Engagement']} | Likes: {row['Likes']}")
+        st.write("")
 
-    # Likes, Reposts, Replies by Football Category
-    st.subheader("Likes, Reposts, Replies by Football Category")
-    agg = football_posts.groupby("Football_Category")[["Likes", "Reposts", "Replies", "New follows"]].mean().sort_values("Likes", ascending=False)
-    st.table(agg)
-
-    # Top Performing Football Posts (by Engagement)
-    st.subheader("Top Performing Football Posts")
-    top_football = football_posts.sort_values("Engagement", ascending=False).head(10)
-    st.table(top_football[["Date", "Post text", "Football_Category", "Engagement", "Likes", "Reposts", "Replies", "New follows"]])
-
-    # Engagement Over Time by Category
-    st.subheader("Engagement Over Time by Football Category")
-    for cat in football_posts["Football_Category"].unique():
-        cat_df = football_posts[football_posts["Football_Category"] == cat]
-        st.line_chart(cat_df.groupby("Date")["Engagement"].sum(), height=150)
-        st.caption(f"{cat}")
-
-    # Why Some Posts Perform Well
-    st.subheader("Why Some Football Posts Perform Well")
-    st.markdown("""
-    - **Shot/Miss/Goal/Play of the Week**: High engagement due to highlight moments and visual content.
-    - **Guess The Player**: Interactive posts drive replies and reposts.
-    - **Transfers**: Transfer news attracts new followers and high engagement.
-    - **Matchups**: Previews and tactical breakdowns get more likes and shares.
-    - **Others**: Informational or technical posts may get less engagement unless paired with visuals or threads.
+    # Insights and Recommendations
+    st.subheader("Key Insights")
+    avg_thread_engagement = score_df[score_df["Type"] == "Thread"]["Engagement"].mean()
+    avg_post_engagement = score_df[score_df["Type"] == "Post"]["Engagement"].mean()
+    avg_article_engagement = score_df[score_df["Type"] == "Article"]["Engagement"].mean()
+    
+    st.markdown(f"""
+    **Post Type Performance:**
+    - Threads average: {avg_thread_engagement:.1f} engagement
+    - Regular posts average: {avg_post_engagement:.1f} engagement  
+    - Articles average: {avg_article_engagement:.1f} engagement
+    
+    **Recommendations:**
+    - {"Threads perform best - create more threaded content" if avg_thread_engagement > avg_post_engagement else "Regular posts perform well - maintain current strategy"}
+    - Non-football technical content tends to get lower engagement but higher quality followers
+    - Football content drives more casual engagement and broader reach
     """)
 
 def show_dking_analysis():
     st.header("DKING Account Analysis (DKING_X.csv)")
+    
     dking_df["Engagement"] = dking_df["Likes"].fillna(0) + dking_df["Engagements"].fillna(0)
-    st.subheader("Engagement Over Time")
     dking_df["Date"] = pd.to_datetime(dking_df["Date"], errors="coerce")
-    st.line_chart(dking_df.groupby("Date")["Engagement"].sum())
+    dking_df["Category"] = dking_df["Post text"].apply(classify_dking_category)
 
-    st.subheader("Top Posts by Engagement")
-    top_posts = dking_df.sort_values("Engagement", ascending=False).head(10)
-    st.table(top_posts[["Date", "Post text", "Engagement"]])
+    # DKING Performance Metrics
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Posts", len(dking_df))
+    col2.metric("Total Impressions", f"{dking_df['Impressions'].sum():,}")
+    col3.metric("Total Engagement", f"{dking_df['Engagement'].sum():,}")
+    col4.metric("Avg Engagement Rate", f"{(dking_df['Engagement'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
 
-# Add sidebar options
+    # DKING Category Analysis
+    st.subheader("DKING Post Categories")
+    st.bar_chart(dking_df["Category"].value_counts())
+    
+    st.subheader("Performance by Category")
+    dking_stats = dking_df.groupby("Category").agg({
+        "Engagement": ["mean", "count"],
+        "Likes": "mean",
+        "Reposts": "mean"
+    }).round(2)
+    st.table(dking_stats)
+
+    # Top DKING Posts
+    st.subheader("Top DKING Posts")
+    top_dking = dking_df.sort_values("Engagement", ascending=False).head(5)
+    st.table(top_dking[["Date", "Post text", "Category", "Engagement", "Likes", "Impressions"]])
+
+# Add navigation
 extra_page = st.sidebar.selectbox(
     "Extra Analysis",
     ("None", "Score Account", "DKING Account")
