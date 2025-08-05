@@ -300,23 +300,46 @@ def show_score_analysis():
     st.header("Score Account Analysis (SCORE_X.csv)")
     
     score_df["Engagement"] = score_df["Likes"].fillna(0) + score_df["Engagements"].fillna(0)
+    score_df["Total_Engagement"] = (score_df["Likes"].fillna(0) + score_df["Reposts"].fillna(0) + 
+                                   score_df["Replies"].fillna(0) + score_df["Bookmarks"].fillna(0) + 
+                                   score_df["Profile visits"].fillna(0))
     score_df["Date"] = pd.to_datetime(score_df["Date"], errors="coerce")
 
     # Overall Performance Metrics
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("Total Posts", len(score_df))
     col2.metric("Total Impressions", f"{score_df['Impressions'].sum():,}")
     col3.metric("Total Engagement", f"{score_df['Engagement'].sum():,}")
-    col4.metric("Avg Engagement Rate", f"{(score_df['Engagement'].sum() / score_df['Impressions'].sum() * 100):.2f}%")
+    col4.metric("Total Profile Visits", f"{score_df['Profile visits'].sum():,}")
+    col5.metric("Avg Engagement Rate", f"{(score_df['Engagement'].sum() / score_df['Impressions'].sum() * 100):.2f}%")
+
+    # Profile Visits Analysis
+    st.subheader("Profile Visits Analysis")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Profile Visit Rate", f"{(score_df['Profile visits'].sum() / score_df['Impressions'].sum() * 100):.2f}%")
+        st.bar_chart(score_df.groupby("Category")["Profile visits"].sum())
+    with col2:
+        st.subheader("Profile Visits vs Other Metrics")
+        profile_engagement_df = pd.DataFrame({
+            'Likes': score_df["Likes"].sum(),
+            'Reposts': score_df["Reposts"].sum(),
+            'Replies': score_df["Replies"].sum(),
+            'Bookmarks': score_df["Bookmarks"].sum(),
+            'Profile Visits': score_df["Profile visits"].sum()
+        }, index=['Total'])
+        st.bar_chart(profile_engagement_df.T)
 
     # Football vs Non-Football Analysis
     st.subheader("Football vs Non-Football Post Performance")
     category_stats = score_df.groupby("Category").agg({
         "Engagement": "sum",
-        "Likes": "mean",
-        "Reposts": "mean",
-        "Replies": "mean",
-        "New follows": "mean"
+        "Likes": "sum",
+        "Reposts": "sum",
+        "Replies": "sum",
+        "Bookmarks": "sum",
+        "Profile visits": "sum",
+        "New follows": "sum"
     }).round(2)
     st.table(category_stats)
 
@@ -324,14 +347,16 @@ def show_score_analysis():
     st.subheader("Performance by Post Type (Articles vs Threads vs Posts)")
     type_stats = score_df.groupby("Type").agg({
         "Engagement": "sum",
-        "Likes": "mean",
-        "Reposts": "mean",
-        "Replies": "mean",
-        "Impressions": "mean"
+        "Likes": "sum",
+        "Reposts": "sum",
+        "Replies": "sum",
+        "Bookmarks": "sum",
+        "Profile visits": "sum",
+        "Impressions": "sum"
     }).round(2)
     st.table(type_stats)
     
-    st.bar_chart(score_df.groupby("Type")["Engagement"].mean())
+    st.bar_chart(score_df.groupby("Type")["Total_Engagement"].sum())
 
     # Non-Football Category Breakdown
     st.subheader("Non-Football Post Categories")
@@ -342,9 +367,12 @@ def show_score_analysis():
         st.subheader("Non-Football Category Performance")
         non_football_stats = non_football_posts.groupby("Non_Football_Category").agg({
             "Engagement": "sum",
-            "Likes": "mean",
-            "Reposts": "mean",
-            "New follows": "mean"
+            "Likes": "sum",
+            "Reposts": "sum",
+            "Replies": "sum",
+            "Bookmarks": "sum",
+            "Profile visits": "sum",
+            "New follows": "sum"
         }).round(2)
         st.table(non_football_stats)
 
@@ -357,9 +385,12 @@ def show_score_analysis():
         st.subheader("Football Category Performance")
         football_stats = football_posts.groupby("Football_Category").agg({
             "Engagement": "sum",
-            "Likes": "mean",
-            "Reposts": "mean",
-            "New follows": "mean"
+            "Likes": "sum",
+            "Reposts": "sum",
+            "Replies": "sum",
+            "Bookmarks": "sum",
+            "Profile visits": "sum",
+            "New follows": "sum"
         }).round(2)
         st.table(football_stats)
 
@@ -394,15 +425,36 @@ def show_dking_analysis():
     st.header("DKING Account Analysis (DKING_X.csv)")
     
     dking_df["Engagement"] = dking_df["Likes"].fillna(0) + dking_df["Engagements"].fillna(0)
+    dking_df["Total_Engagement"] = (dking_df["Likes"].fillna(0) + dking_df["Reposts"].fillna(0) + 
+                                   dking_df["Replies"].fillna(0) + dking_df["Bookmarks"].fillna(0) + 
+                                   dking_df["Profile visits"].fillna(0))
     dking_df["Date"] = pd.to_datetime(dking_df["Date"], errors="coerce")
     dking_df["Category"] = dking_df["Post text"].apply(classify_dking_category)
 
     # DKING Performance Metrics
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("Total Posts", len(dking_df))
     col2.metric("Total Impressions", f"{dking_df['Impressions'].sum():,}")
     col3.metric("Total Engagement", f"{dking_df['Engagement'].sum():,}")
-    col4.metric("Avg Engagement Rate", f"{(dking_df['Engagement'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
+    col4.metric("Total Profile Visits", f"{dking_df['Profile visits'].sum():,}")
+    col5.metric("Avg Engagement Rate", f"{(dking_df['Engagement'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
+
+    # Profile Visits Analysis for DKING
+    st.subheader("Profile Visits Analysis")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Profile Visit Rate", f"{(dking_df['Profile visits'].sum() / dking_df['Impressions'].sum() * 100):.2f}%")
+        st.bar_chart(dking_df.groupby("Category")["Profile visits"].sum())
+    with col2:
+        st.subheader("Profile Visits vs Other Metrics")
+        dking_engagement_df = pd.DataFrame({
+            'Likes': dking_df["Likes"].sum(),
+            'Reposts': dking_df["Reposts"].sum(),
+            'Replies': dking_df["Replies"].sum(),
+            'Bookmarks': dking_df["Bookmarks"].sum(),
+            'Profile Visits': dking_df["Profile visits"].sum()
+        }, index=['Total'])
+        st.bar_chart(dking_engagement_df.T)
 
     # DKING Category Analysis
     st.subheader("DKING Post Categories")
@@ -411,25 +463,25 @@ def show_dking_analysis():
     st.subheader("Performance by Category")
     dking_stats = dking_df.groupby("Category").agg({
         "Engagement": "sum",
-        "Likes": "mean",
-        "Reposts": "mean"
+        "Likes": "sum",
+        "Reposts": "sum",
+        "Replies": "sum",
+        "Bookmarks": "sum",
+        "Profile visits": "sum"
     }).round(2)
     st.table(dking_stats)
-
-    # Top DKING Posts
-    st.subheader("Top DKING Posts")
-    top_dking = dking_df.sort_values("Engagement", ascending=False).head(5)
-    st.table(top_dking[["Date", "Post text", "Category", "Engagement", "Likes", "Impressions"]])
 
     # Enhanced DKING Content Analysis
     st.subheader("Enhanced DKING Content Analysis")
     analyze_dking_content()
     content_stats = dking_df.groupby("Content_Category").agg({
         "Engagement": "sum",
-        "Likes": "mean",
-        "Reposts": "mean",
-        "Replies": "mean",
-        "New follows": "mean"
+        "Likes": "sum",
+        "Reposts": "sum",
+        "Replies": "sum",
+        "Bookmarks": "sum",
+        "Profile visits": "sum",
+        "New follows": "sum"
     }).round(2)
     st.table(content_stats)
 
@@ -468,9 +520,11 @@ def analyze_dking_content():
     # Compare educational content performance
     educational_vs_promo = dking_df.groupby("Content_Category").agg({
         "Engagements": "sum",
-        "Likes": "mean",
-        "Reposts": "mean",
-        "Profile visits": "mean"
+        "Likes": "sum",
+        "Reposts": "sum",
+        "Replies": "sum",
+        "Bookmarks": "sum",
+        "Profile visits": "sum"
     }).round(2)
     
 def engagement_quality_analysis():
