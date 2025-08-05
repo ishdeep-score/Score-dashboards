@@ -421,6 +421,18 @@ def show_dking_analysis():
     top_dking = dking_df.sort_values("Engagement", ascending=False).head(5)
     st.table(top_dking[["Date", "Post text", "Category", "Engagement", "Likes", "Impressions"]])
 
+    # Enhanced DKING Content Analysis
+    st.subheader("Enhanced DKING Content Analysis")
+    analyze_dking_content()
+    content_stats = dking_df.groupby("Content_Category").agg({
+        "Engagement": ["mean", "sum", "count"],
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Replies": "mean",
+        "New follows": "mean"
+    }).round(2)
+    st.table(content_stats)
+
 # Add navigation
 extra_page = st.sidebar.selectbox(
     "Extra Analysis",
@@ -431,3 +443,57 @@ if extra_page == "Score Account":
     show_score_analysis()
 elif extra_page == "DKING Account":
     show_dking_analysis()
+
+def analyze_dking_content():
+    # Enhanced categorization
+    def categorize_dking_content(text):
+        text = str(text).lower()
+        if any(kw in text for kw in ["roi", "profit", "%", "✅", "another one", "green day"]):
+            return "Win Celebrations"
+        elif any(kw in text for kw in ["ev", "probability", "odds", "fair odds", "value"]):
+            return "Betting Analysis"
+        elif any(kw in text for kw in ["roadmap", "milestone", "update", "partnership", "$300m"]):
+            return "Product Updates"
+        elif any(kw in text for kw in ["prompt", "guide", "try this", "use this prompt"]):
+            return "Educational Content"
+        elif any(kw in text for kw in ["buyback", "token", "$dking", "migration", "sire"]):
+            return "Token Updates"
+        elif any(kw in text for kw in ["contest", "community", "join", "leaderboard"]):
+            return "Community Building"
+        else:
+            return "Match Predictions"
+    
+    dking_df["Content_Category"] = dking_df["Post text"].apply(categorize_dking_content)
+
+    # Compare educational content performance
+    educational_vs_promo = dking_df.groupby("Content_Category").agg({
+        "Engagements": ["mean", "count"],
+        "Likes": "mean",
+        "Reposts": "mean",
+        "Profile visits": "mean"
+    }).round(2)
+    
+def engagement_quality_analysis():
+    # DKING engagement breakdown
+    dking_engagement_quality = {
+        "Engagement Rate": (dking_df["Engagements"].sum() / dking_df["Impressions"].sum()) * 100,
+        "Like Rate": (dking_df["Likes"].sum() / dking_df["Impressions"].sum()) * 100,
+        "Repost Rate": (dking_df["Reposts"].sum() / dking_df["Impressions"].sum()) * 100,
+        "Profile Visit Rate": (dking_df["Profile visits"].sum() / dking_df["Impressions"].sum()) * 100
+    }
+    
+    # Score engagement breakdown  
+    score_engagement_quality = {
+        "Engagement Rate": (score_df["Engagement"].sum() / score_df["Impressions"].sum()) * 100,
+        "Like Rate": (score_df["Likes"].sum() / score_df["Impressions"].sum()) * 100,
+        "Repost Rate": (score_df["Reposts"].sum() / score_df["Impressions"].sum()) * 100,
+        "Follower Growth Rate": (score_df["New follows"].sum() / len(score_df)) * 100
+    }
+
+def growth_analysis():
+    # 7-day rolling averages
+    dking_df["Rolling_Engagement"] = dking_df["Engagements"].rolling(7).mean()
+    score_df["Rolling_Engagement"] = score_df["Engagement"].rolling(7).mean()
+    
+    # Growth rate calculation
+    dking_df["Engagement_Growth"] = dking_df["Rolling_Engagement"].pct_change() * 100
