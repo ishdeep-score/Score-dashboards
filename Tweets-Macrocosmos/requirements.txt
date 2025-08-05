@@ -8,3 +8,5 @@ schedule
 requests
 dotenv
 ratelimit
+plotly
+seaborn
