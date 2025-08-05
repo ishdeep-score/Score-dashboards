@@ -244,26 +244,68 @@ score_df["Type"] = score_df["Post text"].fillna("").apply(classify_post_type)
 
 # DKING posts: All are betting-related, but you can add more logic if needed
 
+def classify_football_category(text):
+    text = str(text).lower()
+    if any(kw in text for kw in ["goal of the week", "shot of the week", "miss of the week", "play of the week", "scored", "goal", "finish", "strike", "header"]):
+        return "Shot/Miss/Goal/Play of the Week"
+    elif "guess the player" in text or "who do you think it is" in text or "who should we scout" in text or "who's your pick" in text:
+        return "Guess The Player"
+    elif any(kw in text for kw in ["to ", "transfer", "joins", "sign", "move", "confirmed"]):
+        return "Transfers"
+    elif any(kw in text for kw in ["vs", "matchup", "semi-final", "final", "quarter-final", "match", "battle", "face", "meet", "takes on", "takes the trophy", "who wins", "who claims", "who gets the points", "who lifts the trophy"]):
+        return "Matchups"
+    else:
+        return "Others"
+
+score_df["Football_Category"] = score_df.apply(
+    lambda row: classify_football_category(row["Post text"]) if row["Category"] == "Football" else "Non-Football", axis=1
+)
+
 def show_score_analysis():
     st.header("Score Account Analysis (SCORE_X.csv)")
-    st.subheader("Football vs Other Posts")
-    football_counts = score_df["Category"].value_counts()
-    st.bar_chart(football_counts)
 
-    st.subheader("Posts, Threads, Articles")
-    type_counts = score_df["Type"].value_counts()
-    st.bar_chart(type_counts)
-
-    st.subheader("Engagement by Category")
     score_df["Engagement"] = score_df["Likes"].fillna(0) + score_df["Engagements"].fillna(0)
-    st.bar_chart(score_df.groupby("Category")["Engagement"].mean())
-
-    st.subheader("Engagement by Type")
-    st.bar_chart(score_df.groupby("Type")["Engagement"].mean())
-
-    st.subheader("Engagement Over Time")
     score_df["Date"] = pd.to_datetime(score_df["Date"], errors="coerce")
-    st.line_chart(score_df.groupby("Date")["Engagement"].sum())
+
+    # Followers, Likes, Reposts Over Time
+    st.subheader("Followers, Likes, Reposts Over Time")
+    st.line_chart(score_df.groupby("Date")[["New follows", "Likes", "Reposts"]].sum())
+
+    # Football Category Distribution
+    st.subheader("Football Post Category Distribution")
+    football_posts = score_df[score_df["Category"] == "Football"]
+    st.bar_chart(football_posts["Football_Category"].value_counts())
+
+    # Engagement by Football Category
+    st.subheader("Average Engagement by Football Category")
+    st.bar_chart(football_posts.groupby("Football_Category")["Engagement"].mean().sort_values(ascending=False))
+
+    # Likes, Reposts, Replies by Football Category
+    st.subheader("Likes, Reposts, Replies by Football Category")
+    agg = football_posts.groupby("Football_Category")[["Likes", "Reposts", "Replies", "New follows"]].mean().sort_values("Likes", ascending=False)
+    st.table(agg)
+
+    # Top Performing Football Posts (by Engagement)
+    st.subheader("Top Performing Football Posts")
+    top_football = football_posts.sort_values("Engagement", ascending=False).head(10)
+    st.table(top_football[["Date", "Post text", "Football_Category", "Engagement", "Likes", "Reposts", "Replies", "New follows"]])
+
+    # Engagement Over Time by Category
+    st.subheader("Engagement Over Time by Football Category")
+    for cat in football_posts["Football_Category"].unique():
+        cat_df = football_posts[football_posts["Football_Category"] == cat]
+        st.line_chart(cat_df.groupby("Date")["Engagement"].sum(), height=150)
+        st.caption(f"{cat}")
+
+    # Why Some Posts Perform Well
+    st.subheader("Why Some Football Posts Perform Well")
+    st.markdown("""
+    - **Shot/Miss/Goal/Play of the Week**: High engagement due to highlight moments and visual content.
+    - **Guess The Player**: Interactive posts drive replies and reposts.
+    - **Transfers**: Transfer news attracts new followers and high engagement.
+    - **Matchups**: Previews and tactical breakdowns get more likes and shares.
+    - **Others**: Informational or technical posts may get less engagement unless paired with visuals or threads.
+    """)
 
 def show_dking_analysis():
     st.header("DKING Account Analysis (DKING_X.csv)")
