@@ -129,7 +129,7 @@ team_colors = {
     'Barcelona': '#A50044',
     'Atletico Madrid': '#CE3524',
     'Real Madrid': '#FCBF00',
-    'Athletic Club': '#E0092C',
+    'Atletic Club': '#E0092C',
     'Villarreal': '#FFE667',
     'Real Betis': '#0BB363',
     'Rayo Vallecano': '#E53027',
@@ -274,7 +274,13 @@ font_path = f'{base_path}/Sora_Font/Sora-Regular.ttf'
 font_prop = fm.FontProperties(fname=font_path)
 st.set_page_config(layout="centered")
 
-st.title("Match Report")
+league = st.session_state.get('league')
+season = st.session_state.get('season')
+home_team = st.session_state.get('home_team')
+away_team = st.session_state.get('away_team')
+matchId = st.session_state.get('matchId')
+
+st.title(f"{home_team} vs {away_team}")
 
 theme = st.radio(
     '',
@@ -284,11 +290,7 @@ theme = st.radio(
 )
 
 #st.dataframe(df[df['subOn'] != 0][['index','matchId','startDate','teamName','playerName','type','situation']], width=1000)
-league = st.session_state.get('league')
-season = st.session_state.get('season')
-home_team = st.session_state.get('home_team')
-away_team = st.session_state.get('away_team')
-matchId = st.session_state.get('matchId')
+
 
 # Now use these variables as needed
 
@@ -321,6 +323,34 @@ else:
     text_color = 'black'
     logo = mpimg.imread(logo_path)
 
+if viz == 'Match Dynamics':
+    st.markdown("## Match Dynamics")
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,12))
+    fig.set_facecolor(background)
+    axs.set_facecolor(background)
+
+    st.markdown("### xT Momentum Flow")
+    xT_momemtum(axs,match_df,home_team,away_team,home_team_col,away_team_col,background,text_color)    
+    st.pyplot(fig)
+
+    st.markdown("### Ball Possession % and Pass Accuracy %")
+    fig2, axs2 = plt.subplots(nrows=1, ncols=2, figsize=(20,9))
+    fig2.set_facecolor(background)
+    axs2[0].set_facecolor(background)
+    axs2[1].set_facecolor(background)
+
+    poss_df = tag_sequences_and_possessions_all_matches(match_df)
+    plot_possession_windows_time_weighted(
+        ax=axs2[0],
+        df=poss_df,
+        home_team=home_team,
+        away_team= away_team,
+        team_colors={home_team: home_team_col, away_team: away_team_col},
+        background=background,
+        text_color=text_color,
+        font_prop=font_prop
+    )
+    st.pyplot(fig2)
 
 if viz == 'Shots':
     #fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,22))
@@ -535,23 +565,119 @@ if viz == 'In Possession':
 
     st.dataframe(styled_stats, width=1000)
 
-    ## Chalkboard for each different type of pass along side top 5 players for that type of pass
-    passtype = st.radio('',options=['Final Third Entries','Crosses','Long Balls','Through Balls'],index=0,horizontal=True, label_visibility='collapsed')
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(30,12))
+
+    # --- Passmaps Section ---
+    # Team filter above pitch and player stats
+    team_filter = st.radio("Select Team", [home_team, away_team], horizontal=True, index=0)
+
+    # Add half selection radio
+    half_option = st.radio(
+        "Select Half",
+        options=["Full 90", "First Half", "Second Half"],
+        index=0,
+        horizontal=True
+    )
+
+    # Pass type selection
+    passtypes = ['All', 'Crosses', 'Long Balls', 'Through Balls', 'Final Third Entries']
+    passtype = st.radio('', options=passtypes, index=0, horizontal=True, label_visibility='collapsed')
+
+    # Filter match_df for the selected half
+    if half_option == "First Half":
+        match_df_half = match_df[match_df['period'] == 'FirstHalf']
+    elif half_option == "Second Half":
+        match_df_half = match_df[match_df['period'] == 'SecondHalf']
+    else:
+        match_df_half = match_df
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(30, 12))
     fig.set_facecolor(background)
     plt.subplots_adjust(wspace=0.02)
-    
-    top_passers_h = passmaps(ax[0],match_df,home_team,home_team_col,background,text_color,passtype)
-    top_passers_a = passmaps(ax[1],match_df,away_team,away_team_col,background,text_color,passtype)
+
+    if "selected_pass_player" not in st.session_state:
+        st.session_state.selected_pass_player = None
+    selected_player = st.session_state.selected_pass_player
+
+    # --- Passmaps plotting ---
+    top_passers_h, top_passers_a = passmaps(
+        ax, match_df_half, home_team, home_team_col, away_team, away_team_col,
+        background, text_color, passtype, selected_player, team_filter
+    )
     top_passers_h = top_passers_h.reset_index(drop=True)
     top_passers_a = top_passers_a.reset_index(drop=True)
-    top_passers_h.columns = [f"home_{col}" for col in top_passers_h.columns]
-    top_passers_a.columns = [f"away_{col}" for col in top_passers_a.columns]
-    result = pd.concat([top_passers_h, top_passers_a], axis=1)
-    result = result.reset_index(drop=True)
+
+    # --- Build pass type counts, assists, xA for each player ---
+    def get_pass_type_counts(df, team):
+        passes = df[(df['type'] == 'Pass') & (df['teamName'] == team)].copy()
+        passes['Final Third Entries'] = ((passes['x'] < 75) & (passes['endX'] >= 75) & (passes['outcomeType'] == 'Successful')).astype(int)
+        passes['Crosses'] = (passes['qualifiers'].str.contains('Cross', na=False) & (passes['outcomeType'] == 'Successful')).astype(int)
+        passes['Long Balls'] = (passes['qualifiers'].str.contains('Longball', na=False) & (passes['outcomeType'] == 'Successful')).astype(int)
+        passes['Through Balls'] = (passes['qualifiers'].str.contains('Throughball', na=False) & (passes['outcomeType'] == 'Successful')).astype(int)
+        passes['Total Passes'] = 1
+        #passes['Assist'] = passes['assist'].astype(int) if 'assist' in passes.columns else 0
+        passes['xA'] = passes['xA'] if 'xA' in passes.columns else 0.0
+
+        summary = passes.groupby('playerName').agg({
+            'Final Third Entries': 'sum',
+            'Crosses': 'sum',
+            'Long Balls': 'sum',
+            'Through Balls': 'sum',
+            'Total Passes': 'sum',
+            'assist': 'sum',
+            'xA': 'sum'
+        }).reset_index()
+        summary = summary.rename(columns={'assist': 'Assist'})
+        summary = summary.sort_values('Total Passes', ascending=False)
+        return summary
+
+    home_pass_summary = get_pass_type_counts(match_df_half, home_team)
+    away_pass_summary = get_pass_type_counts(match_df_half, away_team)
+
+    # --- Display pitch ---
     st.pyplot(fig)
-    st.markdown(" Star marker indicates key pass / chance created and green line indicates an assist.")
-    st.dataframe(result, width=1000)
+    st.markdown("Star marker indicates key pass / chance created and green line indicates an assist.")
+
+    # --- Interactive player pass stats DataFrame ---
+    if team_filter == home_team:
+        pass_summary = home_pass_summary
+    else:
+        pass_summary = away_pass_summary
+
+    # Add playerName as buttons in the DataFrame
+    def player_button(label, key):
+        return st.button(label, key=key)
+
+    # Build a DataFrame with playerName as buttons
+    button_cols = st.columns([2, 1, 1, 1, 1, 1, 1, 1])
+    header = ["Player", "Final Third", "Crosses", "Long Balls", "Through Balls", "Total Passes", "Assists", "xA"]
+    for i, h in enumerate(header):
+        button_cols[i].markdown(f"**{h}**")
+
+    for i, row in pass_summary.iterrows():
+        cols = st.columns([2, 1, 1, 1, 1, 1, 1, 1])
+        with cols[0]:
+            if player_button(row['playerName'], key=f"{team_filter}_pass_{row['playerName']}"):
+                st.session_state.selected_pass_player = row['playerName']
+                st.rerun()
+        with cols[1]:
+            st.write(int(row['Final Third Entries']))
+        with cols[2]:
+            st.write(int(row['Crosses']))
+        with cols[3]:
+            st.write(int(row['Long Balls']))
+        with cols[4]:
+            st.write(int(row['Through Balls']))
+        with cols[5]:
+            st.write(int(row['Total Passes']))
+        with cols[6]:
+            st.write(int(row['Assist']))
+        with cols[7]:
+            st.write(round(row['xA'], 2))
+
+    # --- Clear selection button ---
+    if st.button("Clear Selection"):
+        st.session_state.selected_pass_player = None
+        st.rerun()
 
 if viz == 'Duels':
     st.markdown("## Duels")
@@ -584,9 +710,9 @@ if viz == 'Out of Possession':
         defensive_actions_df = match_df[match_df['teamName'] == home_team]
         team_color = home_team_col
         if halves == 'First Half':
-            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] < 45]
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['period'] == 'FirstHalf']
         elif halves == 'Second Half':
-            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] >= 45]
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['period'] == 'SecondHalf']
         
         if "selected_player" not in st.session_state:
             st.session_state.selected_player = None
@@ -616,9 +742,9 @@ if viz == 'Out of Possession':
         defensive_actions_df = match_df[match_df['teamName'] == away_team]
         team_color = away_team_col
         if halves == 'First Half':
-            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] < 45]
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['period'] == 'FirstHalf']
         elif halves == 'Second Half':
-            defensive_actions_df = defensive_actions_df[defensive_actions_df['minute'] >= 45]
+            defensive_actions_df = defensive_actions_df[defensive_actions_df['period'] == 'SecondHalf']
         
         if "selected_player" not in st.session_state:
             st.session_state.selected_player = None
