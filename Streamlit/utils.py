@@ -29,6 +29,7 @@ import numpy as np
 import altair as alt
 import streamlit as st
 import matplotlib.patches as mpatches
+import plotly.graph_objects as go
 
 
 base_path = '/Users/ishdeepchadha/Documents/Score/Football'
@@ -488,6 +489,106 @@ def cumulative_match_mins(events_df):
         match_events.loc[match_events['period'] == period, 'cumulative_mins'] += t_delta
     # Rebuild events dataframe
     events_out = pd.concat([events_out, match_events])
+    return events_out
+
+def insert_ball_carries(events_df, min_carry_length=3, max_carry_length=60, min_carry_duration=1, max_carry_duration=10):
+    events_out = pd.DataFrame()
+    # Carry conditions (convert from metres to opta)
+    min_carry_length = 3.0
+    max_carry_length = 60.0
+    min_carry_duration = 1.0
+    max_carry_duration = 10.0
+    # match_events = events_df[events_df['match_id'] == match_id].reset_index()
+    match_events = events_df.reset_index()
+    match_carries = pd.DataFrame()
+
+    for idx, match_event in match_events.iterrows():
+
+        if idx < len(match_events) - 1:
+            prev_evt_team = match_event['teamId']
+            next_evt_idx = idx + 1
+            init_next_evt = match_events.loc[next_evt_idx]
+            take_ons = 0
+            incorrect_next_evt = True
+
+            while incorrect_next_evt:
+
+                next_evt = match_events.loc[next_evt_idx]
+
+                if next_evt['type'] == 'TakeOn' and next_evt['outcomeType'] == 'Successful':
+                    take_ons += 1
+                    incorrect_next_evt = True
+
+                elif ((next_evt['type'] == 'TakeOn' and next_evt['outcomeType'] == 'Unsuccessful')
+                      or (next_evt['teamId'] != prev_evt_team and next_evt['type'] == 'Challenge' and next_evt['outcomeType'] == 'Unsuccessful')
+                      or (next_evt['type'] == 'Foul')):
+                    incorrect_next_evt = True
+
+                else:
+                    incorrect_next_evt = False
+
+                next_evt_idx += 1
+
+            # Apply some conditioning to determine whether carry criteria is satisfied
+            same_team = prev_evt_team == next_evt['teamId']
+            not_ball_touch = match_event['type'] != 'BallTouch'
+            dx = 105*(match_event['endX'] - next_evt['x'])/100
+            dy = 68*(match_event['endY'] - next_evt['y'])/100
+            far_enough = dx ** 2 + dy ** 2 >= min_carry_length ** 2
+            not_too_far = dx ** 2 + dy ** 2 <= max_carry_length ** 2
+            dt = 60 * (next_evt['cumulative_mins'] - match_event['cumulative_mins'])
+            min_time = dt >= min_carry_duration
+            same_phase = dt < max_carry_duration
+            same_period = match_event['period'] == next_evt['period']
+
+            valid_carry = same_team & not_ball_touch & far_enough & not_too_far & min_time & same_phase &same_period
+
+            if valid_carry:
+                carry = pd.DataFrame()
+                prev = match_event
+                nex = next_evt
+
+                carry.loc[0, 'eventId'] = prev['eventId'] + 0.5
+                carry['minute'] = np.floor(((init_next_evt['minute'] * 60 + init_next_evt['second']) + (
+                        prev['minute'] * 60 + prev['second'])) / (2 * 60))
+                carry['second'] = (((init_next_evt['minute'] * 60 + init_next_evt['second']) +
+                                    (prev['minute'] * 60 + prev['second'])) / 2) - (carry['minute'] * 60)
+                carry['teamId'] = nex['teamId']
+                carry['x'] = prev['endX']
+                carry['y'] = prev['endY']
+                carry['expandedMinute'] = np.floor(((init_next_evt['expandedMinute'] * 60 + init_next_evt['second']) +
+                                                    (prev['expandedMinute'] * 60 + prev['second'])) / (2 * 60))
+                carry['period'] = nex['period']
+                carry['type'] = carry.apply(lambda x: {'value': 99, 'displayName': 'Carry'}, axis=1)
+                carry['outcomeType'] = 'Successful'
+                carry['qualifiers'] = carry.apply(lambda x: {'type': {'value': 999, 'displayName': 'takeOns'}, 'value': str(take_ons)}, axis=1)
+                carry['satisfiedEventsTypes'] = carry.apply(lambda x: [], axis=1)
+                carry['isTouch'] = True
+                carry['playerId'] = nex['playerId']
+                carry['endX'] = nex['x']
+                carry['endY'] = nex['y']
+                carry['blockedX'] = np.nan
+                carry['blockedY'] = np.nan
+                carry['goalMouthZ'] = np.nan
+                carry['goalMouthY'] = np.nan
+                carry['isShot'] = np.nan
+                carry['relatedEventId'] = nex['eventId']
+                carry['relatedPlayerId'] = np.nan
+                carry['isGoal'] = np.nan
+                carry['cardType'] = np.nan
+                carry['isOwnGoal'] = np.nan
+                carry['type'] = 'Carry'
+                carry['cumulative_mins'] = (prev['cumulative_mins'] + init_next_evt['cumulative_mins']) / 2
+                carry['playerName'] = nex['playerName']
+
+                match_carries = pd.concat([match_carries, carry], ignore_index=True, sort=False)
+
+    match_events_and_carries = pd.concat([match_carries, match_events], ignore_index=True, sort=False)
+    match_events_and_carries = match_events_and_carries.sort_values(['period', 'cumulative_mins']).reset_index(drop=True)
+
+    # Rebuild events dataframe
+    events_out = pd.concat([events_out, match_events_and_carries])
+
     return events_out
 
 def get_match_df(df, home_team, away_team,team_colors):
@@ -2080,8 +2181,11 @@ def summarize_player_shots(df):
     # Filter out players with no shots
     player_summary = player_summary[player_summary['Total Shots'] > 0]
 
+    player_team_map = df.groupby('playerName')['teamName'].first().to_dict()
+    player_summary['Team'] = player_summary['playerName'].map(player_team_map)
+
     # Sort by total shots
-    player_summary = player_summary.sort_values(by='Total Shots', ascending=False)
+    player_summary = player_summary.sort_values(by='Total xG', ascending=False)
 
     return player_summary
 
@@ -2098,8 +2202,8 @@ def calculate_angle(x, y,GOAL_X,GOAL_Y):
         angle = 0
     return angle
 
-def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text_color,background,situation):
-
+def shotMap_ws(df, axs, pitch, hteam, ateam, team1_facecolor, team2_facecolor, text_color, background, situation, selected_player=None):
+    # Filter shots by situation and selected player
     if situation == 'All':
         mask1 = ((df['teamName'] == hteam)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
         mask2 = ((df['teamName'] == ateam)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
@@ -2107,9 +2211,19 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
         mask1 = ((df['teamName'] == hteam)) & (df['situation'] == situation) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
         mask2 = ((df['teamName'] == ateam)) & (df['situation'] == situation) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
 
+    df['xG'] = df['xG'].fillna(0)
 
     home_shots_df = df[mask1]
+    away_shots_df = df[mask2]
+
+    # Filter by selected player if provided
+    if selected_player:
+        home_shots_df = home_shots_df[home_shots_df['playerName'] == selected_player]
+        away_shots_df = away_shots_df[away_shots_df['playerName'] == selected_player]
+
     home_shots_df.reset_index(drop=True, inplace=True)
+    away_shots_df.reset_index(drop=True, inplace=True)
+
     h_missed = home_shots_df[home_shots_df['type'] == 'MissedShots']
     h_saved = home_shots_df[(home_shots_df['type'] == 'SavedShot') & (home_shots_df['shotBlocked'] == False)]
     h_blocked = home_shots_df[(home_shots_df['type'] == 'SavedShot') & (home_shots_df['shotBlocked'] == True)]
@@ -2117,8 +2231,6 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
     h_goals = home_shots_df[(home_shots_df['type'] == 'Goal') & (home_shots_df['goalOwn'] == False)]
     h_own_goals = home_shots_df[(home_shots_df['type'] == 'Goal') & (home_shots_df['goalOwn'] == True)]
 
-    away_shots_df = df[mask2]
-    away_shots_df.reset_index(drop=True, inplace=True)
     a_missed = away_shots_df[away_shots_df['type'] == 'MissedShots']
     a_saved = away_shots_df[(away_shots_df['type'] == 'SavedShot') & (away_shots_df['shotBlocked'] == False)]
     a_blocked = away_shots_df[(away_shots_df['type'] == 'SavedShot') & (away_shots_df['shotBlocked'] == True)]
@@ -2128,10 +2240,11 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
 
     away_shots_df['x'] = pitch.dim.right - away_shots_df.x
     away_shots_df['y'] = pitch.dim.top - away_shots_df.y
-    team1_hist_y = sns.kdeplot(y=away_shots_df.y, ax=axs['left'], color=team2_facecolor, fill=True)
-    #team1_hist_x = sns.kdeplot(x=away_shots_df.x, ax=axs['top'], color=team2_facecolor, fill=True)
-    #team2_hist_x = sns.kdeplot(x=home_shots_df.x, ax=axs['top'], color=team1_facecolor, fill=True)
-    team2_hist_y = sns.kdeplot(y=home_shots_df.y, ax=axs['right'], color=team1_facecolor, fill=True)
+
+    if not away_shots_df['y'].empty and away_shots_df['y'].nunique() > 1:
+        sns.kdeplot(y=away_shots_df.y, ax=axs['left'], color=team2_facecolor, fill=True)
+    if not home_shots_df['y'].empty and home_shots_df['y'].nunique() > 1:
+        sns.kdeplot(y=home_shots_df.y, ax=axs['right'], color=team1_facecolor, fill=True)
 
     a_missed['x'] = pitch.dim.right - a_missed.x
     a_saved['x'] = pitch.dim.right - a_saved.x
@@ -2147,22 +2260,31 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
     a_own_goals['y'] = pitch.dim.top - a_own_goals.y
     a_blocked['y'] = pitch.dim.top - a_blocked.y
 
-    pitch.scatter(h_missed.x,h_missed.y,marker='o', edgecolors=team1_facecolor, s=7000 * h_missed['xG'],linewidth=3, c=background,ax=axs['pitch'])
-    pitch.scatter(h_saved.x,h_saved.y,marker='o', edgecolors='white', s=7000 * h_saved['xG'], c=team1_facecolor,linewidth=3,zorder=4,ax=axs['pitch'])
-    pitch.scatter(h_post.x,h_post.y,marker='o', edgecolors='green', s=7000 * h_post['xG'],linewidth=3, c=team1_facecolor,zorder=5,ax=axs['pitch'])
-    pitch.scatter(h_goals.x,h_goals.y,marker='football', edgecolors=text_color, s=9000 * h_goals['xG'],zorder=6,linewidths=3, c=team1_facecolor,ax=axs['pitch'])
-    pitch.scatter(a_own_goals.x,a_own_goals.y,marker='football', edgecolors=team2_facecolor, s=1000,zorder=6, c=team1_facecolor,ax=axs['pitch'])
-    pitch.scatter(h_blocked.x,h_blocked.y,marker='s', edgecolors=team1_facecolor, s=5000 * h_blocked['xG'],zorder=5,linewidth=3, c=background,ax=axs['pitch'])
+    if not h_missed.empty:
+        pitch.scatter(h_missed.x, h_missed.y, marker='o', edgecolors=team1_facecolor, s=8000 * h_missed['xG'], linewidth=3, c=background, ax=axs['pitch'])
+    if not h_saved.empty:
+        pitch.scatter(h_saved.x, h_saved.y, marker='o', edgecolors='white', s=8000 * h_saved['xG'], c=team1_facecolor, linewidth=3, zorder=4, ax=axs['pitch'])
+    if not h_post.empty:
+        pitch.scatter(h_post.x, h_post.y, marker='o', edgecolors='green', s=8000 * h_post['xG'], linewidth=3, c=team1_facecolor, zorder=5, ax=axs['pitch'])
+    if not h_goals.empty:
+        pitch.scatter(h_goals.x, h_goals.y, marker='football', edgecolors=text_color, s=10000 * h_goals['xG'], zorder=6, linewidths=3, c=team1_facecolor, ax=axs['pitch'])
+    if not h_own_goals.empty:
+        pitch.scatter(h_own_goals.x, h_own_goals.y, marker='football', edgecolors=team2_facecolor, s=3000, zorder=6, c=team1_facecolor, ax=axs['pitch'])
+    if not h_blocked.empty:
+        pitch.scatter(h_blocked.x, h_blocked.y, marker='s', edgecolors=team1_facecolor, s=6000 * h_blocked['xG'], zorder=5, linewidth=3, c=background, ax=axs['pitch'])
 
-
-    pitch.scatter(a_missed.x,a_missed.y,marker='o', edgecolors=team2_facecolor, s=7000 * a_missed['xG'],linewidth=3, c=background,ax=axs['pitch'])
-    pitch.scatter(a_saved.x,a_saved.y,marker='o', edgecolors='white', s=7000 * a_saved['xG'], c=team2_facecolor,linewidth=3,zorder=4,ax=axs['pitch'])
-    pitch.scatter(a_post.x,a_post.y,marker='o', edgecolors='green', s=7000 * a_post['xG'], c=team2_facecolor,linewidth=3,zorder=5,ax=axs['pitch'])
-    pitch.scatter(a_goals.x,a_goals.y,marker='football', edgecolors=text_color, s=9000 * a_goals['xG'],zorder=6,linewidths=3, c=team2_facecolor,ax=axs['pitch'])
-    pitch.scatter(h_own_goals.x,h_own_goals.y,marker='football', edgecolors=team1_facecolor, s=1000,zorder=6, c=team2_facecolor,ax=axs['pitch'])
-    pitch.scatter(a_blocked.x,a_blocked.y,marker='s', edgecolors=team2_facecolor, s=5000 * a_blocked['xG'],zorder=5,linewidth=3, c=background,ax=axs['pitch'])
-
-
+    if not a_missed.empty:
+        pitch.scatter(a_missed.x, a_missed.y, marker='o', edgecolors=team2_facecolor, s=8000 * a_missed['xG'], linewidth=3, c=background, ax=axs['pitch'])
+    if not a_saved.empty:
+        pitch.scatter(a_saved.x, a_saved.y, marker='o', edgecolors='white', s=8000 * a_saved['xG'], c=team2_facecolor, linewidth=3, zorder=4, ax=axs['pitch'])
+    if not a_post.empty:
+        pitch.scatter(a_post.x, a_post.y, marker='o', edgecolors='green', s=8000 * a_post['xG'], c=team2_facecolor, linewidth=3, zorder=5, ax=axs['pitch'])
+    if not a_goals.empty:
+        pitch.scatter(a_goals.x, a_goals.y, marker='football', edgecolors=text_color, s=10000 * a_goals['xG'], zorder=6, linewidths=3, c=team2_facecolor, ax=axs['pitch'])
+    if not h_own_goals.empty:
+        pitch.scatter(h_own_goals.x, h_own_goals.y, marker='football', edgecolors=team1_facecolor, s=3000, zorder=6, c=team2_facecolor, ax=axs['pitch'])
+    if not a_blocked.empty:
+        pitch.scatter(a_blocked.x, a_blocked.y, marker='s', edgecolors=team2_facecolor, s=6000 * a_blocked['xG'], zorder=5, linewidth=3, c=background, ax=axs['pitch'])
 
     pitch.scatter(4,-5,marker='football', edgecolors=text_color, s=1000, c=background,ax=axs['pitch'])
     pitch.annotate('Goal', xy=(10,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs['pitch'], ha='center', va='center')
@@ -2179,25 +2301,11 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
     pitch.scatter(90,-5,marker='s', edgecolors=text_color,linewidth=3, s=1000, c=background,ax=axs['pitch'])
     pitch.annotate('Blocked', xy=(98,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs['pitch'], ha='center', va='center')
 
-    #pitch.annotate('ShotMap', xy=(1, 75),fontproperties=font_prop, fontsize=80,color=text_color,ax=axs['pitch'], ha='left', va='center')
-    '''
-    hteam_img = mpimg.imread(f'{base_path}/TeamLogos/{hteam}.png')
-    if hteam_img:
-        ax_image = add_image(
-            hteam_img, fig, left=0.35, bottom=0.65, width=0.12, height=0.12,aspect='equal'
-        )
-
-    ateam_img = mpimg.imread(f'{base_path}/TeamLogos/{ateam}.png')
-    if ateam_img:
-        ax_image = add_image(
-            ateam_img, fig, left=0.52, bottom=0.65, width=0.12, height=0.12,aspect='equal'
-        )
-    '''
     h_xg = round(home_shots_df['xG'].sum(),2)
     a_xg = round(away_shots_df['xG'].sum(),2)
     summary_data = {
         'Team': [hteam, ateam],
-        'Goals': [len(h_goals) + len(a_own_goals), len(a_goals) + len(h_own_goals)],
+        'Goals': [len(h_goals) + len(h_own_goals), len(a_goals) + len(a_own_goals)],
         'On Target': [len(h_goals) + len(h_saved), len(a_goals) + len(a_saved)],
         'Off Target': [len(h_missed), len(a_missed)],
         'Woodwork': [len(h_post), len(a_post)],
@@ -2208,12 +2316,22 @@ def shotMap_ws(df,axs,fig,pitch,hteam,ateam,team1_facecolor,team2_facecolor,text
 
     summary_df = pd.DataFrame(summary_data)
     player_df = summarize_player_shots(df)
-    #print(summary_df)
-    #st.dataframe(summary_df)
-    return summary_df,player_df,home_shots_df,away_shots_df
+    return summary_df, player_df, home_shots_df, away_shots_df
 
-def xgFlow(ax, home_shots_df, away_shots_df, team1, team2, team1_facecolor, team2_facecolor, text_color, background):
+def xgFlow(ax, df, hteam, ateam, team1_facecolor, team2_facecolor, text_color, background):
     # Combine and sort shots
+
+    mask1 = ((df['teamName'] == hteam)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
+    mask2 = ((df['teamName'] == ateam)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
+
+    df['xG'] = df['xG'].fillna(0)
+
+    home_shots_df = df[mask1]
+    home_shots_df.reset_index(drop=True, inplace=True)
+
+    away_shots_df = df[mask2]
+    away_shots_df.reset_index(drop=True, inplace=True)
+
     home_shots_df = home_shots_df.sort_values(by='eventId')
     away_shots_df = away_shots_df.sort_values(by='eventId')
 
@@ -2228,7 +2346,7 @@ def xgFlow(ax, home_shots_df, away_shots_df, team1, team2, team1_facecolor, team
     ax.set_facecolor(background)
 
     # Team color map
-    team_colors = {team1: team1_facecolor, team2: team2_facecolor}
+    team_colors = {hteam: team1_facecolor, ateam: team2_facecolor}
 
     # Determine full match duration
     full_time = int(max(90, df_xG['minute'].max()))
@@ -2297,7 +2415,7 @@ def xgFlow(ax, home_shots_df, away_shots_df, team1, team2, team1_facecolor, team
                 va='center',
                 c=background,
                 fontproperties=font_prop,
-                fontsize=22,
+                fontsize=20,
                 zorder=10,
                 bbox=dict(
                     boxstyle="round,pad=0.3",
@@ -2331,6 +2449,8 @@ def get_passes_df(df):
     df.loc[:, "receiver"] = df["playerId"].shift(-1)
     passes_ids = df.index[df['type'] == 'Pass']
     df_passes = df.loc[passes_ids, ["index", "x", "y","minute", "endX", "endY", "teamName", "playerId", "receiver", "type", "outcomeType","isFirstEleven","playerName"]].copy()
+    id_to_name = dict(zip(df_passes['playerId'], df_passes['playerName']))
+    df_passes['receiverName'] = df_passes['receiver'].map(id_to_name)
 
     return df_passes
 
@@ -2541,7 +2661,7 @@ def get_passing_stats(match_df, teamName):
 
     return result_df
 
-def passmaps(ax, match_df, hteam, hteam_color, ateam, ateam_color, background, text_color, passtype, selected_player=None, team_filter=None):
+def passmaps(ax, match_df,passes_df, hteam, hteam_color, ateam, ateam_color, background, text_color, passtype, selected_player=None, team_filter=None, pass_kde_mode="Passes Played"):
     """
     Draws passmaps for the selected team (home or away) on the same pitch.
     If team_filter is set, only that team's passes are shown.
@@ -2549,11 +2669,11 @@ def passmaps(ax, match_df, hteam, hteam_color, ateam, ateam_color, background, t
     Away team passes are inverted for visualization.
     """
     # Home team passes
-    h_mask_passes = (match_df.type == 'Pass') & (match_df.teamName == hteam)
+    h_mask_passes = (match_df.type.isin(['Pass','TakeOn','Carry'])) & (match_df.teamName == hteam)
     hteam_passes_df = match_df.loc[h_mask_passes].copy()
 
     # Away team passes
-    a_mask_passes = (match_df.type == 'Pass') & (match_df.teamName == ateam)
+    a_mask_passes = (match_df.type.isin(['Pass','TakeOn','Carry'])) & (match_df.teamName == ateam)
     ateam_passes_df = match_df.loc[a_mask_passes].copy()
 
     # Filter by selected team
@@ -2582,18 +2702,22 @@ def passmaps(ax, match_df, hteam, hteam_color, ateam, ateam_color, background, t
     pitch = Pitch(pitch_type='uefa', half=False, corner_arcs=True, pitch_color=background,
                   line_zorder=2, line_color=text_color, linewidth=1)
     pitch.draw(ax=ax)
+    
     ax.set_facecolor(background)
 
+    
     # Filter passes by type
     def filter_passes(df, passtype):
-        if passtype == 'Final Third Entries':
-            return df[(df['x'] < 75) & (df['endX'] >= 75) & (df['outcomeType'] == 'Successful')]
+        if passtype == 'Carries':
+            return df[(df['type'] == 'Carry')]
         elif passtype == 'Crosses':
             return df[df['qualifiers'].str.contains('Cross', na=False) & (df['outcomeType'] == 'Successful')]
         elif passtype == 'Long Balls':
             return df[df['qualifiers'].str.contains('Longball', na=False) & (df['outcomeType'] == 'Successful')]
         elif passtype == 'Through Balls':
             return df[df['qualifiers'].str.contains('Throughball', na=False) & (df['outcomeType'] == 'Successful')]
+        elif passtype == 'Dribbles':
+            return df[(df['type'] == 'TakeOn')]
         else:
             return df[(df['outcomeType'] == 'Successful')]
 
@@ -2607,26 +2731,178 @@ def passmaps(ax, match_df, hteam, hteam_color, ateam, ateam_color, background, t
         ateam_passes_df['endX'] = pitch.dim.right - ateam_passes_df['endX']
         ateam_passes_df['endY'] = pitch.dim.top - ateam_passes_df['endY']
 
+    if not selected_player and passtype == 'All':
+        if show_home and not hteam_passes_df.empty:
+            hteam_passes_df = hteam_passes_df[hteam_passes_df['type'] == 'Pass']
+            bins = (6, 4)
+            cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, hteam_color])
+            bs_heatmap = pitch.bin_statistic(hteam_passes_df.x, hteam_passes_df.y, statistic='count', bins=bins)
+            hm = pitch.heatmap(bs_heatmap, ax=ax, cmap=cmap)
+            # plot the pass flow map with a single color ('black') and length of the arrow (5)
+            fm = pitch.flow(hteam_passes_df.x, hteam_passes_df.y, hteam_passes_df.endX, hteam_passes_df.endY,
+                            color=text_color, arrow_type='same',
+                            arrow_length=5, bins=bins, ax=ax)
+            
+            pitch.arrows(5,-2,100,-2, width=3,
+             headwidth=4, headlength=3, headaxislength=2,
+             color=text_color, ax=ax)
+        if show_away and not ateam_passes_df.empty:
+            ateam_passes_df = ateam_passes_df[ateam_passes_df['type'] == 'Pass']
+            bins = (6, 4)
+            cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, ateam_color])
+            bs_heatmap = pitch.bin_statistic(ateam_passes_df.x, ateam_passes_df.y, statistic='count', bins=bins)
+            hm = pitch.heatmap(bs_heatmap, ax=ax, cmap=cmap)
+            # plot the pass flow map with a single color ('black') and length of the arrow (5)
+            fm = pitch.flow(ateam_passes_df.x, ateam_passes_df.y, ateam_passes_df.endX, ateam_passes_df.endY,
+                            color=text_color, arrow_type='same',
+                            arrow_length=5, bins=bins, ax=ax)
+            
+            pitch.arrows(100,-2,5,-2, width=3,
+             headwidth=4, headlength=3, headaxislength=2,
+             color=text_color, ax=ax)
+
     # Plot home team passes
-    if show_home:
-        for _, row in hteam_passes_df.iterrows():
-            marker = '*' if row.get('passKey', False) else 'o'
-            size = 1000 if row.get('passKey', False) else 200
-            color = 'green' if row.get('assist', False) else hteam_color
-            linewidth = 5 if row.get('assist', False) else 1
-            pitch.lines(row.x, row.y, row.endX, row.endY, lw=linewidth, color=color, alpha=0.8, zorder=2, ax=ax)
-            pitch.scatter(row.endX, row.endY, marker=marker, s=size, color=color, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+    elif selected_player and passtype != 'All':  
+        if show_home:
+            if passtype == 'Dribbles':
+                hteam_dribbles_df = hteam_passes_df[hteam_passes_df['type'] == 'TakeOn']
+                for _, row in hteam_dribbles_df.iterrows():
+                    if row.get('outcomeType') == 'Successful':
+                        mcolor = hteam_color
+                    else:
+                        mcolor = 'grey'
+                    pitch.scatter(row.x, row.y, marker='o', s=500, color=mcolor, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
 
-    # Plot away team passes (inverted)
-    if show_away:
-        for _, row in ateam_passes_df.iterrows():
-            marker = '*' if row.get('passKey', False) else 'o'
-            size = 1000 if row.get('passKey', False) else 200
-            color = 'green' if row.get('assist', False) else ateam_color
-            linewidth = 5 if row.get('assist', False) else 1
-            pitch.lines(row.x, row.y, row.endX, row.endY, lw=linewidth, color=color, alpha=0.8, zorder=2, ax=ax)
-            pitch.scatter(row.endX, row.endY, marker=marker, s=size, color=color, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+            elif passtype == 'Carries':
+                hteam_passes_df = hteam_passes_df[(hteam_passes_df['type'] == 'Carry') & (hteam_passes_df['prog_carry'] >= 5)]
+                for _, row in hteam_passes_df.iterrows():
+                    pitch.arrows(row.x,row.y, row.endX, row.endY, width=5,
+                                 headwidth=4, headlength=3, headaxislength=2,
+                                 color=hteam_color, alpha=0.8, zorder=2, ax=ax)
 
+            else:
+                for _, row in hteam_passes_df.iterrows():
+                    marker = '*' if row.get('passKey', False) else 'o'
+                    size = 1000 if row.get('passKey', False) else 200
+                    color = 'green' if row.get('assist', False) else hteam_color
+                    linewidth = 5 if row.get('assist', False) else 1
+                    pitch.lines(row.x, row.y, row.endX, row.endY, lw=linewidth, color=color, alpha=0.8, zorder=2, ax=ax)
+                    pitch.scatter(row.endX, row.endY, marker=marker, s=size, color=color, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+
+        # Plot away team passes (inverted)
+        if show_away:
+            if passtype == 'Dribbles':
+                ateam_dribbles_df = ateam_passes_df[ateam_passes_df['type'] == 'TakeOn']
+                for _, row in ateam_dribbles_df.iterrows():
+                    if row.get('outcomeType') == 'Successful':
+                        mcolor = ateam_color
+                    else:
+                        mcolor = 'grey'
+                    pitch.scatter(row.x, row.y, marker='o', s=500, color=mcolor, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+
+            elif passtype == 'Carries':
+                ateam_passes_df = ateam_passes_df[(ateam_passes_df['type'] == 'Carry') & (ateam_passes_df['prog_carry'] >= 5)]
+                for _, row in ateam_passes_df.iterrows():
+                    pitch.arrows(row.x,row.y, row.endX, row.endY, width=5,
+                                 headwidth=4, headlength=3, headaxislength=2,
+                                 color=ateam_color, alpha=0.8, zorder=2, ax=ax)
+            else:
+                for _, row in ateam_passes_df.iterrows():
+                    marker = '*' if row.get('passKey', False) else 'o'
+                    size = 1000 if row.get('passKey', False) else 200
+                    color = 'green' if row.get('assist', False) else ateam_color
+                    linewidth = 5 if row.get('assist', False) else 1
+                    pitch.lines(row.x, row.y, row.endX, row.endY, lw=linewidth, color=color, alpha=0.8, zorder=2, ax=ax)
+                    pitch.scatter(row.endX, row.endY, marker=marker, s=size, color=color, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+    
+    elif passtype == "All" and selected_player:
+        # Ensure receiverName exists in passes_df
+        hteam_passes_df = passes_df[passes_df['teamName'] == hteam].copy()
+        ateam_passes_df = passes_df[passes_df['teamName'] == ateam].copy()
+        if "receiverName" not in hteam_passes_df.columns:
+            # Map receiverId to playerName
+            id_to_name = dict(zip(hteam_passes_df['playerId'], hteam_passes_df['playerName']))
+            hteam_passes_df['receiverName'] = hteam_passes_df['receiver'].map(id_to_name)
+        if "receiverName" not in ateam_passes_df.columns:
+            id_to_name = dict(zip(ateam_passes_df['playerId'], ateam_passes_df['playerName']))
+            ateam_passes_df['receiverName'] = ateam_passes_df['receiver'].map(id_to_name)
+
+        if team_filter == hteam:
+            if pass_kde_mode == "Passes Played":
+                kde_df = hteam_passes_df[hteam_passes_df['playerName'] == selected_player]
+                x_vals = kde_df['x']
+                y_vals = kde_df['y']
+            else:  # Passes Received
+                kde_df = hteam_passes_df[hteam_passes_df['receiverName'] == selected_player]
+                x_vals = kde_df['endX']
+                y_vals = kde_df['endY']
+            if not kde_df.empty:
+                cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, hteam_color])
+                pitch.kdeplot(x=x_vals, y=y_vals, ax=ax, fill=True, cmap=cmap, n_levels=10, bw_adjust=1, weights=None, thresh=0.01, zorder=0)
+        elif team_filter == ateam:
+            if pass_kde_mode == "Passes Played":
+                kde_df = ateam_passes_df[ateam_passes_df['playerName'] == selected_player]
+                x_vals = kde_df['x']
+                y_vals = kde_df['y']
+            else:  # Passes Received
+                kde_df = ateam_passes_df[ateam_passes_df['receiverName'] == selected_player]
+                x_vals = kde_df['endX']
+                y_vals = kde_df['endY']
+            if not kde_df.empty:
+                cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, ateam_color])
+                pitch.kdeplot(x=x_vals, y=y_vals, ax=ax, fill=True, cmap=cmap, n_levels=10, bw_adjust=1, weights=None, thresh=0.01, zorder=0)
+        
+    else:
+        # Plot all passes for both teams
+        if show_home and not hteam_passes_df.empty:
+            if passtype == 'Dribbles':
+                hteam_dribbles_df = hteam_passes_df[hteam_passes_df['type'] == 'TakeOn']
+                for _, row in hteam_dribbles_df.iterrows():
+                    if row.get('outcomeType') == 'Successful':
+                        mcolor = hteam_color
+                    else:
+                        mcolor = 'grey'
+                    pitch.scatter(row.x, row.y, marker='o', s=500, color=mcolor, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+
+            elif passtype == 'Carries':
+                hteam_passes_df = hteam_passes_df[(hteam_passes_df['type'] == 'Carry') & (hteam_passes_df['prog_carry'] >= 5)]
+                for _, row in hteam_passes_df.iterrows():
+                    pitch.arrows(row.x,row.y, row.endX, row.endY, width=5,
+                                 headwidth=4, headlength=3, headaxislength=2,
+                                 color=hteam_color, alpha=0.8, zorder=2, ax=ax)
+
+            else:
+                for _, row in hteam_passes_df.iterrows():
+                    marker = '*' if row.get('passKey', False) else 'o'
+                    size = 1000 if row.get('passKey', False) else 200
+                    color = 'green' if row.get('assist', False) else hteam_color
+                    linewidth = 5 if row.get('assist', False) else 1
+                    pitch.lines(row.x, row.y, row.endX, row.endY, lw=linewidth, color=color, alpha=0.8, zorder=2, ax=ax)
+                    pitch.scatter(row.endX, row.endY, marker=marker, s=size, color=color, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+
+        if show_away and not ateam_passes_df.empty:
+            if passtype == 'Dribbles':
+                ateam_dribbles_df = ateam_passes_df[ateam_passes_df['type'] == 'TakeOn']
+                for _, row in ateam_dribbles_df.iterrows():
+                    if row.get('outcomeType') == 'Successful':
+                        mcolor = ateam_color
+                    else:
+                        mcolor = 'grey'
+                    pitch.scatter(row.x, row.y, marker='o', s=500, color=mcolor, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
+            elif passtype == 'Carries':
+                ateam_passes_df = ateam_passes_df[(ateam_passes_df['type'] == 'Carry') & (ateam_passes_df['prog_carry'] >= 5)]
+                for _, row in ateam_passes_df.iterrows():
+                    pitch.arrows(row.x,row.y, row.endX, row.endY, width=5,
+                                 headwidth=4, headlength=3, headaxislength=2,
+                                 color=ateam_color, alpha=0.8, zorder=2, ax=ax)
+            else:
+                for _, row in ateam_passes_df.iterrows():
+                    marker = '*' if row.get('passKey', False) else 'o'
+                    size = 1000 if row.get('passKey', False) else 200
+                    color = 'green' if row.get('assist', False) else ateam_color
+                    linewidth = 5 if row.get('assist', False) else 1
+                    pitch.lines(row.x, row.y, row.endX, row.endY, lw=linewidth, color=color, alpha=0.8, zorder=2, ax=ax)
+                    pitch.scatter(row.endX, row.endY, marker=marker, s=size, color=color, edgecolor=text_color, linewidth=2, zorder=3, ax=ax)
     # Top passers for each team (if not filtering by player)
     if not selected_player:
         player_pass_counts_h = hteam_passes_df.groupby(['playerName']).size().reset_index(name='Count')
@@ -2636,6 +2912,8 @@ def passmaps(ax, match_df, hteam, hteam_color, ateam, ateam_color, background, t
     else:
         top_passers_h = hteam_passes_df.groupby(['playerName']).size().reset_index(name='Count')
         top_passers_a = ateam_passes_df.groupby(['playerName']).size().reset_index(name='Count')
+
+ 
 
     return top_passers_h, top_passers_a
    
@@ -2929,7 +3207,7 @@ def defensive_block_with_player_actions(ax, df, team_name, col, background, text
         line_zorder=1,
         corner_arcs=True,
         positional=True,
-        shade_middle=True,
+        shade_middle=False,
         positional_color=text_color,
         shade_color=text_color,
         shade_alpha=0.1,
@@ -2986,6 +3264,17 @@ def defensive_block_with_player_actions(ax, df, team_name, col, background, text
                 ax=ax,
                 zorder=3
             )
+
+        pitch.scatter(1,-2, s=400, marker='x', color=text_color, edgecolors=col, linewidth=2, alpha=0.9, ax=ax, zorder=3)
+        pitch.annotate('Aerial',xy=(7,-2), c=text_color, ha='center', va='center', size=22, fontproperties=font_prop, ax=ax)
+        pitch.scatter(15,-2, s=800, marker='o', color=text_color, edgecolors=col, linewidth=2, alpha=0.9, ax=ax, zorder=3)
+        pitch.annotate('Ball Recovery',xy=(25,-2), c=text_color, ha='center', va='center', size=22, fontproperties=font_prop, ax=ax)
+        pitch.scatter(36,-2, s=800, marker='^', color=text_color, edgecolors=col, linewidth=2, alpha=0.9, ax=ax, zorder=3)
+        pitch.annotate('Challenge',xy=(44,-2), c=text_color, ha='center', va='center', size=22, fontproperties=font_prop, ax=ax)
+        pitch.scatter(54,-2, s=800, marker='+', color=text_color, edgecolors=col, linewidth=2, alpha=0.9, ax=ax, zorder=3)
+        pitch.annotate('Interception',xy=(64,-2), c=text_color, ha='center', va='center', size=22, fontproperties=font_prop, ax=ax)
+        pitch.scatter(74,-2, s=800, marker='*', color=text_color, edgecolors=col, linewidth=2, alpha=0.9, ax=ax, zorder=3)
+        pitch.annotate('Tackle',xy=(80,-2), c=text_color, ha='center', va='center', size=22, fontproperties=font_prop, ax=ax)
 
 
     if flipped:
@@ -3202,114 +3491,127 @@ def Final_third_entry(ax,df,hteam,ateam,team1_facecolor,team2_facecolor, team_na
         'Entry_By_Carry': len(dfcarry)
     }
 
-def plot_ppda(df, flag, ax,team1_name,team2_name,team1_facecolor,team2_facecolor):
-    df_ppda = df.copy()
-    goals = df[df['type'] == 'Goal'][['minute', 'second', 'teamName']]
-    #goals['timestamp'] = goals['minute'] * 60 + df_ppda['second']
-    #goals['time_bin'] = (goals['timestamp'] // 900).astype(int)
+def plot_ppda(pos_df, ax, team1_name, team2_name, team1_facecolor, team2_facecolor, background, text_color, font_prop):
+    """
+    Plot PPDA values over 15-minute intervals for both teams using possession-level data.
+
+    Parameters
+    ----------
+    pos_df : pd.DataFrame
+        DataFrame containing at least: 'teamName', 'oppositionTeamName', 'possession_id', 'sequence_id', 
+        'minute', 'second', 'type', 'outcomeType'.
+    """
     
-    # Step 1: Add a 'timestamp' column for easier time calculation
-    df_ppda['timestamp'] = df_ppda['minute'] * 60 + df_ppda['second']
-    
-    # Step 2: Identify possessions
-    if flag:
-        df_ppda['possession_change'] = (df_ppda['teamName'] != df_ppda['teamName'].shift(1)) | (
-            df_ppda['type'].isin(['Interception', 'Tackle', 'Clearance', 'BlockedPass','BallRecovery','Challenge']) &
-            (df_ppda['outcomeType'] == 'Successful')
-        )
-    else:
-        df_ppda['possession_change'] = (df_ppda['teamName'] != df_ppda['teamName'].shift(1)) | (
-            df_ppda['type'].isin(['Interception', 'Tackle', 'Clearance', 'BlockedPass','BallRecovery','Challenge'])
+    df = pos_df.copy()
+    df['timestamp'] = df['minute'] * 60 + df['second']
+
+    # Defensive actions
+    def_actions = ['Interception', 'Tackle', 'Clearance', 'BlockedPass', 'BallRecovery', 'Challenge']
+
+    # Assign time bins (0–15, 15–30, ..., 75–90)
+    df['time_bin'] = ((df['timestamp'] // 900).replace([np.inf, -np.inf], np.nan).fillna(-1).astype(int))
+
+    # Calculate possession-level stats
+    def is_successful_def_action(row):
+        return row['type'] in def_actions and (
+            'outcomeType' not in row or pd.isna(row['outcomeType']) or row['outcomeType'] == 'Successful'
         )
 
-    df_ppda['possession_id'] = df_ppda['possession_change'].cumsum()
-    
-    df_ppda['timestamp'] = pd.to_numeric(df_ppda['timestamp'], errors='coerce')  # Convert non-numeric to NaN
-    df_ppda = df_ppda.dropna(subset=['timestamp'])
-    
-    # Step 3: Aggregate possession data
-    if flag:
-        possessions = df_ppda.groupby('possession_id').agg(
-            team=('teamName', 'first'),
-            opposition=('oppositionTeamName', 'first'),
-            passes=('type', lambda x: x.isin(['Pass']).sum()),
-            defensive_actions=('type', 
-                               lambda x: ((x.isin(['Interception', 'Tackle', 'Clearance', 'BlockedPass','BallRecovery','Challenge'])) & 
-                                          (df.loc[x.index, 'outcomeType'] == 'Successful')).sum())
-        ).reset_index()
-    else:
-        possessions = df_ppda.groupby('possession_id').agg(
-            team=('teamName', 'first'),
-            opposition=('oppositionTeamName', 'first'),
-            passes=('type', lambda x: x.isin(['Pass']).sum()),
-            defensive_actions=('type', 
-                               lambda x: ((x.isin(['Interception', 'Tackle', 'Clearance', 'BlockedPass','BallRecovery','Challenge']))).sum())
-        ).reset_index()
+    df['is_pass'] = df['type'] == 'Pass'
+    df['is_def_action'] = df.apply(is_successful_def_action, axis=1)
 
-    # Step 4: Add time bins (e.g., 15-minute windows)
-    df_ppda['time_bin'] = (df_ppda['timestamp'] // 900).astype(int)  # 900 seconds = 15 minutes
-    
-    # Step 5: Merge possession data with time bins
-    possessions = possessions.merge(
-        df_ppda[['possession_id', 'time_bin']].drop_duplicates(),
-        on='possession_id',
-        how='left'
-    )
-    
-    # Step 6: Calculate PPDA for each time bin
-    ppda = possessions.groupby(['time_bin', 'opposition']).agg(
-        total_passes=('passes', 'sum'),
-        total_def_actions=('defensive_actions', 'sum')
+    def add_opposition_team_name(df):
+    # Get all teams per match
+        match_teams = df.groupby('matchId')['teamName'].unique().to_dict()
+        # Map opposition for each row
+        def get_opposition(row):
+            teams = match_teams.get(row['matchId'], [])
+            return next((t for t in teams if t != row['teamName']), None)
+        df['oppositionTeamName'] = df.apply(get_opposition, axis=1)
+        return df
+    df = add_opposition_team_name(df)
+
+    # Aggregate possession-level data
+    poss_summary = df.groupby('possession_id').agg(
+        team=('teamName', 'first'),
+        opposition=('oppositionTeamName', 'first'),
+        passes=('is_pass', 'sum'),
+        def_actions=('is_def_action', 'sum'),
+        time_bin=('time_bin', 'first')
     ).reset_index()
-    
+
+    # Calculate PPDA: passes made by opposition / defensive actions
+    ppda = poss_summary.groupby(['time_bin', 'opposition']).agg(
+        total_passes=('passes', 'sum'),
+        total_def_actions=('def_actions', 'sum')
+    ).reset_index()
+
     ppda['PPDA'] = ppda['total_passes'] / ppda['total_def_actions']
-    ppda['PPDA'] = ppda['PPDA'].fillna(float('inf'))  # Handle cases with no defensive actions
-    
-    # Data preparation
-    teams = ppda['opposition'].unique()  # List of teams
-    
+    ppda['PPDA'] = ppda['PPDA'].replace([np.inf, -np.inf], np.nan).fillna(0)
+
+    # Plotting
     ax.set_facecolor(background)
-    
-    # Plot PPDA values for each team
-    for team in teams:
+    # Fixed x-axis range for 0–90 minutes
+    ax.set_xticks(range(0, 7))
+    ax.set_xticklabels(['0', '15', '30', '45', '60', '75', '90'])
+    ax.set_xlim(0, 6)
+
+    for team, color in zip([team1_name, team2_name], [team1_facecolor, team2_facecolor]):
         team_data = ppda[ppda['opposition'] == team]
-        if team == team1_name:
-            ax.plot(team_data['time_bin'], team_data['PPDA'], label=team, marker='o', color=team1_facecolor, linewidth=3)
-        else:
-            ax.plot(team_data['time_bin'], team_data['PPDA'], label=team, marker='o', color=team2_facecolor, linewidth=3)
-        
-        # Annotate PPDA values on the plot
-        for _, row in team_data.iterrows():
-            ax.text(row['time_bin'], row['PPDA'] + 1.2, f"{row['PPDA']:.1f}", fontsize=12, ha='center', va='bottom', color='white')
-    
-    # Adjust Y-axis: reverse and set interval
-    ax.invert_yaxis()  # Reverse the y-axis
-    #ax.set_yticks(range(0, 21, 5))  # Set y-axis ticks and color
-    ax.set_xticks(ppda['time_bin'].unique())  # Set x-axis ticks and color
-    
-    # Customize spines
-    #ax.spines['top'].set_color('black')
-    #ax.spines['right'].set_color('black')
-    ax.spines['left'].set_color('grey')
-    ax.spines['bottom'].set_color('grey')
-    
-    # Chart formatting
-    ax.set_title('Pressing Intensity - PPDA', fontproperties=font_prop, fontsize=25, color='white', y=1.05)
-    ax.set_xlabel('Time Bin (15-minute intervals)', fontsize=15, color='white', fontproperties=font_prop)
-    ax.set_ylabel('PPDA Value', fontsize=15, color='white', fontproperties=font_prop)
-    #ax.legend(title='Teams', facecolor='white', edgecolor='white', labelcolor='black', title_fontsize=10)
+        ax.plot(team_data['time_bin'], team_data['PPDA'], marker='o', label=team, color=color, linewidth=6)
 
-    # Add grid with low opacity for better visibility
-    ax.grid(alpha=0.5, color='grey')
+    ax.invert_yaxis()
+    ax.tick_params(axis='x', colors=text_color, labelsize=16)
+    ax.tick_params(axis='y', colors=text_color, labelsize=16)
+    for spine in ax.spines.values():
+        spine.set_color(text_color)
+    
+    ax.grid(alpha=0.3, color=text_color)
+    ax.set_xlabel('Minute',fontproperties=font_prop, fontsize=18,  color=text_color)
+    ax.set_ylabel('PPDA', fontproperties=font_prop, fontsize=18, color=text_color)
 
-    # Add additional text below the plot using the figure's figtext
-    #ax.figure.figtext(0.55, -0.05, "PPDA - Passes (Allowed) Per Defensive Action", wrap=True, 
-    #                  fontproperties=font_prop, horizontalalignment='center', fontsize=15, color='white')
-    #ax.figure.figtext(0.55, -0.1, "Lower Value Represents Higher Pressing Intensity", wrap=True, 
-    #                 fontproperties=font_prop, horizontalalignment='center', fontsize=15, color='white')
+    return
 
-    # Tight layout and show the chart
-    plt.tight_layout()
+def plot_turnovers(df, ax, team1_name, team2_name, team1_facecolor, team2_facecolor, background, text_color, font_prop, window_size=15):
+    """
+    Plots total turnovers (turnover + dispossessed) per team per 15-minute window as a line chart.
+    X-axis: 0 to 90, no labels.
+    """
+    df = df.copy()
+    df['timestamp'] = df['minute'] * 60 + df['second']
+    df['time_bin'] = ((df['timestamp'] // (window_size * 60)).replace([np.inf, -np.inf], np.nan).fillna(-1).astype(int))
+
+    # Count turnovers + dispossessed together
+    df['total_turnover'] = df['turnover'].astype(int) + df['dispossessed'].astype(int)
+    grouped = (
+        df.groupby(['time_bin', 'teamName'])['total_turnover']
+        .sum()
+        .reset_index()
+    )
+
+    # Plotting
+    ax.set_facecolor(background)
+    x_bins = sorted(grouped['time_bin'].unique())
+    x_vals = [i * window_size for i in x_bins]
+    ax.set_xticks([0, 15, 30, 45, 60, 75, 90])
+    ax.set_xlim(0, 90)
+    ax.set_xticklabels(['0', '15', '30', '45', '60', '75', '90'])
+
+    for team, color in zip([team1_name, team2_name], [team1_facecolor, team2_facecolor]):
+        team_data = grouped[grouped['teamName'] == team]
+        ax.plot(team_data['time_bin'] * window_size, team_data['total_turnover'], marker='o', label=team, color=color, linewidth=6)
+
+    ax.set_xlabel('Minute', fontproperties=font_prop, fontsize=18, color=text_color)
+    ax.set_ylabel('Turnovers', fontproperties=font_prop, fontsize=18, color=text_color)
+    ax.grid(alpha=0.3, color=text_color)
+    ax.set_facecolor(background)
+    ax.tick_params(axis='x', colors=text_color, labelsize=16)
+    ax.tick_params(axis='y', colors=text_color, labelsize=16)
+    for spine in ax.spines.values():
+        spine.set_color(text_color)
+    #ax.legend(prop=font_prop, fontsize=14)
+    return ax
+
 
 def plot_fieldtilt(df, ax,team1_name,team2_name,team1_facecolor,team2_facecolor):
     ## Ratio of each team’s final third touches compared to the total final third touches
@@ -3638,7 +3940,6 @@ def plot_lost_pos(df,ax,team1_name,team2_name,team1_facecolor,team2_facecolor):
         
     return
 
-# ---------- Classify Zones ----------
 def classify_defensive_zones(df, team_name, home_team):
     df = df.copy()
     is_home = team_name == home_team
@@ -3649,7 +3950,6 @@ def classify_defensive_zones(df, team_name, home_team):
     )
     return df
 
-# ---------- Zone Breakdown Bar Chart ----------
 def plot_defensive_zone_bar(df, team_name):
 
     df_team = df[df['teamName'] == team_name]
@@ -3668,7 +3968,6 @@ def plot_defensive_zone_bar(df, team_name):
     )
 
     return chart
-
 
 def plot_possession_windows_time_weighted(
     ax,
@@ -3742,14 +4041,213 @@ def plot_possession_windows_time_weighted(
     ax.set_xlabel('Minute',fontproperties=font_prop, fontsize=18,  color=text_color)
     ax.set_ylabel('Possession %', fontproperties=font_prop, fontsize=18, color=text_color)
     #ax.legend(prop=font_prop, fontsize=20)
-    ax.grid(alpha=0.3)
+    ax.grid(alpha=0.3, color=text_color)
     ax.set_facecolor(background)
-    ax.tick_params(axis='x', colors=text_color, labelsize=14)
-    ax.tick_params(axis='y', colors=text_color, labelsize=14)
+    ax.tick_params(axis='x', colors=text_color, labelsize=16)
+    ax.tick_params(axis='y', colors=text_color, labelsize=16)
     for spine in ax.spines.values():
         spine.set_color(text_color)
 
     return ax
+
+def plot_pass_accuracy_windows(
+    ax,
+    df,
+    home_team,
+    away_team,
+    team_colors,
+    background,
+    text_color,
+    font_prop,
+    time_col="minute",
+    team_col="teamName",
+    accurate_col="passAccurate",
+    window_size=15
+):
+
+    df_passes = df[df[accurate_col].notna()].copy()
+    df_passes["time_bin"] = (df_passes[time_col] // window_size).astype(int)
+
+    # Aggregate accurate and total passes by time bin and team
+    grouped = (
+        df_passes.groupby(["time_bin", team_col])[accurate_col]
+        .agg(['sum', 'count'])
+        .reset_index()
+        .rename(columns={"sum": "accurate", "count": "total"})
+    )
+    grouped["accuracy_pct"] = 100 * grouped["accurate"] / grouped["total"]
+
+    # Pivot to get one column per team
+    pivot_df = grouped.pivot(index="time_bin", columns=team_col, values="accuracy_pct").fillna(0)
+
+    for team in [home_team, away_team]:
+        if team in pivot_df.columns:
+            ax.plot(
+                pivot_df.index * window_size,  # End of bin
+                pivot_df[team],
+                marker='o',
+                label=team,
+                linewidth=6,
+                color=team_colors.get(team, None)
+            )
+
+    # X-axis formatting
+    x_labels = [(i) * window_size for i in sorted(pivot_df.index.unique())]
+    ax.set_xticks(x_labels)
+    ax.set_xlim(min(x_labels), max(x_labels))
+    ax.set_ylim(0, 100)
+    ax.set_yticks([0, 20, 40, 60, 80, 100])
+
+    ax.set_xlabel('Minute',fontproperties=font_prop, fontsize=18,  color=text_color)
+    ax.set_ylabel('Pass Accuracy %', fontproperties=font_prop, fontsize=18, color=text_color)
+    #ax.legend(prop=font_prop, fontsize=16)
+    ax.grid(alpha=0.3,color=text_color)
+    ax.set_facecolor(background)
+    ax.tick_params(axis='x', colors=text_color, labelsize=16)
+    ax.tick_params(axis='y', colors=text_color, labelsize=16)
+    for spine in ax.spines.values():
+        spine.set_color(text_color)
+
+    return ax
+
+def plot_on_goal_shotmap_custom(df, team, team_color, background, text_color, font_prop, selected_player):
+    """
+    Plots on-goal shots using GoalMouthY and GoalMouthZ coordinates,
+    normalized to fit custom goal rectangle.
+    """
+    if selected_player:
+        mask = (
+            (df['teamName'] == team) &
+            (df['isShot'] == True) & (df['shotBlocked'] == False) & (df['shotOnTarget'] == True) & (df['playerName'] == selected_player) &
+            df['goalMouthY'].notna() & df['goalMouthZ'].notna()
+        )
+    else:
+        mask = (
+            (df['teamName'] == team) &
+            (df['isShot'] == True) & (df['shotBlocked'] == False) & (df['shotOnTarget'] == True) &
+            df['goalMouthY'].notna() & df['goalMouthZ'].notna()
+        )
+    shots = df[mask].copy()
+
+    # Rectangle dimensions
+    GOAL_LEFT = 30.8
+    GOAL_WIDTH = 6.4
+    GOAL_BOTTOM = 0
+    GOAL_HEIGHT = 35
+
+    fig = plt.figure(facecolor=background)
+    fig.set_size_inches(15, 5)
+
+    # Draw goal posts and net
+    plt.plot([30, 38], [0, 0], color=text_color, linewidth=1.5)
+    plt.plot([GOAL_LEFT, GOAL_LEFT + GOAL_WIDTH], [GOAL_HEIGHT, GOAL_HEIGHT], color=text_color, linewidth=3)
+    plt.plot([GOAL_LEFT + GOAL_WIDTH, GOAL_LEFT + GOAL_WIDTH], [0, GOAL_HEIGHT], color=text_color, linewidth=3)
+    plt.plot([GOAL_LEFT, GOAL_LEFT], [0, GOAL_HEIGHT], color=text_color, linewidth=3)
+    plt.gca().add_patch(Rectangle((GOAL_LEFT, 0), GOAL_WIDTH, GOAL_HEIGHT, fill=False, edgecolor=text_color, hatch='+', alpha=0.3))
+
+    # Invert x-axis for scatter points
+    shots['x_inv'] = GOAL_LEFT + GOAL_WIDTH - (shots['goalMouthY'] - GOAL_LEFT)
+    shots['y'] = shots['goalMouthZ']
+
+    # Plot shots
+    for _, row in shots.iterrows():
+        marker = 'o' if row['type'] == 'Goal' else 's'
+        size = 2000 if row['type'] == 'Goal' else 1000
+        color = team_color if row['type'] == 'Goal' else text_color
+        plt.scatter(row['x_inv'], row['y'], s=size * row['xG'], marker=marker, color=color, edgecolor=text_color, linewidth=2, zorder=3)
+
+    plt.axis('off')
+    return fig
+
+def plot_on_field_shotmap_highlight(shots_df, team_color, background, text_color, font_prop, highlight_idx=None):
+    pitch = Pitch(pitch_type='uefa', half=False, corner_arcs=True, pitch_color=background, line_color=text_color, linewidth=1.5)
+    fig, ax = plt.subplots(figsize=(12, 8))
+    pitch.draw(ax=ax)
+    for i, row in shots_df.iterrows():
+        alpha = 1.0 if highlight_idx is not None and i == highlight_idx else 0.2
+        size = 800 if highlight_idx is not None and i == highlight_idx else 200
+        marker = 'o' if row['type'] == 'Goal' else 's'
+        color = team_color if row['type'] == 'Goal' else text_color
+        pitch.scatter(row['x'], row['y'], s=size, color=color, alpha=alpha, marker=marker, edgecolor=text_color, linewidth=2, ax=ax)
+    ax.set_axis_off()
+    return fig
+
+def shotMap_ws2(df, axs, pitch, team, team_color, text_color, background, situation, selected_player=None):
+    # Filter shots by situation and selected player
+
+    #print(df[df['type'] == 'Goal'])
+    if situation == 'All':
+        mask = ((df['teamName'] == team)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
+    else:
+        mask = ((df['teamName'] == team)) & (df['situation'] == situation) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
+
+    df['xG'] = df['xG'].fillna(0)
+
+    print(df[mask].head())
+    shots_df = df[mask]
+    #print(shots_df.head())
+    # Filter by selected player if provided
+    if selected_player:
+        shots_df = shots_df[shots_df['playerName'] == selected_player]
+
+    shots_df.reset_index(drop=True, inplace=True)
+    
+
+    h_missed = shots_df[shots_df['type'] == 'MissedShots']
+    h_saved = shots_df[(shots_df['type'] == 'SavedShot') & (shots_df['shotBlocked'] == False)]
+    h_blocked = shots_df[(shots_df['type'] == 'SavedShot') & (shots_df['shotBlocked'] == True)]
+    h_post = shots_df[shots_df['type'] == 'ShotOnPost']
+    h_goals = shots_df[(shots_df['type'] == 'Goal') & (shots_df['goalOwn'] == False)]
+    h_own_goals = shots_df[(shots_df['type'] == 'Goal') & (shots_df['goalOwn'] == True)]
+
+
+    if not shots_df['y'].empty and shots_df['y'].nunique() > 1:
+        sns.kdeplot(y=shots_df.y, ax=axs['right'], color=team_color, fill=True)
+
+    if not h_missed.empty:
+        pitch.scatter(h_missed.x, h_missed.y, marker='o', edgecolors=team_color, s=8000 * h_missed['xG'], linewidth=3, c=background, ax=axs['pitch'])
+    if not h_saved.empty:
+        pitch.scatter(h_saved.x, h_saved.y, marker='o', edgecolors='white', s=8000 * h_saved['xG'], c=team_color, linewidth=3, zorder=4, ax=axs)
+    if not h_post.empty:
+        pitch.scatter(h_post.x, h_post.y, marker='o', edgecolors='green', s=8000 * h_post['xG'], linewidth=3, c=team_color, zorder=5, ax=axs)
+    if not h_goals.empty:
+        pitch.scatter(h_goals.x, h_goals.y, marker='football', edgecolors=text_color, s=10000 * h_goals['xG'], zorder=6, linewidths=3, c=team_color, ax=axs['pitch'])
+    if not h_own_goals.empty:
+        pitch.scatter(h_own_goals.x, h_own_goals.y, marker='football', edgecolors=team_color, s=3000, zorder=6, c=team_color, ax=axs)
+    if not h_blocked.empty:
+        pitch.scatter(h_blocked.x, h_blocked.y, marker='s', edgecolors=team_color, s=6000 * h_blocked['xG'], zorder=5, linewidth=3, c=background, ax=axs)
+
+    #pitch.scatter(4,-5,marker='football', edgecolors=text_color, s=1000, c=background,ax=axs)
+    #pitch.annotate('Goal', xy=(10,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+    
+    #pitch.scatter(23,-5,marker='o', edgecolors=background, s=1000, c=text_color,ax=axs)
+    #pitch.annotate('On Target', xy=(33,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+
+    #pitch.scatter(48,-5,marker='o', edgecolors='green',linewidth=5, s=1000, c=background,ax=axs)
+    #pitch.annotate('Woodwork', xy=(58,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+
+    #pitch.scatter(70,-5,marker='o', edgecolors=text_color, s=1000, c=background,ax=axs)
+    #pitch.annotate('Off Target', xy=(78,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+
+    #pitch.scatter(90,-5,marker='s', edgecolors=text_color,linewidth=3, s=1000, c=background,ax=axs)
+    #pitch.annotate('Blocked', xy=(98,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+
+    xg = round(shots_df['xG'].sum(),2)
+
+    summary_data = {
+        'Team': [team],
+        'Goals': [len(h_goals) + len(h_own_goals)],
+        'On Target': [len(h_goals) + len(h_saved)],
+        'Off Target': [len(h_missed)],
+        'Woodwork': [len(h_post)],
+        'Blocked': [len(h_blocked)],
+        'Own Goals': [len(h_own_goals)],
+        'xG': [xg]
+    }
+
+    summary_df = pd.DataFrame(summary_data)
+    player_df = summarize_player_shots(df)
+    return summary_df, player_df, shots_df
 
 
 def tag_sequences_and_possessions_all_matches(

@@ -6,6 +6,8 @@ import os,glob
 #from st_aggrid import AgGrid
 #from st_aggrid.grid_options_builder import GridOptionsBuilder
 import psycopg2
+from matplotlib.colors import to_rgb, to_hex
+import colorsys
 
 
 team_dict = { 
@@ -280,7 +282,52 @@ home_team = st.session_state.get('home_team')
 away_team = st.session_state.get('away_team')
 matchId = st.session_state.get('matchId')
 
-st.title(f"{home_team} vs {away_team}")
+# Now use these variables as needed
+
+match_df = load_and_process_match_data(base_path, league, season, matchId, team_colors)
+if 'Carry' not in match_df['type'].unique():
+    match_df = insert_ball_carries(match_df, min_carry_length=10, max_carry_length=60, min_carry_duration=6, max_carry_duration=10)
+    match_df['teamName'] = match_df['teamId'].map(team_dict)
+    match_df['teamColor'] = match_df['teamName'].map(team_colors)
+    match_df['prog_carry'] = np.where((match_df['type'] == 'Carry'),
+                                np.sqrt((105 - match_df['x'])**2 + (34 - match_df['y'])**2) - np.sqrt((105 - match_df['endX'])**2 + (34 - match_df['endY'])**2), 0)
+#st.write("Columns in match_df:", match_df.columns.tolist())
+
+
+
+def adjust_color_if_similar(home_color, away_color, threshold=0.2):
+    # Convert hex to RGB
+    home_rgb = to_rgb(home_color)
+    away_rgb = to_rgb(away_color)
+    # Calculate Euclidean distance
+    dist = sum((h - a) ** 2 for h, a in zip(home_rgb, away_rgb)) ** 0.5
+    if dist < threshold:
+        # Convert to HLS, adjust lightness
+        h, l, s = colorsys.rgb_to_hls(*away_rgb)
+        l = min(1, l + 0.5)  # Lighten away color
+        new_away_rgb = colorsys.hls_to_rgb(h, l, s)
+        return to_hex(new_away_rgb)
+    return away_color
+
+
+
+#match_df = match_df.sort_values(by='id').reset_index(drop=True)
+home_team_col = match_df[match_df['teamName'] == home_team]['teamColor'].unique()[0]
+away_team_col = match_df[match_df['teamName'] == away_team]['teamColor'].unique()[0]
+
+# After you get home_team_col and away_team_col:
+away_team_col = adjust_color_if_similar(home_team_col, away_team_col)
+
+
+# Use HTML for colored team names in the title
+st.markdown(
+    f"<h1 style='text-align: center;'>"
+    f"<span style='color:{home_team_col};'>{home_team}</span> "
+    f"<span style='color:gray;'>vs</span> "
+    f"<span style='color:{away_team_col};'>{away_team}</span>"
+    f"</h1>",
+    unsafe_allow_html=True
+)
 
 theme = st.radio(
     '',
@@ -289,25 +336,13 @@ theme = st.radio(
     horizontal=True
 )
 
-#st.dataframe(df[df['subOn'] != 0][['index','matchId','startDate','teamName','playerName','type','situation']], width=1000)
-
-
-# Now use these variables as needed
-
-match_df = load_and_process_match_data(base_path, league, season, matchId, team_colors)
-#st.write("Columns in match_df:", match_df.columns.tolist())
-
-#match_df = match_df.sort_values(by='id').reset_index(drop=True)
-home_team_col = match_df[match_df['teamName'] == home_team]['teamColor'].unique()[0]
-away_team_col = match_df[match_df['teamName'] == away_team]['teamColor'].unique()[0]
-
 ## Shots - ShotMap , xG Flow , OnGoal Shots
 ## Passing - Passing Network , Average On Ball Positions - Passes Played , Passes Received
 
 
 viz = st.selectbox(
     'Select Action',
-    ['Match Dynamics','Shots', 'In Possession', 'Duels', 'Out of Possession', 'Set Pieces', 'Transitions'],
+    ['Match Dynamics','Shots', 'In Possession', 'Duels', 'Out of Possession'],
     index=0
 )
 
@@ -325,13 +360,16 @@ else:
 
 if viz == 'Match Dynamics':
     st.markdown("## Match Dynamics")
-    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,12))
-    fig.set_facecolor(background)
-    axs.set_facecolor(background)
 
-    st.markdown("### xT Momentum Flow")
-    xT_momemtum(axs,match_df,home_team,away_team,home_team_col,away_team_col,background,text_color)    
-    st.pyplot(fig)
+    st.markdown("### xG Flow")
+    fig4, axs4 = plt.subplots(nrows=1, ncols=1, figsize=(20,12))
+    fig4.set_facecolor(background)
+    axs4.set_facecolor(background)
+
+
+
+    xgFlow(axs4,match_df,home_team,away_team,home_team_col,away_team_col,text_color,background)
+    st.pyplot(fig4)
 
     st.markdown("### Ball Possession % and Pass Accuracy %")
     fig2, axs2 = plt.subplots(nrows=1, ncols=2, figsize=(20,9))
@@ -350,44 +388,103 @@ if viz == 'Match Dynamics':
         text_color=text_color,
         font_prop=font_prop
     )
+
+    plot_pass_accuracy_windows(
+        ax=axs2[1],
+        df=poss_df,
+        home_team=home_team,
+        away_team= away_team,
+        team_colors={home_team: home_team_col, away_team: away_team_col},
+        background=background,
+        text_color=text_color,
+        font_prop=font_prop
+    )
     st.pyplot(fig2)
+
+    st.markdown('### PPDA and Turnovers Conceded')
+    fig3, axs3 = plt.subplots(nrows=1, ncols=2, figsize=(20,9))
+    fig3.set_facecolor(background)
+    axs3[0].set_facecolor(background)
+    axs3[1].set_facecolor(background)
+
+    plot_ppda(poss_df, axs3[0], home_team, away_team, home_team_col, away_team_col, background, text_color, font_prop)
+    plot_turnovers(poss_df, axs3[1], home_team, away_team, home_team_col, away_team_col, background, text_color, font_prop)
+    st.pyplot(fig3)
+
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,12))
+    fig.set_facecolor(background)
+    axs.set_facecolor(background)
+    st.markdown("### xT Momentum Flow")
+    xT_momemtum(axs,match_df,home_team,away_team,home_team_col,away_team_col,background,text_color)
+    st.pyplot(fig)
 
 if viz == 'Shots':
-    #fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,22))
+    if "selected_shot_player" not in st.session_state:
+        st.session_state.selected_shot_player = None
+
     st.markdown("## Shot Map")
-    pitch = Pitch(pitch_type='uefa',half=False, corner_arcs=True, pitch_color=background, line_color=line_color, linewidth=1.5)
-    fig, axs = pitch.jointgrid(figheight=20,grid_width =1, left=None, bottom=None, grid_height=0.9,
-                           axis=False,title_space=0,endnote_height=0,title_height=0,ax_top=False)
+    shotmap_type = st.radio(
+        "Select Shotmap Type",
+        ["On Field Shotmap", "On Goal Shotmap"],
+        index=0,
+        horizontal=True
+    )
+
+    team_options = [home_team, away_team]
+    selected_team = st.radio("Select Team", team_options, index=0, horizontal=True)
+
+    pitch = Pitch(pitch_type='uefa', half=False, corner_arcs=True, pitch_color=background, line_color=line_color, linewidth=1.5)
+
+    fig, axs = pitch.jointgrid(figheight=20, grid_width=1, left=None, bottom=None, grid_height=0.9,
+                                axis=False, title_space=0, endnote_height=0, title_height=0, ax_top=False)
     fig.set_facecolor(background)
-
-    situations = match_df['situation'].dropna().unique().tolist()
-    #print(situations)
-    situations = ['All'] + situations
-    situation = st.radio('',options=situations,index=0,horizontal=True,label_visibility='collapsed')
-    
-    ax_image = add_image(
-        logo, fig, left=0.77, bottom=0.85, width=0.08, height=0.08,aspect='equal'
-    )
-    summary_df,player_df,home_shots_df,away_shots_df = shotMap_ws(match_df,axs,fig,pitch,home_team,away_team,home_team_col,away_team_col,text_color,background,situation)
-    #shotMap(match_df,axs[1],away_team,'red')
-    axs['pitch'].set_xlim(-10, 115)  # example: pitch length from 0 to 120
-    axs['pitch'].set_ylim(-10, 80)   # example: pitch width from 0 to 80
-    st.pyplot(fig)
-    st.dataframe(summary_df, width=1000)
-    st.dataframe(player_df, width=1000)
-
-    st.markdown("## xG Flow")
-    fig2, axs2 = plt.subplots(nrows=1, ncols=1, figsize=(20,12))
-    fig2.set_facecolor(background)
-
-    ax_image = add_image(
-        logo, fig2, left=0.83, bottom=0.88, width=0.08, height=0.08,aspect='equal'
+    summary_df, player_df, home_shots_df, away_shots_df = shotMap_ws(
+        match_df, axs, pitch, home_team, away_team, home_team_col, away_team_col, text_color, background, situation=None, selected_player=None
     )
 
-    xgFlow(axs2,home_shots_df,away_shots_df,home_team,away_team,home_team_col,away_team_col,text_color,background)
-    st.pyplot(fig2)
+    #summary_df, player_df, shots_df = shotMap_ws2(match_df, axs, pitch, home_team, home_team_col, text_color, background, situation=None, selected_player=None)
+    player_df_filtered = player_df[player_df['Team'] == selected_team]
+
+    # Get selected player
+    selected_player = st.session_state.selected_shot_player
+
+    if shotmap_type == "On Field Shotmap":
+        pitch = Pitch(pitch_type='uefa', half=False, corner_arcs=True, pitch_color=background, line_color=line_color, linewidth=1.5)
+        fig, axs = pitch.jointgrid(figheight=20, grid_width=1, left=None, bottom=None, grid_height=0.9,
+                                   axis=False, title_space=0, endnote_height=0, title_height=0, ax_top=False)
+        fig.set_facecolor(background)
+        situation = st.radio('', options=['All'] + match_df['situation'].dropna().unique().tolist(), index=0, horizontal=True, label_visibility='collapsed')
+        summary_df, player_df, home_shots_df, away_shots_df = shotMap_ws(
+            match_df, axs, pitch, home_team, away_team, home_team_col, away_team_col, text_color, background, situation, selected_player
+        )
+
+        #axs['pitch'].set_xlim(-10, 115)
+        #axs['pitch'].set_ylim(-10, 75)
+        st.pyplot(fig)
+    else:
+        fig_on_goal = plot_on_goal_shotmap_custom(
+            match_df, selected_team, team_colors[selected_team], background, text_color, font_prop, selected_player
+        )
+        st.pyplot(fig_on_goal)
+
+    # --- Player selection table with buttons ---
+    st.markdown("### Player Shot Summary")
+    # Clear selection button
+    if st.button("Clear Shot Selection"):
+        st.session_state.selected_shot_player = None
+        st.rerun()
+    for i, row in player_df_filtered.reset_index().iterrows():
+        col1, col2 = st.columns([1, 5])
+        with col1:
+            if st.button(row['playerName'], key=f"shot_{row['playerName']}"):
+                st.session_state.selected_shot_player = row['playerName']
+                st.rerun()
+        with col2:
+            st.dataframe(pd.DataFrame([row.drop(['index', 'playerName'])]), use_container_width=True)
 
 if viz == 'In Possession':
+
+    st.write(match_df[match_df['type']=='Carry'].head())
     st.markdown("## Passing Network and Pass Combination Matrix")
     #st.dataframe(match_df[match_df['subOff'] != 0][['index','matchId','minute','second','event_time','playerName','isFirstEleven']], width=1000)
     passes_df = get_passes_df(match_df)
@@ -579,8 +676,9 @@ if viz == 'In Possession':
     )
 
     # Pass type selection
-    passtypes = ['All', 'Crosses', 'Long Balls', 'Through Balls', 'Final Third Entries']
+    passtypes = ['All', 'Crosses', 'Long Balls', 'Through Balls', 'Carries', 'Dribbles']
     passtype = st.radio('', options=passtypes, index=0, horizontal=True, label_visibility='collapsed')
+    combined_df = match_df[match_df['type'].isin(['Pass', 'Carry', 'TakeOn'])].copy()
 
     # Filter match_df for the selected half
     if half_option == "First Half":
@@ -597,34 +695,46 @@ if viz == 'In Possession':
     if "selected_pass_player" not in st.session_state:
         st.session_state.selected_pass_player = None
     selected_player = st.session_state.selected_pass_player
-
+    if passtype == "All" and selected_player:
+            pass_kde_mode = st.radio(
+                "Show KDE for:",
+                options=["Passes Played", "Passes Received"],
+                index=0,
+                horizontal=True
+            )
+    else:
+        pass_kde_mode = "Passes Played"  # Default/fallback
     # --- Passmaps plotting ---
     top_passers_h, top_passers_a = passmaps(
-        ax, match_df_half, home_team, home_team_col, away_team, away_team_col,
-        background, text_color, passtype, selected_player, team_filter
+        ax, match_df_half,passes_df, home_team, home_team_col, away_team, away_team_col,
+        background, text_color, passtype, selected_player, team_filter,pass_kde_mode
     )
     top_passers_h = top_passers_h.reset_index(drop=True)
     top_passers_a = top_passers_a.reset_index(drop=True)
 
     # --- Build pass type counts, assists, xA for each player ---
     def get_pass_type_counts(df, team):
-        passes = df[(df['type'] == 'Pass') & (df['teamName'] == team)].copy()
-        passes['Final Third Entries'] = ((passes['x'] < 75) & (passes['endX'] >= 75) & (passes['outcomeType'] == 'Successful')).astype(int)
+        passes = df[(df['type'].isin(['Pass','TakeOn','Carry'])) & (df['teamName'] == team)].copy()
+        #passes['Final Third Entries'] = ((passes['x'] < 75) & (passes['endX'] >= 75) & (passes['outcomeType'] == 'Successful')).astype(int)
         passes['Crosses'] = (passes['qualifiers'].str.contains('Cross', na=False) & (passes['outcomeType'] == 'Successful')).astype(int)
         passes['Long Balls'] = (passes['qualifiers'].str.contains('Longball', na=False) & (passes['outcomeType'] == 'Successful')).astype(int)
         passes['Through Balls'] = (passes['qualifiers'].str.contains('Throughball', na=False) & (passes['outcomeType'] == 'Successful')).astype(int)
         passes['Total Passes'] = 1
         #passes['Assist'] = passes['assist'].astype(int) if 'assist' in passes.columns else 0
         passes['xA'] = passes['xA'] if 'xA' in passes.columns else 0.0
+        passes['Carries'] = ((passes['type'] == 'Carry') & (passes['outcomeType'] == 'Successful') & (passes['prog_carry'] >= 5)).astype(int)
+        passes['Dribbles'] = (passes['type'] == 'TakeOn').astype(int)
 
         summary = passes.groupby('playerName').agg({
-            'Final Third Entries': 'sum',
+            #'Final Third Entries': 'sum',
             'Crosses': 'sum',
             'Long Balls': 'sum',
             'Through Balls': 'sum',
             'Total Passes': 'sum',
             'assist': 'sum',
-            'xA': 'sum'
+            'xA': 'sum',
+            'Carries': 'sum',
+            'Dribbles': 'sum'
         }).reset_index()
         summary = summary.rename(columns={'assist': 'Assist'})
         summary = summary.sort_values('Total Passes', ascending=False)
@@ -643,42 +753,24 @@ if viz == 'In Possession':
     else:
         pass_summary = away_pass_summary
 
-    # Add playerName as buttons in the DataFrame
-    def player_button(label, key):
-        return st.button(label, key=key)
-
-    # Build a DataFrame with playerName as buttons
-    button_cols = st.columns([2, 1, 1, 1, 1, 1, 1, 1])
-    header = ["Player", "Final Third", "Crosses", "Long Balls", "Through Balls", "Total Passes", "Assists", "xA"]
-    for i, h in enumerate(header):
-        button_cols[i].markdown(f"**{h}**")
-
-    for i, row in pass_summary.iterrows():
-        cols = st.columns([2, 1, 1, 1, 1, 1, 1, 1])
-        with cols[0]:
-            if player_button(row['playerName'], key=f"{team_filter}_pass_{row['playerName']}"):
-                st.session_state.selected_pass_player = row['playerName']
-                st.rerun()
-        with cols[1]:
-            st.write(int(row['Final Third Entries']))
-        with cols[2]:
-            st.write(int(row['Crosses']))
-        with cols[3]:
-            st.write(int(row['Long Balls']))
-        with cols[4]:
-            st.write(int(row['Through Balls']))
-        with cols[5]:
-            st.write(int(row['Total Passes']))
-        with cols[6]:
-            st.write(int(row['Assist']))
-        with cols[7]:
-            st.write(round(row['xA'], 2))
-
     # --- Clear selection button ---
     if st.button("Clear Selection"):
         st.session_state.selected_pass_player = None
         st.rerun()
+    # Add playerName as buttons in the DataFrame
+    def player_button(label, key):
+        return st.button(label, key=key)
 
+
+    for i, row in pass_summary.reset_index().iterrows():
+        col1, col2 = st.columns([1, 7])
+        with col1:
+            if st.button(row['playerName'], key=f"{team_filter}_pass_{row['playerName']}_{i}"):
+                st.session_state.selected_pass_player = row['playerName']
+                st.rerun()
+        with col2:
+            st.dataframe(pd.DataFrame([row.drop(['index', 'playerName'])]), use_container_width=True)
+    
 if viz == 'Duels':
     st.markdown("## Duels")
     duel_type = st.radio(
@@ -695,15 +787,22 @@ if viz == 'Duels':
     a_players.columns = [f'{away_team} Player', f'{away_team} Duels Won']
 
     # Concatenate side by side
-    result = pd.concat([h_players, a_players], axis=1).reset_index(drop=True)
+    #result = pd.concat([h_players, a_players], axis=1).reset_index(drop=True)
+    #result = result.dropna(subset=[f'{home_team} Player', f'{away_team} Player'])
     st.pyplot(fig)
-    st.dataframe(result, width=1000)
+    #st.dataframe(result, width=1000)
+    h_players = h_players.dropna(subset=[f'{home_team} Player'])
+    a_players = a_players.dropna(subset=[f'{away_team} Player'])
+    st.markdown(f"### {home_team} Duels Won")
+    st.dataframe(h_players, width=500)
+    st.markdown(f"### {away_team} Duels Won")
+    st.dataframe(a_players, width=500)
 
 if viz == 'Out of Possession':
-    st.markdown("## Defensive Actions")
+    st.markdown("## OOP Actions")
     team = st.radio('',options=[home_team, away_team],index=0,horizontal=True, label_visibility='collapsed')
     halves = st.radio('',options=['Full 90','First Half', 'Second Half'],index=0,horizontal=True, label_visibility='collapsed')
-    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,15))
+    fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(20,16))
     fig.set_facecolor(background)
     axs.set_facecolor(background)
     if team == home_team:
