@@ -45,7 +45,7 @@ if __name__ == "__main__":
     API_KEY = os.getenv("MAINNET_API_KEY")
     api_url = os.getenv("MAINNET_API_URL")
     APP_NAME = "team_keyword_extraction"
-    KEYWORDS = ["Wrexham", "Wrexham AFC", "Ryan Reynolds", "Rob McElhenney", "Hollywood owners"]
+    KEYWORDS = []
     DAYS = 1
     OUTPUT_FILE = "output/team_posts.json"
 

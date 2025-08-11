@@ -30,6 +30,10 @@ import altair as alt
 import streamlit as st
 import matplotlib.patches as mpatches
 import plotly.graph_objects as go
+import pandas as pd
+import matplotlib.pyplot as plt
+from mplsoccer import Pitch
+import time
 
 
 base_path = '/Users/ishdeepchadha/Documents/Score/Football'
@@ -2211,7 +2215,7 @@ def shotMap_ws(df, axs, pitch, hteam, ateam, team1_facecolor, team2_facecolor, t
         mask1 = ((df['teamName'] == hteam)) & (df['situation'] == situation) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
         mask2 = ((df['teamName'] == ateam)) & (df['situation'] == situation) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
 
-    df['xG'] = df['xG'].fillna(0)
+    df['xG'] = df['xG'].fillna(0.05)
 
     home_shots_df = df[mask1]
     away_shots_df = df[mask2]
@@ -2448,7 +2452,7 @@ def get_passes_df(df):
     df = df1
     df.loc[:, "receiver"] = df["playerId"].shift(-1)
     passes_ids = df.index[df['type'] == 'Pass']
-    df_passes = df.loc[passes_ids, ["index", "x", "y","minute", "endX", "endY", "teamName", "playerId", "receiver", "type", "outcomeType","isFirstEleven","playerName"]].copy()
+    df_passes = df.loc[passes_ids, ["index", "x", "y","minute", "endX", "endY", "teamName", "playerId", "receiver", "type", "outcomeType","isFirstEleven","playerName","xT","passKey"]].copy()
     id_to_name = dict(zip(df_passes['playerId'], df_passes['playerName']))
     df_passes['receiverName'] = df_passes['receiver'].map(id_to_name)
 
@@ -2515,7 +2519,6 @@ def filter_passes_for_subwindow(match_df, passes_df, teamName, minute_start, min
         (passes_df['playerId'].isin(valid_players)) &
         (passes_df['receiver'].isin(valid_players))
     ]
-
     return passes_filtered
 
 def get_passes_between_df(teamName, passes_df):
@@ -2850,7 +2853,7 @@ def passmaps(ax, match_df,passes_df, hteam, hteam_color, ateam, ateam_color, bac
                 y_vals = kde_df['endY']
             if not kde_df.empty:
                 cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, ateam_color])
-                pitch.kdeplot(x=x_vals, y=y_vals, ax=ax, fill=True, cmap=cmap, n_levels=10, bw_adjust=1, weights=None, thresh=0.01, zorder=0)
+                pitch.kdeplot(x=105-x_vals, y=68-y_vals, ax=ax, fill=True, cmap=cmap, n_levels=10, bw_adjust=1, weights=None, thresh=0.01, zorder=0)
         
     else:
         # Plot all passes for both teams
@@ -4110,23 +4113,21 @@ def plot_pass_accuracy_windows(
 
     return ax
 
-def plot_on_goal_shotmap_custom(df, team, team_color, background, text_color, font_prop, selected_player):
+def plot_on_goal_shotmap_custom(df, team, team_color, background, text_color, font_prop, selected_player, situation, ax=None):
     """
     Plots on-goal shots using GoalMouthY and GoalMouthZ coordinates,
     normalized to fit custom goal rectangle.
+    If ax is provided, plot on that axis; otherwise, create a new figure.
+    Applies alpha highlighting if selected_player is set.
     """
-    if selected_player:
-        mask = (
-            (df['teamName'] == team) &
-            (df['isShot'] == True) & (df['shotBlocked'] == False) & (df['shotOnTarget'] == True) & (df['playerName'] == selected_player) &
-            df['goalMouthY'].notna() & df['goalMouthZ'].notna()
-        )
-    else:
-        mask = (
-            (df['teamName'] == team) &
-            (df['isShot'] == True) & (df['shotBlocked'] == False) & (df['shotOnTarget'] == True) &
-            df['goalMouthY'].notna() & df['goalMouthZ'].notna()
-        )
+    # --- Filter shots ---
+    mask = (
+        (df['teamName'] == team) &
+        (df['isShot'] == True) & (df['shotBlocked'] == False) & (df['shotOnTarget'] == True) &
+        df['goalMouthY'].notna() & df['goalMouthZ'].notna()
+    )
+    if situation and situation != 'All':
+        mask &= (df['situation'] == situation)
     shots = df[mask].copy()
 
     # Rectangle dimensions
@@ -4135,120 +4136,166 @@ def plot_on_goal_shotmap_custom(df, team, team_color, background, text_color, fo
     GOAL_BOTTOM = 0
     GOAL_HEIGHT = 35
 
-    fig = plt.figure(facecolor=background)
-    fig.set_size_inches(15, 5)
+    if ax is None:
+        fig = plt.figure(facecolor=background)
+        fig.set_size_inches(15, 5)
+        ax = plt.gca()
+    else:
+        fig = None
+        ax.set_facecolor(background)
 
     # Draw goal posts and net
-    plt.plot([30, 38], [0, 0], color=text_color, linewidth=1.5)
-    plt.plot([GOAL_LEFT, GOAL_LEFT + GOAL_WIDTH], [GOAL_HEIGHT, GOAL_HEIGHT], color=text_color, linewidth=3)
-    plt.plot([GOAL_LEFT + GOAL_WIDTH, GOAL_LEFT + GOAL_WIDTH], [0, GOAL_HEIGHT], color=text_color, linewidth=3)
-    plt.plot([GOAL_LEFT, GOAL_LEFT], [0, GOAL_HEIGHT], color=text_color, linewidth=3)
-    plt.gca().add_patch(Rectangle((GOAL_LEFT, 0), GOAL_WIDTH, GOAL_HEIGHT, fill=False, edgecolor=text_color, hatch='+', alpha=0.3))
+    ax.plot([30, 38], [0, 0], color=text_color, linewidth=1.5)
+    ax.plot([GOAL_LEFT, GOAL_LEFT + GOAL_WIDTH], [GOAL_HEIGHT, GOAL_HEIGHT], color=text_color, linewidth=3)
+    ax.plot([GOAL_LEFT + GOAL_WIDTH, GOAL_LEFT + GOAL_WIDTH], [0, GOAL_HEIGHT], color=text_color, linewidth=3)
+    ax.plot([GOAL_LEFT, GOAL_LEFT], [0, GOAL_HEIGHT], color=text_color, linewidth=3)
+    ax.add_patch(Rectangle((GOAL_LEFT, 0), GOAL_WIDTH, GOAL_HEIGHT, fill=False, edgecolor=text_color, hatch='+', alpha=0.2))
 
     # Invert x-axis for scatter points
     shots['x_inv'] = GOAL_LEFT + GOAL_WIDTH - (shots['goalMouthY'] - GOAL_LEFT)
     shots['y'] = shots['goalMouthZ']
 
-    # Plot shots
-    for _, row in shots.iterrows():
-        marker = 'o' if row['type'] == 'Goal' else 's'
-        size = 2000 if row['type'] == 'Goal' else 1000
-        color = team_color if row['type'] == 'Goal' else text_color
-        plt.scatter(row['x_inv'], row['y'], s=size * row['xG'], marker=marker, color=color, edgecolor=text_color, linewidth=2, zorder=3)
-
-    plt.axis('off')
-    return fig
-
-def plot_on_field_shotmap_highlight(shots_df, team_color, background, text_color, font_prop, highlight_idx=None):
-    pitch = Pitch(pitch_type='uefa', half=False, corner_arcs=True, pitch_color=background, line_color=text_color, linewidth=1.5)
-    fig, ax = plt.subplots(figsize=(12, 8))
-    pitch.draw(ax=ax)
-    for i, row in shots_df.iterrows():
-        alpha = 1.0 if highlight_idx is not None and i == highlight_idx else 0.2
-        size = 800 if highlight_idx is not None and i == highlight_idx else 200
-        marker = 'o' if row['type'] == 'Goal' else 's'
-        color = team_color if row['type'] == 'Goal' else text_color
-        pitch.scatter(row['x'], row['y'], s=size, color=color, alpha=alpha, marker=marker, edgecolor=text_color, linewidth=2, ax=ax)
-    ax.set_axis_off()
-    return fig
-
-def shotMap_ws2(df, axs, pitch, team, team_color, text_color, background, situation, selected_player=None):
-    # Filter shots by situation and selected player
-
-    #print(df[df['type'] == 'Goal'])
-    if situation == 'All':
-        mask = ((df['teamName'] == team)) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
-    else:
-        mask = ((df['teamName'] == team)) & (df['situation'] == situation) & ((df['type'] == 'Goal') | (df['type'] == 'MissedShots') | (df['type'] == 'SavedShot') | (df['type'] == 'ShotOnPost'))
-
-    df['xG'] = df['xG'].fillna(0)
-
-    print(df[mask].head())
-    shots_df = df[mask]
-    #print(shots_df.head())
-    # Filter by selected player if provided
+    # --- Split shots for alpha logic ---
     if selected_player:
-        shots_df = shots_df[shots_df['playerName'] == selected_player]
+        selected_shots = shots[shots['playerName'] == selected_player]
+        other_shots = shots[shots['playerName'] != selected_player]
+    else:
+        selected_shots = shots
+        other_shots = pd.DataFrame(columns=shots.columns)
 
-    shots_df.reset_index(drop=True, inplace=True)
-    
+    # Plot other shots faded
+    if not other_shots.empty:
+        for _, row in other_shots.iterrows():
+            marker = 'o'
+            size = 2000 if row['type'] == 'Goal' else 1500
+            color = team_color if row['type'] == 'Goal' else text_color
+            ax.scatter(row['x_inv'], row['y'], s=size * row['xG'], marker=marker, color=color, edgecolor=text_color, linewidth=2, zorder=3, alpha=0.2)
 
-    h_missed = shots_df[shots_df['type'] == 'MissedShots']
-    h_saved = shots_df[(shots_df['type'] == 'SavedShot') & (shots_df['shotBlocked'] == False)]
-    h_blocked = shots_df[(shots_df['type'] == 'SavedShot') & (shots_df['shotBlocked'] == True)]
-    h_post = shots_df[shots_df['type'] == 'ShotOnPost']
-    h_goals = shots_df[(shots_df['type'] == 'Goal') & (shots_df['goalOwn'] == False)]
-    h_own_goals = shots_df[(shots_df['type'] == 'Goal') & (shots_df['goalOwn'] == True)]
+    # Plot selected player's shots highlighted
+    if not selected_shots.empty:
+        for _, row in selected_shots.iterrows():
+            marker = 'o'
+            size = 2000 if row['type'] == 'Goal' else 1500
+            color = team_color if row['type'] == 'Goal' else text_color
+            ax.scatter(row['x_inv'], row['y'], s=size * row['xG'], marker=marker, color=color, edgecolor=text_color, linewidth=2, zorder=3, alpha=0.9)
 
+    ax.axis('off')
+    return fig
 
-    if not shots_df['y'].empty and shots_df['y'].nunique() > 1:
-        sns.kdeplot(y=shots_df.y, ax=axs['right'], color=team_color, fill=True)
+def plot_team_shotmaps_stacked(df, team, team_color, background, text_color, font_prop, ax_goal, ax_field, selected_player=None, situation=None):
+    """
+    Plots on-goal shotmap (top) and on-field shotmap (bottom) for a single team using provided axes.
+    If a player is selected, their shots are highlighted and others are faded.
+    """
+    # --- Filter shots for the team ---
+    mask = (
+        (df['teamName'] == team) &
+        (df['type'].isin(['Goal', 'MissedShots', 'SavedShot', 'ShotOnPost']))
+    )
+    if situation and situation != 'All':
+        mask &= (df['situation'] == situation)
+    shots_df = df[mask].copy().reset_index(drop=True)
 
-    if not h_missed.empty:
-        pitch.scatter(h_missed.x, h_missed.y, marker='o', edgecolors=team_color, s=8000 * h_missed['xG'], linewidth=3, c=background, ax=axs['pitch'])
-    if not h_saved.empty:
-        pitch.scatter(h_saved.x, h_saved.y, marker='o', edgecolors='white', s=8000 * h_saved['xG'], c=team_color, linewidth=3, zorder=4, ax=axs)
-    if not h_post.empty:
-        pitch.scatter(h_post.x, h_post.y, marker='o', edgecolors='green', s=8000 * h_post['xG'], linewidth=3, c=team_color, zorder=5, ax=axs)
-    if not h_goals.empty:
-        pitch.scatter(h_goals.x, h_goals.y, marker='football', edgecolors=text_color, s=10000 * h_goals['xG'], zorder=6, linewidths=3, c=team_color, ax=axs['pitch'])
-    if not h_own_goals.empty:
-        pitch.scatter(h_own_goals.x, h_own_goals.y, marker='football', edgecolors=team_color, s=3000, zorder=6, c=team_color, ax=axs)
-    if not h_blocked.empty:
-        pitch.scatter(h_blocked.x, h_blocked.y, marker='s', edgecolors=team_color, s=6000 * h_blocked['xG'], zorder=5, linewidth=3, c=background, ax=axs)
+    # --- On Goal Shotmap ---
+    plot_on_goal_shotmap_custom(
+        df, team, team_color, background, text_color, font_prop, selected_player, situation, ax=ax_goal
+    )
 
-    #pitch.scatter(4,-5,marker='football', edgecolors=text_color, s=1000, c=background,ax=axs)
-    #pitch.annotate('Goal', xy=(10,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
-    
-    #pitch.scatter(23,-5,marker='o', edgecolors=background, s=1000, c=text_color,ax=axs)
-    #pitch.annotate('On Target', xy=(33,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+    pitch = VerticalPitch(
+        pitch_type='uefa',
+        half=True,
+        pitch_color=background,
+        line_color=text_color,
+        linewidth=1,
+        axis=True,
+        label=True,
+        pad_bottom=-7
+    )
+    ax_field.set_facecolor(background)
+    pitch.draw(ax=ax_field)
 
-    #pitch.scatter(48,-5,marker='o', edgecolors='green',linewidth=5, s=1000, c=background,ax=axs)
-    #pitch.annotate('Woodwork', xy=(58,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+    if not shots_df.empty:
+        # Split shots into selected and others
+        if selected_player:
+            selected_shots = shots_df[shots_df['playerName'] == selected_player]
+            other_shots = shots_df[shots_df['playerName'] != selected_player]
+        else:
+            selected_shots = shots_df
+            other_shots = pd.DataFrame(columns=shots_df.columns)
 
-    #pitch.scatter(70,-5,marker='o', edgecolors=text_color, s=1000, c=background,ax=axs)
-    #pitch.annotate('Off Target', xy=(78,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+        # Plot other shots faded
+        for shot_type, marker, edgecolor, color, zorder in [
+            ('Goal', 'football', text_color, team_color, 6),
+            ('MissedShots', 'o', team_color, background, 4),
+            ('SavedShot', 'o', 'white', team_color, 4),
+            ('ShotOnPost', 'o', 'green', team_color, 5),
+        ]:
+            others = other_shots[other_shots['type'] == shot_type]
+            if not others.empty:
+                pitch.scatter(
+                    others['x'], others['y'],
+                    marker=marker,
+                    edgecolors=edgecolor,
+                    s=1000 * others['xG'],
+                    c=color,
+                    linewidths=1,
+                    alpha=0.2,  # faded
+                    ax=ax_field,
+                    zorder=zorder
+                )
+        # Blocked shots (SavedShot & shotBlocked==True)
+        blocked = other_shots[(other_shots['type'] == 'SavedShot') & (other_shots['shotBlocked'] == True)]
+        if not blocked.empty:
+            pitch.scatter(blocked['x'], blocked['y'], marker='s', edgecolors=team_color, s=1000 * blocked['xG'], linewidths=3, c=background, alpha=0.2, ax=ax_field, zorder=5)
 
-    #pitch.scatter(90,-5,marker='s', edgecolors=text_color,linewidth=3, s=1000, c=background,ax=axs)
-    #pitch.annotate('Blocked', xy=(98,-5), fontsize=30,color=text_color,fontproperties=font_prop,ax=axs, ha='center', va='center')
+        # Own Goals
+        own_goals = other_shots[(other_shots['type'] == 'Goal') & (other_shots['goalOwn'] == True)]
+        if not own_goals.empty:
+            pitch.scatter(own_goals['x'], own_goals['y'], marker='football', edgecolors=team_color, s=1000, c=text_color, linewidths=3, alpha=0.2, ax=ax_field, zorder=6)
 
-    xg = round(shots_df['xG'].sum(),2)
+        # Plot selected player's shots highlighted
+        for shot_type, marker, edgecolor, color, zorder in [
+            ('Goal', 'football', text_color, team_color, 6),
+            ('MissedShots', 'o', team_color, background, 4),
+            ('SavedShot', 'o', 'white', team_color, 4),
+            ('ShotOnPost', 'o', 'green', team_color, 5),
+        ]:
+            sel = selected_shots[selected_shots['type'] == shot_type]
+            if not sel.empty:
+                pitch.scatter(
+                    sel['x'], sel['y'],
+                    marker=marker,
+                    edgecolors=edgecolor,
+                    s=1000 * sel['xG'],
+                    c=color,
+                    linewidths=1,
+                    alpha=0.9,  # highlighted
+                    ax=ax_field,
+                    zorder=zorder
+                )
+        # Blocked shots (SavedShot & shotBlocked==True)
+        blocked_sel = selected_shots[(selected_shots['type'] == 'SavedShot') & (selected_shots['shotBlocked'] == True)]
+        if not blocked_sel.empty:
+            pitch.scatter(blocked_sel['x'], blocked_sel['y'], marker='s', edgecolors=team_color, s=1000 * blocked_sel['xG'], linewidths=3, c=background, alpha=0.9, ax=ax_field, zorder=5)
 
-    summary_data = {
-        'Team': [team],
-        'Goals': [len(h_goals) + len(h_own_goals)],
-        'On Target': [len(h_goals) + len(h_saved)],
-        'Off Target': [len(h_missed)],
-        'Woodwork': [len(h_post)],
-        'Blocked': [len(h_blocked)],
-        'Own Goals': [len(h_own_goals)],
-        'xG': [xg]
-    }
+        # Own Goals
+        own_goals_sel = selected_shots[(selected_shots['type'] == 'Goal') & (selected_shots['goalOwn'] == True)]
+        if not own_goals_sel.empty:
+            pitch.scatter(own_goals_sel['x'], own_goals_sel['y'], marker='football', edgecolors=team_color, s=1000, c=text_color, linewidths=3, alpha=0.9, ax=ax_field, zorder=6)
 
-    summary_df = pd.DataFrame(summary_data)
-    player_df = summarize_player_shots(df)
-    return summary_df, player_df, shots_df
+    ax_field.axis('off')
 
+    # Add legend markers (optional)
+    pitch.scatter(107.5, 66, marker='football', edgecolors=text_color, s=300, c=background, ax=ax_field)
+    pitch.annotate('Goal', xy=(107.5, 62), fontsize=15, color=text_color, fontproperties=font_prop, ax=ax_field, ha='center', va='center')
+    pitch.scatter(107.5, 56, marker='o', edgecolors=background, s=300, c=text_color, ax=ax_field)
+    pitch.annotate('On Target', xy=(107.5, 49), fontsize=15, color=text_color, fontproperties=font_prop, ax=ax_field, ha='center', va='center')
+    pitch.scatter(107.5, 42, marker='o', edgecolors='green', linewidths=1, s=300, c=background, ax=ax_field)
+    pitch.annotate('Woodwork', xy=(107.5, 34), fontsize=15, color=text_color, fontproperties=font_prop, ax=ax_field, ha='center', va='center')
+    pitch.scatter(107.5, 26, marker='o', edgecolors=text_color, s=300, c=background, ax=ax_field)
+    pitch.annotate('Off Target', xy=(107.5, 19), fontsize=15, color=text_color, fontproperties=font_prop, ax=ax_field, ha='center', va='center')
+    pitch.scatter(107.5, 12, marker='s', edgecolors=text_color, linewidths=1, s=300, c=background, ax=ax_field)
+    pitch.annotate('Blocked', xy=(107.5, 6), fontsize=15, color=text_color, fontproperties=font_prop, ax=ax_field, ha='center', va='center')
 
 def tag_sequences_and_possessions_all_matches(
         df,
@@ -4355,3 +4402,212 @@ def tag_sequences_and_possessions_all_matches(
           .reset_index(drop=True)
     )
     return out
+
+
+# ---- 1. Detect transitions ----
+def detect_offensive_transitions(events_df, team_name, time_window=10):
+    events_df = events_df.sort_values(["minute", "second"]).reset_index(drop=True)
+    events_df["event_time_sec"] = events_df["minute"] * 60 + events_df["second"]
+
+    regain_events = ["BallRecovery", "Interception", "Tackle", "Challenge", "KeeperPickup", "Claim"]
+    key_attacking = ["Shot", "Goal", "MissedShots", "SavedShot", "Pass", "Carry"]
+
+    transitions = []
+
+    for idx, row in events_df.iterrows():
+        if row["teamName"] == team_name and row["type"] in regain_events:
+            start_time = row["event_time_sec"]
+
+            window_events = events_df[
+                (events_df["event_time_sec"] >= start_time) &
+                (events_df["event_time_sec"] <= start_time + time_window)
+            ]
+            window_team_events = window_events[window_events["teamName"] == team_name]
+
+            in_box = window_team_events[
+                ((window_team_events["type"].isin(["Pass", "Carry"])) &
+                 (window_team_events["x"] > 102) & (window_team_events["y"].between(18, 62)))
+            ]
+
+            if in_box.shape[0] > 0 or any(window_team_events["type"].isin(["Shot", "Goal", "MissedShots", "SavedShot"])):
+                transitions.append(window_team_events.reset_index(drop=True))
+
+    return transitions
+
+def get_number_of_attacks(poss_df, team_name):
+    """
+    Returns a DataFrame with number of attacks by the team from each flank (Left, Center, Right)
+    and the total xG of shots resulting from attacks from each flank.
+    Pitch dimensions: 105 x 68. Flanks are divided by y-coordinates:
+        Left: y < 22.67
+        Center: 22.67 <= y < 45.33
+        Right: y >= 45.33
+    """
+    attack_actions = ['Pass', 'SavedShot', 'MissedShots', 'Goal', 'ShotOnPost']
+    shot_actions = ['SavedShot', 'MissedShots', 'Goal', 'ShotOnPost']
+    x_threshold = 70.12
+
+    # Flank boundaries
+    left_max = 22.67
+    center_min = 22.67
+    center_max = 45.33
+    right_min = 45.33
+
+    # Initialize counters
+    flank_stats = {
+        'Left': {'num_attacks': 0, 'num_attacks_with_shots': 0, 'total_xG': 0.0},
+        'Center': {'num_attacks': 0, 'num_attacks_with_shots': 0, 'total_xG': 0.0},
+        'Right': {'num_attacks': 0, 'num_attacks_with_shots': 0, 'total_xG': 0.0}
+    }
+
+    team_possessions = poss_df[poss_df['teamName'] == team_name].groupby('possession_id')
+
+    for _, possession_events in team_possessions:
+        # Events that qualify as an attack (final third, successful)
+        qualifying = possession_events[
+            (possession_events['type'].isin(attack_actions)) &
+            (possession_events['outcomeType'] == 'Successful') &
+            (possession_events['x'] > x_threshold)
+        ]
+
+        if not qualifying.empty:
+            # Determine flank by the first qualifying event's y coordinate
+            first_event = qualifying.iloc[0]
+            y = first_event['y']
+            if y < left_max:
+                flank = 'Left'
+            elif y < center_max:
+                flank = 'Center'
+            else:
+                flank = 'Right'
+
+            flank_stats[flank]['num_attacks'] += 1
+
+            # Check if one of the qualifying actions was a shot
+            shot_events = qualifying[qualifying['type'].isin(shot_actions)]
+            if not shot_events.empty:
+                flank_stats[flank]['num_attacks_with_shots'] += 1
+                # Sum xG for shots in this possession from this flank
+                flank_stats[flank]['total_xG'] += shot_events['xG'].sum()
+
+    # Build dataframe
+    result_df = pd.DataFrame([
+        {
+            'Flank': flank,
+            'Num_Attacks': stats['num_attacks'],
+            'Num_Attacks_With_Shots': stats['num_attacks_with_shots'],
+            'Total_xG': round(stats['total_xG'], 3)
+        }
+        for flank, stats in flank_stats.items()
+    ])
+
+    return result_df
+
+def plot_attacks(attacks, team_color, background, text_color, font_prop, ax):
+
+    pitch = VerticalPitch(
+        pitch_type='uefa', half=True, pitch_color=background,
+        line_color=text_color, linewidth=1.5, axis=True, label=True, pad_bottom=-10
+    )
+    pitch.draw(ax=ax)
+    ax.set_facecolor(background)
+
+    #Normalize attack intensity for color
+    max_attacks = attacks['Num_Attacks'].max()
+    min_attacks = attacks['Num_Attacks'].min()
+    norm = lambda x: 0.3 + 0.7 * ((x - min_attacks) / (max_attacks - min_attacks + 1e-6))
+
+    center_alpha = norm(attacks[attacks['Flank'] == 'Center']['Num_Attacks'].values[0])
+    center_text = f"{attacks[attacks['Flank'] == 'Center']['Num_Attacks'].values[0]} \n {round(attacks[attacks['Flank'] == 'Center']['Total_xG'].values[0],2)} xG"
+    ax.text(34, 80, center_text, fontproperties=font_prop,fontsize=25, color=text_color, ha='center', va='center', zorder=5)
+
+    left_alpha = norm(attacks[attacks['Flank'] == 'Left']['Num_Attacks'].values[0])
+    left_text = f"{attacks[attacks['Flank'] == 'Left']['Num_Attacks'].values[0]} \n {round(attacks[attacks['Flank'] == 'Left']['Total_xG'].values[0],2)} xG"
+    ax.text(10, 80, left_text, fontproperties=font_prop, fontsize=25, color=text_color, ha='center', va='center', zorder=5)
+    right_alpha = norm(attacks[attacks['Flank'] == 'Right']['Num_Attacks'].values[0])
+    right_text = f"{attacks[attacks['Flank'] == 'Right']['Num_Attacks'].values[0]} \n {round(attacks[attacks['Flank'] == 'Right']['Total_xG'].values[0],2)} xG"
+    ax.text(58, 80, right_text, fontproperties=font_prop, fontsize=25, color=text_color, ha='center', va='center', zorder=5)
+
+    ax.fill([20, 48, 48, 20],[105, 105, 52.5, 52.5], team_color, alpha=center_alpha, zorder=0) ## Center Flank
+
+    ax.fill([0, 20, 20, 0],[105, 105, 52.5, 52.5], team_color, alpha=left_alpha, zorder=0) ## Left Flank
+
+    ax.fill([48, 68, 68, 48],[105, 105, 52.5, 52.5],team_color, alpha=right_alpha, zorder=0) ## Right Flank
+
+    ax.axis('off')
+    return ax
+    """
+    Plots the number of attacks and xG from each flank for both teams.
+    Fills the three flanks according to the intensity of number of attacks from that flank,
+    with xG value shown on top and an arrow whose length depends on the amount of xG.
+    """
+    pitch = VerticalPitch(
+        pitch_type='uefa', half=True, pitch_color=background,
+        line_color=text_color, linewidth=1, axis=True, label=True, pad_bottom=-7
+    )
+    pitch.draw(ax=ax)
+    ax.set_facecolor(background)
+
+    # Flank boundaries
+    flank_bounds = {
+        'Left': (0, 22.67),
+        'Center': (22.67, 45.33),
+        'Right': (45.33, 68)
+    }
+    flank_positions = {
+        'Left': 11.335,
+        'Center': 34,
+        'Right': 56.665
+    }
+
+    # Normalize attack intensity for color
+    max_attacks = max(h_attacks['Num_Attacks'].max(), a_attacks['Num_Attacks'].max())
+    min_attacks = min(h_attacks['Num_Attacks'].min(), a_attacks['Num_Attacks'].min())
+    norm = lambda x: 0.3 + 0.7 * ((x - min_attacks) / (max_attacks - min_attacks + 1e-6))
+
+    # Plot for both teams
+    for team_attacks, color, x_pos in [
+        (h_attacks, team1_color, 15),
+        (a_attacks, team2_color, 55)
+    ]:
+        for _, row in team_attacks.iterrows():
+            flank = row['Flank']
+            y_min, y_max = flank_bounds[flank]
+            intensity = norm(row['Num_Attacks'])
+            rect = plt.Rectangle(
+                (0, y_min), 70, y_max - y_min,
+                color=color, alpha=intensity, zorder=1
+            )
+            ax.add_patch(rect)
+
+            # Show xG value
+            ax.text(
+                x_pos, (y_min + y_max) / 2, f"xG: {row['Total_xG']:.2f}",
+                fontsize=18, fontproperties=font_prop, color=text_color,
+                ha='center', va='center', fontweight='bold', zorder=3
+            )
+
+            # Arrow for xG (length depends on xG value, capped for display)
+            arrow_length = min(50, 10 + row['Total_xG'] * 30)
+            arrow_x_start = x_pos
+            arrow_y = (y_min + y_max) / 2
+            arrow_x_end = x_pos + arrow_length if color == team1_color else x_pos - arrow_length
+            pitch.arrow(
+                arrow_x_start, arrow_y,
+                arrow_x_end - arrow_x_start, 0,
+                head_width=3, head_length=5, fc=text_color, ec=text_color,
+                length_includes_head=True, zorder=4
+            )
+
+            # Show number of attacks
+            ax.text(
+                x_pos, arrow_y - 7, f"Attacks: {row['Num_Attacks']}",
+                fontsize=14, fontproperties=font_prop, color=text_color,
+                ha='center', va='center', zorder=3
+            )
+
+    # Add legend for flanks
+    #for flank, y in flank_positions.items():
+    #    ax.text(72, y, flank, fontsize=16, color=text_color, fontproperties=font_prop, va='center', ha='left', zorder=5)
+
+    return ax
