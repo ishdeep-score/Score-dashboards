@@ -68,6 +68,29 @@ def get_fixtures_from_db(league, season, limit=10):
         })
     return fixtures
 
+def get_match_id_from_db(league, season, home_team, away_team):
+    base_path = '/Users/ishdeepchadha/Documents/Score/Football'
+    db_path = f'{base_path}/data extraction/score_football.db'
+    conn = sqlite3.connect(db_path)
+    query = """
+        SELECT matchId
+        FROM event_data
+        WHERE league = ? AND season = ? AND teamName = ? AND h_a = 'h'
+    """
+    home_matches = pd.read_sql_query(query, conn, params=(league, season, home_team))
+    query = """
+        SELECT matchId
+        FROM event_data
+        WHERE league = ? AND season = ? AND teamName = ? AND h_a = 'a'
+    """
+    away_matches = pd.read_sql_query(query, conn, params=(league, season, away_team))
+    conn.close()
+    # Find intersection of matchIds
+    home_ids = set(home_matches['matchId'])
+    away_ids = set(away_matches['matchId'])
+    common_ids = home_ids & away_ids
+    return list(common_ids)[0] if common_ids else None
+
 # --- App Logo ---
 st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
 if os.path.exists("logos/Logo.png"):
@@ -151,8 +174,36 @@ if selected_season:
             st.rerun()  # This forces the script to rerun, reloading the league selection screen
 
     with colB:
+
         if st.button("See Previous Fixtures"):
-            st.switch_page("pages/Post Match Analysis.py")
+            st.session_state['show_manual_fixture_input'] = True
+            st.rerun()
+
+        if st.session_state.get('show_manual_fixture_input', False):
+            # Get all unique team names for dropdowns
+            all_teams = set()
+            for fixture in fixtures:
+                all_teams.add(fixture['home_team'])
+                all_teams.add(fixture['away_team'])
+            all_teams = sorted([t for t in all_teams if t != "Unknown"])
+
+            st.markdown("#### Select Home and Away Team")
+            home_team_input = st.selectbox("Home Team", all_teams, index=0)
+            away_team_input = st.selectbox("Away Team", all_teams, index=1 if len(all_teams) > 1 else 0)
+            submit = st.button("Submit")
+            # ...inside your colB block...
+            if submit:
+                match_id = get_match_id_from_db(db_league_name, selected_season, home_team_input, away_team_input)
+                st.session_state['home_team'] = home_team_input
+                st.session_state['away_team'] = away_team_input
+                st.session_state['league'] = db_league_name
+                st.session_state['season'] = selected_season
+                if match_id:
+                    st.session_state['matchId'] = match_id
+                else:
+                    st.session_state['matchId'] = None  # Or handle not found case
+                st.session_state['show_manual_fixture_input'] = False
+                st.switch_page("pages/Post Match Analysis.py")
 
 # --- Footer ---
 st.markdown("<hr style='border: 1px solid #eee;'>", unsafe_allow_html=True)

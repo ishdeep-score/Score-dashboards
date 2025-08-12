@@ -4403,7 +4403,28 @@ def tag_sequences_and_possessions_all_matches(
     )
     return out
 
-
+def get_match_id_from_db(league, season, home_team, away_team):
+    base_path = '/Users/ishdeepchadha/Documents/Score/Football'
+    db_path = f'{base_path}/data extraction/score_football.db'
+    conn = sqlite3.connect(db_path)
+    query = """
+        SELECT matchId
+        FROM event_data
+        WHERE league = ? AND season = ? AND teamName = ? AND h_a = 'h'
+    """
+    home_matches = pd.read_sql_query(query, conn, params=(league, season, home_team))
+    query = """
+        SELECT matchId
+        FROM event_data
+        WHERE league = ? AND season = ? AND teamName = ? AND h_a = 'a'
+    """
+    away_matches = pd.read_sql_query(query, conn, params=(league, season, away_team))
+    conn.close()
+    # Find intersection of matchIds
+    home_ids = set(home_matches['matchId'])
+    away_ids = set(away_matches['matchId'])
+    common_ids = home_ids & away_ids
+    return list(common_ids)[0] if common_ids else None
 
 def classify_third(x):
     # 105m pitch
@@ -4467,7 +4488,14 @@ def offensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team
     cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, team_color])
     pitch.heatmap(pitch.bin_statistic(transitions_df['x'], transitions_df['y'], statistic='count', bins=(10, 7)), ax=ax, cmap=cmap, edgecolors=background, alpha=0.7)
     pitch.scatter(transitions_df['x'], transitions_df['y'], s=200, color=team_color, alpha=0.7, ax=ax, edgecolors=text_color)
-
+    if flagged:
+        pitch.arrows(5,-2,100,-2, width=3,
+                headwidth=4, headlength=3, headaxislength=2,
+                color=text_color, ax=ax)
+    else:
+        pitch.arrows(100,-2,5,-2, width=3,
+                headwidth=4, headlength=3, headaxislength=2,
+                color=text_color, ax=ax)
     # Highlight selected third if provided
     if selected_third and flagged == True:
         if selected_third == "Defensive Third":
@@ -4546,7 +4574,14 @@ def defensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team
     cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, team_color])
     pitch.heatmap(pitch.bin_statistic(transitions_df['x'], transitions_df['y'], statistic='count', bins=(10, 7)), ax=ax, cmap=cmap, edgecolors=background, alpha=0.7)
     pitch.scatter(transitions_df['x'], transitions_df['y'], s=200, color=team_color, alpha=0.7, ax=ax, edgecolors=text_color)
-
+    if flagged:
+        pitch.arrows(5,-2,100,-2, width=3,
+                headwidth=4, headlength=3, headaxislength=2,
+                color=text_color, ax=ax)
+    else:
+        pitch.arrows(100,-2,5,-2, width=3,
+                headwidth=4, headlength=3, headaxislength=2,
+                color=text_color, ax=ax)
     # Highlight selected third if provided
     if selected_third and flagged == True:
         if selected_third == "Defensive Third":
