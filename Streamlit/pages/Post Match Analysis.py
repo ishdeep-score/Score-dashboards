@@ -863,6 +863,45 @@ if viz == 'Duels and Transitions':
     st.markdown(f"### {away_team} Duels Won")
     st.dataframe(a_players, use_container_width=True)
 
+
+    st.markdown("## Transitions Heatmap")
+    poss_df = tag_sequences_and_possessions_all_matches(match_df)
+    transition_type = st.radio("Select Transition Type", ["Offensive", "Defensive"], horizontal=True)
+    team_options = [home_team, away_team]
+    selected_team = st.radio("Select Team", team_options, horizontal=True, index=0)
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+    fig.set_facecolor(background)
+    ax.set_facecolor(background)
+    pitch = Pitch(pitch_type='uefa', pitch_color=background, line_color=text_color, linewidth=1.5)
+
+    if transition_type == "Offensive":
+
+        if selected_team == home_team:
+            flagged = True
+        else:
+            flagged = False
+
+        summary_df = offensive_transition_heatmap(
+            poss_df, selected_team, ax, pitch, background, team_colors[selected_team], text_color, font_prop,flagged
+        )
+        st.markdown("### Offensive Transition Heatmap")
+        st.pyplot(fig)
+        st.markdown("#### Percentage of Offensive Transitions Leading to Attack (by Third)")
+        st.dataframe(summary_df, use_container_width=True)
+    else:
+        if selected_team == home_team:
+            flagged = True
+        else:
+            flagged = False
+        summary_df = defensive_transition_heatmap(
+            poss_df, selected_team, ax, pitch, background, team_colors[selected_team], text_color, font_prop,flagged
+        )
+        st.markdown("### Defensive Transition Heatmap")
+        st.pyplot(fig)
+        st.markdown("#### Percentage of Defensive Transitions Leading to Conceded Attack (by Third)")
+        st.dataframe(summary_df, use_container_width=True)
+
 if viz == 'Out of Possession':
     st.markdown("## OOP Actions")
     team = st.radio('',options=[home_team, away_team],index=0,horizontal=True, label_visibility='collapsed')
@@ -933,10 +972,7 @@ if viz == 'Out of Possession':
             with col2:
                 st.dataframe(pd.DataFrame([row.drop(['index', 'playerName'])]), use_container_width=True)
 
-if viz == 'Transitions':
-    # Example usage:
-    poss_df = tag_sequences_and_possessions_all_matches(match_df)
-    team_name = st.radio('', options=[home_team, away_team], index=0, horizontal=True, label_visibility='collapsed')
+
     
 
 
