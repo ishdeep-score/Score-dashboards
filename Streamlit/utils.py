@@ -4408,18 +4408,18 @@ def tag_sequences_and_possessions_all_matches(
 def classify_third(x):
     # 105m pitch
     if x < 35:
-        return "Defensive"
+        return "Defensive Third"
     elif x < 70:
-        return "Middle"
+        return "Middle Third"
     else:
-        return "Attacking"
+        return "Attacking Third"
 
-def offensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team_color, text_color, font_prop,flagged):
+def offensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team_color, text_color, font_prop, flagged, selected_third=None):
     """
     Plots a heatmap of where team dispossessed opponent and % transitions leading to attacks.
-    Returns a DataFrame with percentage values by thirds.
+    Returns a DataFrame with percentage values by thirds and a DataFrame of all transitions.
+    If selected_third is provided, highlights that third on the pitch.
     """
-    # Find possessions where opponent lost the ball (dispossessed or turnover)
     poss_df = poss_df.sort_values(['minute', 'second']).reset_index(drop=True)
     regain_events = []
     for idx, row in poss_df.iterrows():
@@ -4434,7 +4434,7 @@ def offensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team
                 regain_events.append(row)
     if not regain_events:
         st.warning("No offensive transitions found for this team.")
-        return pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame()
     regain_events_df = pd.DataFrame(regain_events)
     regain_events_df['third'] = regain_events_df['x'].apply(classify_third)
 
@@ -4444,30 +4444,59 @@ def offensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team
         poss_id = row['possession_id']
         events = poss_df[poss_df['possession_id'] == poss_id]
         led_to_attack = events[(events['type'].isin(['Goal', 'SavedShot', 'MissedShots', 'ShotOnPost'])) | ((events['x'] > 70) & (events['outcomeType'] == 'Successful'))].shape[0] > 0
-        results.append({'x': row['x'], 'y': row['y'], 'third': row['third'], 'led_to_attack': led_to_attack})
+        results.append({
+            'x': row['x'],
+            'y': row['y'],
+            'third': row['third'],
+            'led_to_attack': led_to_attack,
+            'possession_id': row['possession_id'],
+            'playerName': row.get('playerName', None),
+            'minute': row.get('minute', None),
+            'second': row.get('second', None),
+            'type': row.get('type', None)
+        })
 
-    df_results = pd.DataFrame(results)
+    transitions_df = pd.DataFrame(results)
     # Heatmap
     if flagged == False:
-        df_results['x'] = df_results['x'].apply(lambda x: 105 - x)  # Invert x for UEFA pitch
-        df_results['y'] = df_results['y'].apply(lambda y: 68 - y)  # Invert y for UEFA pitch
-    
+        transitions_df['x'] = transitions_df['x'].apply(lambda x: 105 - x)
+        transitions_df['y'] = transitions_df['y'].apply(lambda y: 68 - y)
+
     pitch.draw(ax=ax)
     ax.set_facecolor(background)
     cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, team_color])
-    pitch.heatmap(pitch.bin_statistic(df_results['x'], df_results['y'], statistic='count', bins=(10, 7)), ax=ax, cmap=cmap, edgecolors=background, alpha=0.7)
-    pitch.scatter(df_results['x'], df_results['y'], s=200, color=team_color, alpha=0.7, ax=ax, edgecolors=text_color)
+    pitch.heatmap(pitch.bin_statistic(transitions_df['x'], transitions_df['y'], statistic='count', bins=(10, 7)), ax=ax, cmap=cmap, edgecolors=background, alpha=0.7)
+    pitch.scatter(transitions_df['x'], transitions_df['y'], s=200, color=team_color, alpha=0.7, ax=ax, edgecolors=text_color)
+
+    # Highlight selected third if provided
+    if selected_third and flagged == True:
+        if selected_third == "Defensive Third":
+            ax.fill([0, 35, 35, 0], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Middle Third":
+            ax.fill([35, 70, 70, 35], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Attacking Third":
+            ax.fill([70, 105, 105, 70], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+    elif selected_third and flagged == False:
+        if selected_third == "Defensive Third":
+            ax.fill([70, 105, 105, 70], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Middle Third":  
+            ax.fill([35, 70, 70, 35], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Attacking Third":
+            ax.fill([0, 35, 35, 0], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
 
     # Percentage by third
-    summary = df_results.groupby('third')['led_to_attack'].agg(['count', 'sum'])
+    summary = transitions_df.groupby('third')['led_to_attack'].agg(['count', 'sum'])
     summary['percent_to_attack'] = (summary['sum'] / summary['count'] * 100).round(1)
     summary = summary.rename(columns={'count': 'Transitions', 'sum': 'LedToAttack'})
-    return summary.reset_index()
+    summary_df = summary.reset_index()
 
-def defensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team_color, text_color, font_prop,flagged):
+    return summary_df, transitions_df
+
+def defensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team_color, text_color, font_prop, flagged, selected_third=None):
     """
     Plots a heatmap of where team lost the ball (dispossessed or turnover) and % transitions leading to conceding an attack.
-    Returns a DataFrame with percentage values by thirds.
+    Returns a DataFrame with percentage values by thirds and a DataFrame of all transitions.
+    If selected_third is provided, highlights that third on the pitch.
     """
     poss_df = poss_df.sort_values(['minute', 'second']).reset_index(drop=True)
     loss_events = []
@@ -4483,7 +4512,7 @@ def defensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team
                 loss_events.append(prev)
     if not loss_events:
         st.warning("No defensive transitions found for this team.")
-        return pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame()
     loss_events_df = pd.DataFrame(loss_events)
     loss_events_df['third'] = loss_events_df['x'].apply(classify_third)
 
@@ -4494,26 +4523,126 @@ def defensive_transition_heatmap(poss_df, team_name, ax, pitch, background, team
         next_poss_id = poss_id + 1
         opp_events = poss_df[poss_df['possession_id'] == next_poss_id]
         led_to_attack = opp_events[(opp_events['type'].isin(['Goal', 'SavedShot', 'MissedShots', 'ShotOnPost'])) | ((opp_events['x'] > 70) & (opp_events['outcomeType'] == 'Successful'))].shape[0] > 0
-        results.append({'x': row['x'], 'y': row['y'], 'third': row['third'], 'led_to_attack': led_to_attack})
+        results.append({
+            'x': row['x'],
+            'y': row['y'],
+            'third': row['third'],
+            'led_to_attack': led_to_attack,
+            'possession_id': row['possession_id'],
+            'playerName': row.get('playerName', None),
+            'minute': row.get('minute', None),
+            'second': row.get('second', None),
+            'type': row.get('type', None)
+        })
 
-    df_results = pd.DataFrame(results)
+    transitions_df = pd.DataFrame(results)
     # Heatmap
     if flagged == False:
-        df_results['x'] = df_results['x'].apply(lambda x: 105 - x)  # Invert x for UEFA pitch
-        df_results['y'] = df_results['y'].apply(lambda y: 68 - y)  # Invert y for UEFA pitch
+        transitions_df['x'] = transitions_df['x'].apply(lambda x: 105 - x)
+        transitions_df['y'] = transitions_df['y'].apply(lambda y: 68 - y)
+
     pitch.draw(ax=ax)
     ax.set_facecolor(background)
     cmap = LinearSegmentedColormap.from_list('custom_cmap', [background, team_color])
-    pitch.heatmap(pitch.bin_statistic(df_results['x'], df_results['y'], statistic='count', bins=(10, 7)), ax=ax, cmap=cmap, edgecolors=background, alpha=0.7)
-    pitch.scatter(df_results['x'], df_results['y'], s=200, color=team_color, alpha=0.7, ax=ax, edgecolors=text_color)
+    pitch.heatmap(pitch.bin_statistic(transitions_df['x'], transitions_df['y'], statistic='count', bins=(10, 7)), ax=ax, cmap=cmap, edgecolors=background, alpha=0.7)
+    pitch.scatter(transitions_df['x'], transitions_df['y'], s=200, color=team_color, alpha=0.7, ax=ax, edgecolors=text_color)
+
+    # Highlight selected third if provided
+    if selected_third and flagged == True:
+        if selected_third == "Defensive Third":
+            ax.fill([0, 35, 35, 0], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Middle Third":
+            ax.fill([35, 70, 70, 35], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Attacking Third":
+            ax.fill([70, 105, 105, 70], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+    elif selected_third and flagged == False:
+        if selected_third == "Defensive Third":
+            ax.fill([70, 105, 105, 70], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Middle Third":  
+            ax.fill([35, 70, 70, 35], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
+        elif selected_third == "Attacking Third":
+            ax.fill([0, 35, 35, 0], [0, 0, 68, 68], color=text_color, alpha=0.4, zorder=0)
 
     # Percentage by third
-    summary = df_results.groupby('third')['led_to_attack'].agg(['count', 'sum'])
+    summary = transitions_df.groupby('third')['led_to_attack'].agg(['count', 'sum'])
     summary['percent_conceded_attack'] = (summary['sum'] / summary['count'] * 100).round(1)
     summary = summary.rename(columns={'count': 'Transitions', 'sum': 'ConcededAttack'})
-    return summary.reset_index()
+    summary_df = summary.reset_index()
 
-# ---- 1. Detect transitions ----
+    return summary_df, transitions_df
+
+def build_transition_summary(transitions_df, third):
+    """
+    Returns a summary DataFrame for transitions starting in the specified third.
+    Columns: Winner, End Result, Shot Player, Transition Duration (s)
+    """
+    filtered = transitions_df[transitions_df['third'] == third]
+    summary = []
+    for _, row in filtered.iterrows():
+        poss_id = row['possession_id']
+        events = transitions_df[transitions_df['possession_id'] == poss_id]
+        winner = row.get('playerName', None)
+        shot_event = events[events['type'].isin(['Goal', 'SavedShot', 'MissedShots', 'ShotOnPost'])]
+        shot_player = shot_event['playerName'].iloc[0] if not shot_event.empty else None
+        end_result = shot_event['type'].iloc[0] if not shot_event.empty else 'No Shot'
+        start_time = row['minute'] * 60 + row['second']
+        if not shot_event.empty:
+            end_time = shot_event['minute'].iloc[0] * 60 + shot_event['second'].iloc[0]
+        elif not events.empty:
+            # Use last event in the possession if no shot
+            last_event = events.iloc[-1]
+            end_time = last_event['minute'] * 60 + last_event['second']
+        else:
+            end_time = start_time  # fallback: duration is zero if no events
+        duration = end_time - start_time if end_time is not None else None
+        summary.append({
+            'Winner': winner,
+            'End Result': end_result,
+            'Shot Player': shot_player,
+            'Transition Duration (s)': duration
+        })
+    return pd.DataFrame(summary)
+
+def plot_mirrored_match_stats_bar(stats, home_team, away_team, home_color, away_color, background, text_color, font_prop, ax):
+    """
+    Plots mirrored horizontal bars for each stat, with home team left, away team right.
+    Each stat bar is fixed length, filled proportionally from center.
+    Stat labels are written above each bar.
+    """
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    n_stats = len(stats)
+    y_positions = np.arange(n_stats)
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-0.5, n_stats - 0.5)
+    ax.invert_yaxis()
+    ax.set_yticks([])  # Remove y-ticks
+
+    for i, s in enumerate(stats):
+        total = s['home'] + s['away'] if s['sum'] else 1
+        home_pct = s['home'] / total if s['sum'] and total > 0 else 0
+        away_pct = s['away'] / total if s['sum'] and total > 0 else 0
+
+        # Home bar (left)
+        ax.barh(i, -home_pct, color=home_color, height=0.35, edgecolor='none', align='center')
+        # Away bar (right)
+        ax.barh(i, away_pct, color=away_color, height=0.35, edgecolor='none', align='center')
+
+        # Stat values
+        ax.text(-1.05, i, f"{s['home_disp']}", va='center', ha='right', color=home_color, fontproperties=font_prop, fontsize=25, fontweight='bold')
+        ax.text(1.05, i, f"{s['away_disp']}", va='center', ha='left', color=away_color, fontproperties=font_prop, fontsize=25, fontweight='bold')
+
+        # Stat label above the bar
+        ax.text(0, i + 0.5, s['label'], va='bottom', ha='center', color=text_color, fontproperties=font_prop, fontsize=25, fontweight='bold')
+
+    # Center line
+    ax.axvline(0, color=text_color, linewidth=2, alpha=0.1)
+    ax.set_xticks([])
+
+    return
+
 def detect_offensive_transitions(events_df, team_name, time_window=10):
     events_df = events_df.sort_values(["minute", "second"]).reset_index(drop=True)
     events_df["event_time_sec"] = events_df["minute"] * 60 + events_df["second"]

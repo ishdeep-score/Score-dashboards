@@ -362,6 +362,10 @@ else:
 if viz == 'Match Dynamics':
     st.markdown("## Match Dynamics")
 
+    poss_df = tag_sequences_and_possessions_all_matches(match_df)
+
+
+
     st.markdown("### xG Flow")
     fig4, axs4 = plt.subplots(nrows=1, ncols=1, figsize=(20,12))
     fig4.set_facecolor(background)
@@ -378,7 +382,7 @@ if viz == 'Match Dynamics':
     axs2[0].set_facecolor(background)
     axs2[1].set_facecolor(background)
 
-    poss_df = tag_sequences_and_possessions_all_matches(match_df)
+    
     plot_possession_windows_time_weighted(
         ax=axs2[0],
         df=poss_df,
@@ -875,32 +879,77 @@ if viz == 'Duels and Transitions':
     ax.set_facecolor(background)
     pitch = Pitch(pitch_type='uefa', pitch_color=background, line_color=text_color, linewidth=1.5)
 
-    if transition_type == "Offensive":
-
-        if selected_team == home_team:
+    if selected_team == home_team:
             flagged = True
-        else:
+    else:
             flagged = False
 
-        summary_df = offensive_transition_heatmap(
-            poss_df, selected_team, ax, pitch, background, team_colors[selected_team], text_color, font_prop,flagged
+    if transition_type == "Offensive":
+
+        summary_df, transitions_df = offensive_transition_heatmap(
+            poss_df, selected_team, ax, pitch, background, team_colors[selected_team], text_color, font_prop, flagged, selected_third=st.session_state.get('selected_third')
         )
         st.markdown("### Offensive Transition Heatmap")
         st.pyplot(fig)
-        st.markdown("#### Percentage of Offensive Transitions Leading to Attack (by Third)")
-        st.dataframe(summary_df, use_container_width=True)
+        # After summary_df is created by offensive_transition_heatmap or defensive_transition_heatmap
+
+        st.markdown("#### Percentage of Transitions Leading to Attack (by Third)")
+        if st.button("Clear Selection"):
+            st.session_state.selected_third = None
+            st.rerun()
+
+        for i, row in summary_df.iterrows():
+            cols = st.columns([1, 5])
+            with cols[0]:
+                if st.button(row['third'], key=f"third_{row['third']}_{i}"):
+                    st.session_state.selected_third = row['third']
+                    st.rerun()
+            with cols[1]:
+                st.dataframe(pd.DataFrame([row.drop(['third'])]), use_container_width=True)
+
+        # Highlight pitch and show details if a third is selected
+        if "selected_third" in st.session_state and st.session_state.selected_third:
+            selected_third = st.session_state.selected_third
+
+            # Filter transitions for the selected third and show details
+            filtered_transitions = transitions_df[transitions_df['third'] == selected_third]
+            st.markdown(f"#### Transition Details for {selected_third}")
+            cols_to_drop = ['x', 'y', 'third', 'possession_id']
+            filtered_transitions_display = filtered_transitions.drop(columns=cols_to_drop, errors='ignore')
+            st.dataframe(filtered_transitions_display, use_container_width=True)
+
     else:
-        if selected_team == home_team:
-            flagged = True
-        else:
-            flagged = False
-        summary_df = defensive_transition_heatmap(
-            poss_df, selected_team, ax, pitch, background, team_colors[selected_team], text_color, font_prop,flagged
+
+        summary_df, transitions_df = defensive_transition_heatmap(
+            poss_df, selected_team, ax, pitch, background, team_colors[selected_team], text_color, font_prop,flagged,st.session_state.selected_third
         )
         st.markdown("### Defensive Transition Heatmap")
         st.pyplot(fig)
         st.markdown("#### Percentage of Defensive Transitions Leading to Conceded Attack (by Third)")
-        st.dataframe(summary_df, use_container_width=True)
+        if st.button("Clear Selection"):
+            st.session_state.selected_third = None
+            st.rerun()
+
+        for i, row in summary_df.iterrows():
+            cols = st.columns([1, 5])
+            with cols[0]:
+                if st.button(row['third'], key=f"third_{row['third']}_{i}"):
+                    st.session_state.selected_third = row['third']
+                    st.rerun()
+            with cols[1]:
+                st.dataframe(pd.DataFrame([row.drop(['third'])]), use_container_width=True)
+
+        # Highlight pitch and show details if a third is selected
+        if "selected_third" in st.session_state and st.session_state.selected_third:
+            selected_third = st.session_state.selected_third
+
+            # Filter transitions for the selected third and show details
+            filtered_transitions = transitions_df[transitions_df['third'] == selected_third]
+            st.markdown(f"#### Transition Details for {selected_third}")
+            cols_to_drop = ['x', 'y', 'third', 'possession_id']
+            filtered_transitions_display = filtered_transitions.drop(columns=cols_to_drop, errors='ignore')
+            st.dataframe(filtered_transitions_display, use_container_width=True)
+            st.markdown("##### BallTouch refers to miscontrol or bad first touch that leads to a transition.")
 
 if viz == 'Out of Possession':
     st.markdown("## OOP Actions")
