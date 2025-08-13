@@ -7,6 +7,9 @@ import time
 
 # --- Config ---
 st.set_page_config(page_title="PlayBack90", layout="centered")
+
+
+
 st.cache_data(ttl=600) 
 LEAGUES = {
     "Premier League": "logos/premier-league.png",
@@ -19,8 +22,8 @@ LEAGUES = {
 
 def get_seasons_from_db(league):
 
-    base_path = '/Users/ishdeepchadha/Documents/Score/Football'
-    db_path = f'{base_path}/data extraction/score_football.db'
+    #base_path = '/Users/ishdeepchadha/Documents/Score/Football'
+    db_path = f'playback90.db'
     conn = sqlite3.connect(db_path)
     query = "SELECT DISTINCT season FROM event_data WHERE league = ? ORDER BY season DESC"
     seasons = pd.read_sql_query(query, conn, params=(league,))['season'].tolist()
@@ -28,8 +31,8 @@ def get_seasons_from_db(league):
     return seasons
 
 def load_data_from_db(league, season):
-    base_path = '/Users/ishdeepchadha/Documents/Score/Football'
-    db_path = f'{base_path}/data extraction/score_football.db'
+    #base_path = '/Users/ishdeepchadha/Documents/Score/Football'
+    db_path = f'playback90.db'
     conn = sqlite3.connect(db_path)
     query = """
         SELECT matchId,startDate,h_a,teamName,ftScore FROM event_data
@@ -69,8 +72,8 @@ def get_fixtures_from_db(league, season, limit=10):
     return fixtures
 
 def get_match_id_from_db(league, season, home_team, away_team):
-    base_path = '/Users/ishdeepchadha/Documents/Score/Football'
-    db_path = f'{base_path}/data extraction/score_football.db'
+    #base_path = '/Users/ishdeepchadha/Documents/Score/Football'
+    db_path = f'playback90.db'
     conn = sqlite3.connect(db_path)
     query = """
         SELECT matchId
@@ -97,7 +100,29 @@ if os.path.exists("logos/Logo.png"):
     st.image("logos/Logo.png", width=150)
 st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("##### PlayBack90 is a post-match analytics platform built for football fans, analysts, and coaches. It breaks down each game with rich visuals, performance metrics, and tactical statistics — giving you a deeper understanding of what really happened on the pitch.", unsafe_allow_html=True)
+
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap');
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif !important;
+    }
+    .big-font {
+        font-size:2.2em !important;
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight:700;
+    }
+    .normal-font {
+        font-family: 'Roboto', sans-serif !important;
+        font-size:1.1em !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown('<div class="big-font">PlayBack90</div>', unsafe_allow_html=True)
+st.markdown('<div class="normal-font">PlayBack90 is a post-match analytics platform built for football fans, analysts, and coaches. It breaks down each game with rich visuals, performance metrics, and tactical statistics — giving you a deeper understanding of what really happened on the pitch</div>', unsafe_allow_html=True)
+
+st.markdown("<hr style='border: 1px solid #e0e0e0; margin: 20px 0;'>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color:gray;'>Select a league to view its latest fixtures</p>", unsafe_allow_html=True)
 
 def chunk_dict(d, n):
@@ -207,4 +232,9 @@ if selected_season:
 
 # --- Footer ---
 st.markdown("<hr style='border: 1px solid #eee;'>", unsafe_allow_html=True)
-st.markdown("<div style='text-align: center; color: gray; font-size: 0.85em;'>Built with ❤️ using Streamlit</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div style='text-align: center; color: white; font-size: 0.85em;'>"
+    "<a href='https://x.com/chadha_ishdeep' style='color: white;' target='_blank'>Created by @chadha_ishdeep</a>"
+    "</div>",
+    unsafe_allow_html=True
+)

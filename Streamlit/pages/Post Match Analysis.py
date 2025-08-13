@@ -1022,7 +1022,12 @@ if viz == 'Out of Possession':
                 st.dataframe(pd.DataFrame([row.drop(['index', 'playerName'])]), use_container_width=True)
 
 
-    
-
+st.markdown("<hr style='border: 1px solid #eee;'>", unsafe_allow_html=True)
+st.markdown(
+    "<div style='text-align: center; color: white; font-size: 0.85em;'>"
+    "<a href='https://x.com/chadha_ishdeep' style='color: white;' target='_blank'>Created by @chadha_ishdeep</a>"
+    "</div>",
+    unsafe_allow_html=True
+)
 
 
