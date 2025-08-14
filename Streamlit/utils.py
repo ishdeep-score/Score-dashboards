@@ -324,21 +324,7 @@ team_colors = {
 @st.cache_data
 
 
-def load_and_process_match_data(base_path, league, season, matchId, team_colors):
-    db_path = f'{base_path}/data extraction/score_football.db'
-    conn = sqlite3.connect(db_path)
-    
-    query = """
-        SELECT * FROM event_data
-        WHERE league = ? AND season = ? AND matchId = ?
-    """
-    df = pd.read_sql_query(query, conn, params=(league, season, matchId))
-    conn.close()
-
-    if df.empty:
-        st.warning("No data found for this match.")
-        return pd.DataFrame()
-
+def load_and_process_match_data(df, team_colors):
     df = df.sort_values(by='index').reset_index(drop=True)
 
     # Assign team colors

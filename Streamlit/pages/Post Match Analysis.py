@@ -9,9 +9,52 @@ import psycopg2
 from matplotlib.colors import to_rgb, to_hex
 import colorsys
 from pathlib import Path
+import s3fs
+import pandas as pd
+import os
 
+# ... your other imports ...
 
-team_dict = { 
+R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID")
+R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY")
+R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
+R2_BUCKET = os.getenv("R2_BUCKET")
+ENDPOINT_URL = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+
+storage_options = {
+    "key": R2_ACCESS_KEY,
+    "secret": R2_SECRET_KEY,
+    "client_kwargs": {"endpoint_url": ENDPOINT_URL},
+}
+
+@st.cache_data(ttl=600)
+
+def load_match_data_from_r2(file_path):
+    fs = s3fs.S3FileSystem(
+        key=R2_ACCESS_KEY,
+        secret=R2_SECRET_KEY,
+        client_kwargs={"endpoint_url": ENDPOINT_URL},
+    )
+    if fs.exists(file_path):
+        return pd.read_parquet(f"s3://{file_path}", storage_options=storage_options)
+    else:
+        return pd.DataFrame()
+
+team_dict = {
+        16 : 'Sunderland',
+        184 : 'Burnley',
+        19 : 'Leeds',
+        832 : 'Levante',
+        833 : 'Elche',
+        61 : 'Real Oviedo',
+        2889 : 'Sassuolo',
+        777 : 'Pisa',
+        2731 : 'Cremonese',
+        282 : 'FC Koln',
+        38 : 'Hamburger SV',
+        146 : 'Lorient',
+        2832 : 'Paris FC',
+        314 : 'Metz', 
         65: 'Barcelona',
         63: 'Atletico Madrid',
         52: 'Real Madrid',
@@ -129,6 +172,20 @@ team_dict = {
 }
     
 team_colors = {
+    'Sunderland' : '#E30613',
+    'Burnley' : '#6C1D45',
+    'Leeds' : '#F2F2F2',
+    'Levante' : '#005BAC',
+    'Elche' : '#005BAC',
+    'Real Oviedo' : '#005BAC',
+    'Sassuolo' : "#00AC34",
+    'Pisa' : '#C49E21',
+    'Cremonese' : '#E30613',
+    'FC Koln' : '#E30613',
+    'Hamburger SV' : "#0641E3",
+    'Lorient' : "#B3E306",
+    'Paris FC' : '#005BAC',
+    'Metz' : "#AC002B",
     'Barcelona': '#A50044',
     'Atletico Madrid': '#CE3524',
     'Real Madrid': '#FCBF00',
@@ -285,16 +342,21 @@ matchId = st.session_state.get('matchId')
 
 # Now use these variables as needed
 
-match_df = load_and_process_match_data(base_path, league, season, matchId, team_colors)
-if 'Carry' not in match_df['type'].unique():
-    match_df = insert_ball_carries(match_df, min_carry_length=10, max_carry_length=60, min_carry_duration=6, max_carry_duration=10)
-    match_df['teamName'] = match_df['teamId'].map(team_dict)
-    match_df['teamColor'] = match_df['teamName'].map(team_colors)
-    match_df['prog_carry'] = np.where((match_df['type'] == 'Carry'),
-                                np.sqrt((105 - match_df['x'])**2 + (34 - match_df['y'])**2) - np.sqrt((105 - match_df['endX'])**2 + (34 - match_df['endY'])**2), 0)
-#st.write("Columns in match_df:", match_df.columns.tolist())
 
 
+file_path = st.session_state.get('file_path')
+if not file_path:
+    st.error("No match file selected.")
+    st.stop()
+
+
+
+match_df = load_match_data_from_r2(file_path)
+match_df = load_and_process_match_data(match_df, team_colors)
+
+
+home_team_col = match_df[match_df['teamName'] == home_team]['teamColor'].unique()[0]
+away_team_col = match_df[match_df['teamName'] == away_team]['teamColor'].unique()[0]
 
 def adjust_color_if_similar(home_color, away_color, threshold=0.2):
     # Convert hex to RGB
@@ -312,12 +374,22 @@ def adjust_color_if_similar(home_color, away_color, threshold=0.2):
 
 
 
-#match_df = match_df.sort_values(by='id').reset_index(drop=True)
-home_team_col = match_df[match_df['teamName'] == home_team]['teamColor'].unique()[0]
-away_team_col = match_df[match_df['teamName'] == away_team]['teamColor'].unique()[0]
-
 # After you get home_team_col and away_team_col:
 away_team_col = adjust_color_if_similar(home_team_col, away_team_col)
+
+if 'Carry' not in match_df['type'].unique():
+    match_df = insert_ball_carries(match_df, min_carry_length=10, max_carry_length=60, min_carry_duration=6, max_carry_duration=10)
+
+    # After inserting carries
+    match_df['teamId'] = pd.to_numeric(match_df['teamId'], errors='coerce').astype('Int64')
+
+    # Map teamName and teamColor for ALL rows (not just fillna)
+    match_df['teamName'] = match_df['teamId'].map(team_dict)
+    match_df['teamColor'] = match_df['teamName'].map(team_colors)
+
+    match_df['prog_carry'] = np.where((match_df['type'] == 'Carry'),
+                                np.sqrt((105 - match_df['x'])**2 + (34 - match_df['y'])**2) - np.sqrt((105 - match_df['endX'])**2 + (34 - match_df['endY'])**2), 0)
+
 
 
 # Use HTML for colored team names in the title
